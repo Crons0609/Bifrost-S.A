@@ -1,0 +1,428 @@
+/* ============================================================
+   BIFROST WINES — effects.css
+   Glassmorphism, Blur Panels, Keyframe Animations
+   ============================================================ */
+
+/* ── Glass Panel Base ───────────────────────────────────────── */
+.glass {
+  background: var(--color-bg-card);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-lg);
+}
+
+.glass--strong {
+  background: rgba(10, 10, 18, 0.75);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(212, 175, 55, 0.12);
+}
+
+.glass--light {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ── Glow Effects ───────────────────────────────────────────── */
+.glow-gold {
+  box-shadow: var(--shadow-gold);
+}
+
+.glow-frost {
+  box-shadow: var(--shadow-frost);
+}
+
+.text-glow-gold {
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.6),
+               0 0 40px rgba(212, 175, 55, 0.3),
+               0 0 80px rgba(212, 175, 55, 0.15);
+}
+
+.text-glow-frost {
+  text-shadow: 0 0 20px rgba(69, 162, 158, 0.6),
+               0 0 40px rgba(69, 162, 158, 0.3);
+}
+
+/* ── Gradient Text ──────────────────────────────────────────── */
+.gradient-text-gold {
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-vortex {
+  background: linear-gradient(135deg, #D4AF37 0%, #45A29E 50%, #9b59b6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: gradientShift 4s ease infinite;
+}
+
+/* ── Keyframe Animations ────────────────────────────────────── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes vortexSpin {
+  from { transform: rotate(0deg) scale(1); }
+  to   { transform: rotate(360deg) scale(1.05); }
+}
+
+@keyframes vortexPulse {
+  0%, 100% {
+    opacity: 0.15;
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(1.08) rotate(180deg);
+  }
+}
+
+@keyframes auraBreathe {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.2),
+                0 0 40px rgba(212, 175, 55, 0.08);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(212, 175, 55, 0.45),
+                0 0 80px rgba(212, 175, 55, 0.18),
+                0 0 120px rgba(212, 175, 55, 0.06);
+  }
+}
+
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-12px); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes goldLine {
+  from { width: 0; opacity: 0; }
+  to   { width: 100%; opacity: 1; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes particleDrift {
+  0% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0;
+  }
+  10% { opacity: 1; }
+  90% { opacity: 0.6; }
+  100% {
+    transform: translateY(-120vh) translateX(var(--drift-x, 20px)) scale(0.3);
+    opacity: 0;
+  }
+}
+
+/* ── Scroll Reveal Classes ──────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s var(--ease-silk), transform 0.7s var(--ease-silk);
+}
+
+.reveal.from-left {
+  transform: translateX(-50px);
+}
+
+.reveal.from-right {
+  transform: translateX(50px);
+}
+
+.reveal.scale-in {
+  transform: scale(0.9);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0) translateX(0) scale(1);
+}
+
+.reveal--delay-1 { transition-delay: 0.1s; }
+.reveal--delay-2 { transition-delay: 0.2s; }
+.reveal--delay-3 { transition-delay: 0.3s; }
+.reveal--delay-4 { transition-delay: 0.4s; }
+.reveal--delay-5 { transition-delay: 0.5s; }
+
+/* ── Vortex Card Hover BG Effect ────────────────────────────── */
+.vortex-bg {
+  position: absolute;
+  inset: -20%;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg,
+    rgba(212, 175, 55, 0.08) 60deg,
+    rgba(69, 162, 158, 0.06) 120deg,
+    transparent 180deg,
+    rgba(155, 89, 182, 0.06) 240deg,
+    rgba(212, 175, 55, 0.08) 300deg,
+    transparent 360deg
+  );
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0.6) rotate(0deg);
+  transition: opacity 0.5s var(--ease-silk), transform 0.5s var(--ease-silk);
+  pointer-events: none;
+  will-change: transform, opacity;
+  z-index: 0;
+}
+
+.product-card:hover .vortex-bg {
+  opacity: 1;
+  transform: scale(1.2) rotate(45deg);
+  animation: vortexSpin 6s linear infinite;
+}
+
+/* ── Shimmer Loading ────────────────────────────────────────── */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.03) 0%,
+    rgba(255,255,255,0.09) 50%,
+    rgba(255,255,255,0.03) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+/* ── Particles Layer ────────────────────────────────────────── */
+.particles-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.particle {
+  position: absolute;
+  bottom: -10px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--color-gold);
+  opacity: 0;
+  animation: particleDrift var(--duration, 8s) var(--delay, 0s) ease-in infinite;
+}
+
+/* ── Aurora Background ──────────────────────────────────────── */
+.aurora-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.aurora-bg::before {
+  content: '';
+  position: absolute;
+  width: 120vmax;
+  height: 120vmax;
+  top: -30vmax;
+  left: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(212, 175, 55, 0.04) 0%,
+    rgba(69, 162, 158, 0.025) 40%,
+    transparent 70%
+  );
+  animation: vortexPulse 12s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.aurora-bg::after {
+  content: '';
+  position: absolute;
+  width: 80vmax;
+  height: 80vmax;
+  bottom: -20vmax;
+  right: -20vmax;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(155, 89, 182, 0.04) 0%,
+    rgba(69, 162, 158, 0.02) 50%,
+    transparent 70%
+  );
+  animation: vortexPulse 16s ease-in-out infinite reverse;
+}
+
+/* ── Hero Vortex Orbs ───────────────────────────────────────── */
+.vortex-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: floatY 8s ease-in-out infinite;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.vortex-orb--gold {
+  width: 600px;
+  height: 400px;
+  background: radial-gradient(ellipse, rgba(212, 175, 55, 0.12) 0%, transparent 70%);
+  top: 10%;
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.vortex-orb--frost {
+  width: 500px;
+  height: 350px;
+  background: radial-gradient(ellipse, rgba(69, 162, 158, 0.1) 0%, transparent 70%);
+  top: 30%;
+  right: 15%;
+  animation-delay: 3s;
+}
+
+.vortex-orb--purple {
+  width: 400px;
+  height: 300px;
+  background: radial-gradient(ellipse, rgba(155, 89, 182, 0.08) 0%, transparent 70%);
+  bottom: 20%;
+  left: 40%;
+  animation-delay: 6s;
+}
+
+/* ── The Bridge Separator ───────────────────────────────────── */
+.bridge-separator {
+  position: relative;
+  width: 100%;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.bridge-separator::before {
+  content: '';
+  position: absolute;
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-gold), rgba(69,162,158,0.8), var(--color-gold), transparent);
+  animation: auraBreathe 4s ease-in-out infinite;
+}
+
+.bridge-separator::after {
+  content: '◆';
+  font-size: var(--fs-sm);
+  color: var(--color-gold);
+  position: relative;
+  z-index: 1;
+  animation: auraBreathe 4s ease-in-out infinite;
+  background: var(--color-bg-primary);
+  padding-inline: var(--space-4);
+}
+
+/* ── Ripple Button Effect ────────────────────────────────────── */
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-ripple .ripple-wave {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  pointer-events: none;
+  animation: ripple 0.6s ease-out forwards;
+}
+
+/* ── Page Transition ────────────────────────────────────────── */
+.page-transition-out {
+  animation: fadeIn 0.3s var(--ease-silk) reverse forwards;
+}
+
+.page-transition-in {
+  animation: fadeIn 0.4s var(--ease-silk) forwards;
+}

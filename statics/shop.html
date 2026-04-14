@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Explorar la Colección Vortex Reserve — vinos de cosecha premium de Bifrost S.A. Filtra por variedad, ordena por precio y encuentra tu botella perfecta.">
+  <title>La Colección — Bifrost S.A</title>
+
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/effects.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/shop.css">
+
+  <style>
+    /* Widget de contacto (heredado del index) */
+    .contact-widget {
+      position: fixed; bottom: var(--space-8); left: var(--space-5);
+      z-index: var(--z-dropdown);
+      display: flex; flex-direction: column; gap: var(--space-2); align-items: flex-start;
+    }
+    .contact-widget__toggle {
+      width: 52px; height: 52px; border-radius: var(--radius-full);
+      background: var(--gradient-gold); color: #000;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; box-shadow: 0 4px 20px rgba(212,175,55,0.5);
+      transition: all var(--transition-base); border: none;
+    }
+    .contact-widget__toggle:hover { transform: scale(1.08); }
+    .contact-widget__toggle svg { width: 22px; height: 22px; }
+    .contact-widget__menu {
+      display: flex; flex-direction: column; gap: var(--space-2);
+      opacity: 0; visibility: hidden; transform: translateY(10px);
+      transition: all var(--transition-base); pointer-events: none;
+    }
+    .contact-widget__menu.open { opacity: 1; visibility: visible; transform: translateY(0); pointer-events: all; }
+    .contact-btn {
+      display: inline-flex; align-items: center; gap: var(--space-3);
+      padding: var(--space-2) var(--space-4) var(--space-2) var(--space-2);
+      border-radius: var(--radius-full); font-size: var(--fs-xs); font-weight: 600;
+      text-decoration: none; transition: all var(--transition-base);
+      white-space: nowrap; backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(10,10,18,0.85); color: var(--color-text-primary);
+    }
+    .contact-btn:hover { transform: translateX(4px); border-color: var(--contact-color, var(--color-gold)); color: var(--color-text-primary); }
+    .contact-btn__icon {
+      width: 36px; height: 36px; border-radius: var(--radius-full);
+      background: var(--contact-color, var(--color-gold));
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .contact-btn__icon svg { width: 18px; height: 18px; color: #fff; }
+    .contact-btn--whatsapp  { --contact-color: #25D366; }
+    .contact-btn--telegram  { --contact-color: #2AABEE; }
+    .contact-btn--facebook  { --contact-color: #1877F2; }
+    .contact-btn--instagram { --contact-color: #E1306C; }
+    .contact-btn--phone     { --contact-color: var(--color-gold); }
+  </style>
+</head>
+<body>
+  <div class="aurora-bg" aria-hidden="true"></div>
+  <div class="overlay-backdrop" aria-hidden="true"></div>
+
+  <!-- ════════════ BARRA DE NAVEGACIÓN ════════════ -->
+  <header class="navbar" id="main-navbar">
+    <div class="container navbar__inner">
+      <a href="../index.html" class="navbar__logo" aria-label="Bifrost S.A — Inicio">
+        <img src="../assets/images/ui/bifrost-logo.png" alt="Bifrost S.A"
+             style="height:42px; width:auto; filter:drop-shadow(0 0 10px rgba(212,175,55,0.3));">
+      </a>
+      <nav class="navbar__nav" aria-label="Navegación principal">
+        <a href="../index.html" class="navbar__link">Inicio</a>
+        <a href="shop.html" class="navbar__link active">Colección</a>
+        <a href="about.html" class="navbar__link">Nosotros</a>
+        <a href="about.html#contacto" class="navbar__link">Contacto</a>
+      </nav>
+      <div class="navbar__actions">
+        <button class="navbar__icon-btn" data-cart-toggle aria-label="Abrir carrito">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+          <span class="cart-badge" aria-label="Artículos en carrito"></span>
+        </button>
+        <button class="navbar__hamburger" id="hamburger" aria-label="Abrir menú">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Menú Móvil -->
+  <nav class="mobile-menu" id="mobile-menu" aria-label="Navegación móvil">
+    <a href="../index.html" class="mobile-menu__link">Inicio</a>
+    <a href="shop.html" class="mobile-menu__link">Colección</a>
+    <a href="about.html" class="mobile-menu__link">Nosotros</a>
+    <a href="about.html#contacto" class="mobile-menu__link">Contacto</a>
+  </nav>
+
+  <!-- Carrito Lateral -->
+  <aside class="cart-sidebar" id="cart-sidebar" aria-label="Carrito de compras">
+    <div class="cart-sidebar__header">
+      <h2 class="cart-sidebar__title">Tu Cava</h2>
+      <button class="cart-sidebar__close" aria-label="Cerrar carrito">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <div class="cart-sidebar__items" id="cart-items"></div>
+    <div class="cart-sidebar__footer">
+      <div class="cart-total-row">
+        <span class="cart-total-label">Subtotal</span>
+        <span class="cart-total-value" id="cart-total">$0.00</span>
+      </div>
+      <button class="btn btn--primary btn--lg btn-ripple" style="width:100%" data-checkout>
+        Enviar Consulta
+      </button>
+    </div>
+  </aside>
+
+  <!-- Modal de Vista Rápida -->
+  <div class="modal" id="quick-view-modal" role="dialog" aria-label="Vista rápida" aria-modal="true">
+    <div class="modal__backdrop"></div>
+    <div class="modal__panel glass--strong"></div>
+  </div>
+
+  <!-- ════════════ CONTENIDO PRINCIPAL ════════════ -->
+  <main>
+    <!-- Héroe de Tienda -->
+    <section class="shop-hero">
+      <div class="container shop-hero__content">
+        <p class="section-label hero-animate">Vortex Reserve</p>
+        <h1 class="shop-hero__title hero-animate">La Colección</h1>
+        <p class="shop-hero__subtitle hero-animate">
+          Seis expresiones legendarias. Cada botella, una historia de terroir obsidiana, carácter mítico e irremplazable rareza.
+        </p>
+      </div>
+    </section>
+
+    <div class="container section--sm">
+      <!-- Barra de Filtros -->
+      <div class="filter-bar reveal">
+        <span class="filter-bar__label">Filtrar</span>
+        <div class="filter-chips" role="group" aria-label="Filtrar por categoría">
+          <button class="filter-chip active" data-filter="all">Todos</button>
+          <button class="filter-chip" data-filter="Vino Tinto">Tintos</button>
+          <button class="filter-chip" data-filter="Vino Blanco">Blancos</button>
+          <button class="filter-chip" data-filter="Rosado">Rosados</button>
+          <button class="filter-chip" data-filter="Vino de Postre">Postre</button>
+        </div>
+        <div class="filter-bar__sort">
+          <select class="sort-select" id="shop-sort" aria-label="Ordenar vinos">
+            <option value="default">Predeterminado</option>
+            <option value="price-asc">Precio: Menor → Mayor</option>
+            <option value="price-desc">Precio: Mayor → Menor</option>
+            <option value="vintage-desc">Cosecha: Reciente</option>
+            <option value="vintage-asc">Cosecha: Antigua</option>
+            <option value="name">Nombre A–Z</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Fila de Metadatos -->
+      <div class="shop-meta">
+        <p class="shop-meta__count">Cargando…</p>
+        <div class="view-toggle">
+          <button class="view-btn active" data-view="grid" title="Vista cuadrícula" aria-label="Vista cuadrícula">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+              <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+            </svg>
+          </button>
+          <button class="view-btn" data-view="list" title="Vista lista" aria-label="Vista lista">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Cuadrícula de Productos -->
+      <div class="shop-grid stagger-parent" id="product-grid">
+        <div class="skeleton-card"><div class="skeleton-img"></div></div>
+        <div class="skeleton-card"><div class="skeleton-img"></div></div>
+        <div class="skeleton-card"><div class="skeleton-img"></div></div>
+        <div class="skeleton-card"><div class="skeleton-img"></div></div>
+        <div class="skeleton-card"><div class="skeleton-img"></div></div>
+        <div class="skeleton-card"><div class="skeleton-img"></div></div>
+      </div>
+
+      <!-- Banner de Flash Sale (dinámico) -->
+      <div id="flash-sale-alert" style="display:none; margin-top:var(--space-10);">
+        <div class="glass" style="padding:var(--space-5) var(--space-6); border-color:rgba(212,175,55,0.4); text-align:center; border-radius:var(--radius-xl); background:rgba(212,175,55,0.07);">
+          <p style="color:var(--color-gold); font-weight:700; font-size:var(--fs-md);">
+            ⚡ ¡Remate Flash Vortex ACTIVO — <span id="flash-pct"></span>% de descuento en todos los vinos!
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Pie de Página -->
+  <footer class="footer" id="contacto">
+    <div class="container">
+      <div class="footer__grid">
+        <div>
+          <img src="../assets/images/ui/bifrost-logo.png" alt="Bifrost S.A"
+               style="height:48px; width:auto; margin-bottom:var(--space-4);">
+          <p class="footer__tagline">Vinos de cosecha premium inspirados en la mitología nórdica. Chichigalpa, Nicaragua.</p>
+        </div>
+        <div>
+          <h3 class="footer__heading">Colección</h3>
+          <ul class="footer__links">
+            <li><a href="shop.html" class="footer__link">Vortex Reserve</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="footer__heading">Empresa</h3>
+          <ul class="footer__links">
+            <li><a href="about.html" class="footer__link">Nosotros</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="footer__heading">Contacto</h3>
+          <ul class="footer__links">
+            <li style="color:var(--color-text-muted); font-size:var(--fs-sm);">Chichigalpa, Nicaragua</li>
+            <li><a href="tel:+50576060334" class="footer__link">+505 7606 0334</a></li>
+            <li><a href="tel:+50588666717" class="footer__link">+505 8866 6717</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p class="footer__copy">© 2024 <span>Bifrost S.A</span>. Todos los derechos reservados. Solo mayores de 18 años.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Widget de Contacto Flotante -->
+  <div class="contact-widget" role="complementary" aria-label="Contacto rápido">
+    <div class="contact-widget__menu" id="contact-menu">
+      <a href="https://wa.me/50576060334"   class="contact-btn contact-btn--whatsapp"  target="_blank" rel="noopener"><span class="contact-btn__icon"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z M12.004 2C6.477 2 2 6.477 2 12.004a9.965 9.965 0 001.367 5.02L2 22l5.134-1.345A9.97 9.97 0 0012.004 22C17.53 22 22 17.523 22 12.004S17.53 2 12.004 2z"/></svg></span>WhatsApp</a>
+      <a href="https://t.me/bifrostwines"   class="contact-btn contact-btn--telegram"  target="_blank" rel="noopener"><span class="contact-btn__icon"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></span>Telegram</a>
+      <a href="https://facebook.com/bifrostwines" class="contact-btn contact-btn--facebook" target="_blank" rel="noopener"><span class="contact-btn__icon"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></span>Facebook</a>
+      <a href="https://instagram.com/bifrostwines" class="contact-btn contact-btn--instagram" target="_blank" rel="noopener"><span class="contact-btn__icon"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></span>Instagram</a>
+      <a href="tel:+50576060334" class="contact-btn contact-btn--phone"><span class="contact-btn__icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg></span>+505 7606 0334</a>
+      <a href="tel:+50588666717" class="contact-btn contact-btn--phone"><span class="contact-btn__icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg></span>+505 8866 6717</a>
+    </div>
+    <button class="contact-widget__toggle btn-ripple" id="contact-toggle" aria-expanded="false" aria-label="Abrir contacto">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+      </svg>
+    </button>
+  </div>
+
+  <script src="../js/database.js"></script>
+  <script src="../js/main.js"></script>
+  <script src="../js/effects.js"></script>
+  <script>
+    // Widget contacto
+    (function(){
+      const toggle = document.getElementById('contact-toggle');
+      const menu   = document.getElementById('contact-menu');
+      if (!toggle || !menu) return;
+      let open = false;
+      toggle.addEventListener('click', () => {
+        open = !open;
+        menu.classList.toggle('open', open);
+        toggle.setAttribute('aria-expanded', open);
+        toggle.style.transform = open ? 'rotate(45deg) scale(1.05)' : '';
+      });
+      document.addEventListener('click', (e) => {
+        if (open && !toggle.contains(e.target) && !menu.contains(e.target)) {
+          open = false; menu.classList.remove('open');
+          toggle.setAttribute('aria-expanded','false'); toggle.style.transform = '';
+        }
+      });
+    })();
+
+    // Fix grid ID
+    const pgrid = document.getElementById('product-grid');
+    if (pgrid) pgrid.classList.add('shop-grid');
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await window.BifrostDB.ready();
+      const settings = await window.BifrostDB.getSettings() || {};
+      if (settings.flashSaleActive) {
+        const alert = document.getElementById('flash-sale-alert');
+        const pctEl = document.getElementById('flash-pct');
+        if (alert) alert.style.display = 'block';
+        if (pctEl)  pctEl.textContent  = settings.flashSaleDiscount || 20;
+      }
+    });
+  </script>
+  <script src="../js/shop-render.js"></script>
+</body>
+</html>

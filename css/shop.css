@@ -1,0 +1,363 @@
+/* ============================================================
+   BIFROST WINES — shop.css
+   Shop Page, Product Grid, Filters
+   ============================================================ */
+
+/* ── Shop Hero ───────────────────────────────────────────────── */
+.shop-hero {
+  position: relative;
+  padding-top: calc(var(--navbar-height) + var(--space-16));
+  padding-bottom: var(--space-16);
+  overflow: hidden;
+}
+
+.shop-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(212, 175, 55, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.shop-hero__content {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.shop-hero__title {
+  font-family: var(--font-heading);
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 900;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.shop-hero__subtitle {
+  font-size: var(--fs-md);
+  color: var(--color-text-muted);
+  margin-top: var(--space-4);
+  max-width: 480px;
+  margin-inline: auto;
+}
+
+/* ── Filter Bar ──────────────────────────────────────────────── */
+.filter-bar {
+  background: rgba(14, 14, 22, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4) var(--space-6);
+  margin-bottom: var(--space-10);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.filter-bar__label {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.filter-chips {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.filter-chip {
+  padding: var(--space-2) var(--space-4);
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-full);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.filter-chip:hover {
+  border-color: rgba(212, 175, 55, 0.4);
+  color: var(--color-gold);
+}
+
+.filter-chip.active {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.15);
+}
+
+.filter-bar__sort {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.sort-select {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-8) var(--space-2) var(--space-3);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-xs);
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D4AF37' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 14px;
+  appearance: none;
+  transition: border-color var(--transition-fast);
+}
+
+.sort-select:focus {
+  outline: none;
+  border-color: rgba(212,175,55,0.4);
+}
+
+.sort-select option {
+  background: #111118;
+}
+
+/* ── Product Grid ────────────────────────────────────────────── */
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+}
+
+/* Results meta */
+.shop-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.shop-meta__count {
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}
+
+.shop-meta__count strong {
+  color: var(--color-gold);
+  font-weight: 600;
+}
+
+.view-toggle {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.view-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.view-btn:hover,
+.view-btn.active {
+  border-color: rgba(212,175,55,0.4);
+  color: var(--color-gold);
+  background: rgba(212,175,55,0.05);
+}
+
+.view-btn svg { width: 14px; height: 14px; }
+
+/* Grid view - list layout */
+.shop-grid.list-view {
+  grid-template-columns: 1fr;
+}
+
+.shop-grid.list-view .product-card {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  border-radius: var(--radius-lg);
+}
+
+.shop-grid.list-view .product-card__image-wrap {
+  aspect-ratio: auto;
+  height: 220px;
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+}
+
+.shop-grid.list-view .product-card__body {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.shop-grid.list-view .product-card__overlay {
+  position: static;
+  background: none;
+  backdrop-filter: none;
+  padding: 0;
+}
+
+.shop-grid.list-view .product-card__description {
+  display: block;
+}
+
+/* ── Empty State ─────────────────────────────────────────────── */
+.shop-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-24);
+  text-align: center;
+  gap: var(--space-4);
+}
+
+.shop-empty__icon {
+  font-size: 4rem;
+  opacity: 0.25;
+}
+
+.shop-empty__title {
+  font-family: var(--font-heading);
+  font-size: var(--fs-xl);
+  color: var(--color-text-muted);
+}
+
+/* ── Product Detail card extras ─────────────────────────────── */
+.product-card__description {
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  display: none;
+  margin-top: var(--space-3);
+  line-height: 1.6;
+}
+
+.product-card__body {
+  padding: var(--space-5);
+}
+
+/* ── Quick View Modal Content ───────────────────────────────── */
+.quick-view-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.quick-view-image {
+  aspect-ratio: 3/4;
+  background: rgba(212,175,55,0.04);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 6rem;
+  overflow: hidden;
+  border: 1px solid rgba(212,175,55,0.1);
+}
+
+.quick-view-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.quick-view-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.quick-view-name {
+  font-family: var(--font-heading);
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.quick-view-vintage {
+  font-size: var(--fs-sm);
+  color: var(--color-gold);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.quick-view-desc {
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  line-height: 1.7;
+}
+
+.quick-view-price {
+  font-size: var(--fs-3xl);
+  font-weight: 700;
+  font-family: var(--font-heading);
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Skeleton Cards ──────────────────────────────────────────── */
+.skeleton-card {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.skeleton-img {
+  aspect-ratio: 4/5;
+  background: rgba(255,255,255,0.04);
+  animation: shimmer 1.8s ease-in-out infinite;
+  background-size: 200% 100%;
+  background-image: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.02) 0%,
+    rgba(255,255,255,0.07) 50%,
+    rgba(255,255,255,0.02) 100%
+  );
+}
+
+.skeleton-text {
+  height: 12px;
+  border-radius: 4px;
+  margin: 8px 0;
+  background-image: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.02) 0%,
+    rgba(255,255,255,0.07) 50%,
+    rgba(255,255,255,0.02) 100%
+  );
+  animation: shimmer 1.8s ease-in-out infinite;
+  background-size: 200% 100%;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .shop-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .shop-grid { grid-template-columns: 1fr; }
+  .filter-bar { flex-direction: column; align-items: flex-start; }
+  .filter-bar__sort { margin-left: 0; width: 100%; }
+  .sort-select { width: 100%; }
+  .quick-view-grid { grid-template-columns: 1fr; }
+}

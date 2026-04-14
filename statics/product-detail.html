@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Explore this Bifrost S.A Vortex Reserve expression. Tasting notes, vintage details, and cellar potential.">
+  <title>Wine Detail — Bifrost S.A</title>
+
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/effects.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/product.css">
+</head>
+<body>
+  <div class="aurora-bg" aria-hidden="true"></div>
+  <div class="overlay-backdrop" aria-hidden="true"></div>
+
+  <!-- ════════════ NAVBAR ════════════ -->
+  <header class="navbar" id="main-navbar">
+    <div class="container navbar__inner">
+      <a href="../index.html" class="navbar__logo">
+        <span class="navbar__logo-primary">BIFROST</span>
+        <span class="navbar__logo-sub">Vortex Reserve</span>
+      </a>
+      <nav class="navbar__nav" aria-label="Main navigation">
+        <a href="../index.html" class="navbar__link">Home</a>
+        <a href="shop.html" class="navbar__link">Collection</a>
+        <a href="about.html" class="navbar__link">About</a>
+        <a href="admin-login.html" class="navbar__link">Admin</a>
+      </nav>
+      <div class="navbar__actions">
+        <button class="navbar__icon-btn" data-cart-toggle aria-label="Open cart">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+          <span class="cart-badge" aria-label="Cart items"></span>
+        </button>
+        <button class="navbar__hamburger" id="hamburger" aria-label="Toggle menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="mobile-menu" id="mobile-menu" aria-label="Mobile navigation">
+    <a href="../index.html" class="mobile-menu__link">Home</a>
+    <a href="shop.html" class="mobile-menu__link">Collection</a>
+    <a href="about.html" class="mobile-menu__link">About</a>
+    <a href="admin-login.html" class="mobile-menu__link">Admin</a>
+  </nav>
+
+  <!-- Cart Sidebar -->
+  <aside class="cart-sidebar" id="cart-sidebar" aria-label="Shopping cart">
+    <div class="cart-sidebar__header">
+      <h2 class="cart-sidebar__title">Your Cellar</h2>
+      <button class="cart-sidebar__close" aria-label="Close cart">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <div class="cart-sidebar__items" id="cart-items"></div>
+    <div class="cart-sidebar__footer">
+      <div class="cart-total-row">
+        <span class="cart-total-label">Subtotal</span>
+        <span class="cart-total-value" id="cart-total">$0.00</span>
+      </div>
+      <button class="btn btn--primary btn--lg btn-ripple" style="width:100%" data-checkout>
+        Proceed to Inquiry
+      </button>
+    </div>
+  </aside>
+
+  <!-- ════════════ MAIN ════════════ -->
+  <main class="product-page">
+    <div class="container">
+      <!-- Breadcrumb -->
+      <nav class="product-breadcrumb reveal" aria-label="Breadcrumb">
+        <a href="../index.html">Home</a>
+        <span class="product-breadcrumb__sep">›</span>
+        <a href="shop.html">Collection</a>
+        <span class="product-breadcrumb__sep">›</span>
+        <span class="product-breadcrumb__current" id="breadcrumb-name">Wine Detail</span>
+      </nav>
+
+      <!-- Product Grid (populated by JS) -->
+      <div class="product-detail-grid" id="product-detail-content">
+        <!-- Loading skeleton -->
+        <div style="aspect-ratio:3/4; border-radius:24px; background:rgba(255,255,255,0.03)" class="shimmer"></div>
+        <div style="display:flex;flex-direction:column;gap:24px;padding-top:40px;">
+          <div class="shimmer" style="height:16px;width:80px;border-radius:8px;"></div>
+          <div class="shimmer" style="height:48px;width:90%;border-radius:8px;"></div>
+          <div class="shimmer" style="height:24px;width:60%;border-radius:8px;"></div>
+          <div class="shimmer" style="height:80px;border-radius:12px;"></div>
+          <div class="shimmer" style="height:56px;border-radius:12px;"></div>
+        </div>
+      </div>
+
+      <!-- Related Products -->
+      <section class="related-section" id="related-section" style="display:none;" aria-labelledby="related-heading">
+        <div class="section-header" style="text-align:left;">
+          <p class="section-label">From the Cellar</p>
+          <h2 class="section-title reveal" id="related-heading">You Might Also Enjoy</h2>
+        </div>
+        <div class="related-grid" id="related-grid"></div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div>
+          <div class="footer__brand-logo">BIFROST</div>
+          <p class="footer__tagline">Premium vintage wines inspired by Norse mythology.</p>
+        </div>
+        <div>
+          <h3 class="footer__heading">Collection</h3>
+          <ul class="footer__links">
+            <li><a href="shop.html" class="footer__link">All Wines</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="footer__heading">Company</h3>
+          <ul class="footer__links">
+            <li><a href="about.html" class="footer__link">About Us</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="footer__heading">Legal</h3>
+          <ul class="footer__links">
+            <li><span class="footer__link">21+ Only</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p class="footer__copy">© 2024 <span>Bifrost S.A</span>. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/database.js"></script>
+  <script src="../js/main.js"></script>
+  <script src="../js/effects.js"></script>
+
+  <script>
+    /* ============================================================
+       product-detail.html — Inline Render Logic
+       ============================================================ */
+    let currentWine = null;
+    let currentQty  = 1;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await window.BifrostDB.ready();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const wineId    = parseInt(urlParams.get('id'));
+
+      if (!wineId) {
+        renderNotFound();
+        return;
+      }
+
+      try {
+        const [wine, settings] = await Promise.all([
+          window.BifrostDB.getWineById(wineId),
+          window.BifrostDB.getSettings(),
+        ]);
+
+        if (!wine) { renderNotFound(); return; }
+
+        currentWine = wine;
+
+        // Update page title & breadcrumb
+        document.title = `${wine.name} ${wine.vintage} — Bifrost S.A`;
+        const breadcrumb = document.getElementById('breadcrumb-name');
+        if (breadcrumb) breadcrumb.textContent = wine.name;
+        document.querySelector('meta[name="description"]').setAttribute(
+          'content',
+          `${wine.name} ${wine.vintage}. ${wine.description?.slice(0, 120)}…`
+        );
+
+        // Calculate price
+        const flashPct  = settings?.flashSaleActive ? (settings.flashSaleDiscount || 0) : 0;
+        const itemPct   = wine.discount || 0;
+        const discPct   = Math.max(flashPct, itemPct);
+        const finalPrice = discPct > 0 ? wine.price * (1 - discPct / 100) : wine.price;
+
+        // Stock
+        const stockLevel = window.BifrostDB.constructor.stockLevel(wine.stock);
+        const stockLabel = window.BifrostDB.constructor.stockLabel(wine.stock);
+
+        // Render
+        renderProductDetail(wine, finalPrice, discPct, stockLevel, stockLabel);
+        await renderRelated(wine, settings);
+
+        window.reinitReveal?.();
+      } catch (err) {
+        console.error('Product detail error:', err);
+        renderNotFound('Failed to load wine details.');
+      }
+    });
+
+    function renderProductDetail(wine, finalPrice, discPct, stockLevel, stockLabel) {
+      const content = document.getElementById('product-detail-content');
+      if (!content) return;
+
+      const stars = '★★★★★';
+      const reviewCount = Math.floor(Math.random() * 80 + 20);
+
+      content.innerHTML = `
+        <!-- Gallery -->
+        <div class="product-gallery reveal from-left">
+          <div class="product-gallery__main">
+            <div class="product-gallery__vortex-bg" aria-hidden="true"></div>
+            <div class="product-gallery__main-inner">
+              ${wine.imageUrl
+                ? `<img src="${wine.imageUrl}" alt="${wine.name}">`
+                : `<div class="product-gallery__emoji" role="img" aria-label="${wine.name}">${wine.emoji || '🍷'}</div>`}
+            </div>
+          </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="product-info reveal from-right">
+          <!-- Category -->
+          <div>
+            <span class="product-info__category">${wine.category}</span>
+          </div>
+
+          <!-- Name & Vintage -->
+          <div>
+            <div class="product-info__vintage">${wine.vintage} Vintage</div>
+            <h1 class="product-info__name">${wine.name}</h1>
+          </div>
+
+          <!-- Rating -->
+          <div class="product-info__rating">
+            <span class="stars" aria-label="5 stars">${stars}</span>
+            <span class="rating-count">${reviewCount} reviews</span>
+          </div>
+
+          <div class="product-divider"></div>
+
+          <!-- Description -->
+          <p class="product-info__description">${wine.description}</p>
+
+          <!-- Tasting Notes -->
+          ${wine.tastingNotes?.length ? `
+            <div class="tasting-notes">
+              <div class="tasting-notes__title">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Tasting Notes
+              </div>
+              <div class="tasting-note-tags">
+                ${wine.tastingNotes.map(n => `<span class="tasting-tag">◆ ${n}</span>`).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- Price -->
+          <div>
+            <div class="product-info__price-block">
+              <span class="product-info__price">$${finalPrice.toFixed(2)}</span>
+              ${discPct > 0 ? `
+                <span class="product-info__price-original">$${wine.price.toFixed(2)}</span>
+                <span class="product-info__discount-label">−${discPct}%</span>
+              ` : ''}
+            </div>
+
+            <!-- Stock Status -->
+            <div class="product-info__stock ${stockLevel}" style="margin-top:8px;">
+              <span class="stock-indicator stock-indicator--${stockLevel}"></span>
+              ${stockLabel}
+            </div>
+          </div>
+
+          <!-- Quantity & Cart -->
+          <div class="product-info__actions">
+            <div class="product-info__row">
+              <div class="qty-selector" role="group" aria-label="Quantity">
+                <button class="qty-selector__btn" id="qty-minus" onclick="changeQty(-1)" aria-label="Decrease quantity">−</button>
+                <input type="number" class="qty-selector__input" id="qty-input"
+                  value="1" min="1" max="${wine.stock}"
+                  onchange="onQtyChange(this.value)"
+                  aria-label="Quantity">
+                <button class="qty-selector__btn" id="qty-plus" onclick="changeQty(1)" aria-label="Increase quantity">+</button>
+              </div>
+              <span style="font-size:var(--fs-xs); color:var(--color-text-muted);">
+                ${wine.stock > 0 ? `${wine.stock} available` : 'Out of stock'}
+              </span>
+            </div>
+
+            <button class="add-to-cart-btn btn-ripple" id="add-to-cart-btn"
+              onclick="addToCart()"
+              ${wine.stock <= 0 ? 'disabled' : ''}
+              aria-label="Add ${wine.name} to cart">
+              <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4"/>
+                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+              </svg>
+              ${wine.stock <= 0 ? 'Out of Stock' : 'Add to Cellar'}
+            </button>
+          </div>
+
+          <div class="product-divider"></div>
+
+          <!-- Meta Table -->
+          <div class="product-meta-table">
+            <div class="product-meta-item">
+              <span class="product-meta-label">Region</span>
+              <span class="product-meta-value">${wine.region || '—'}</span>
+            </div>
+            <div class="product-meta-item">
+              <span class="product-meta-label">Alcohol</span>
+              <span class="product-meta-value">${wine.alcohol || '—'}</span>
+            </div>
+            <div class="product-meta-item">
+              <span class="product-meta-label">Vintage</span>
+              <span class="product-meta-value">${wine.vintage}</span>
+            </div>
+            <div class="product-meta-item">
+              <span class="product-meta-label">Category</span>
+              <span class="product-meta-value">${wine.category}</span>
+            </div>
+            ${wine.pairing ? `
+            <div class="product-meta-item" style="grid-column:1/-1">
+              <span class="product-meta-label">Food Pairing</span>
+              <span class="product-meta-value">${wine.pairing}</span>
+            </div>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    async function renderRelated(wine, settings) {
+      const all     = await window.BifrostDB.getAllWines();
+      const related = all.filter(w => w.id !== wine.id && w.category === wine.category).slice(0, 3);
+      if (related.length === 0) return;
+
+      const section = document.getElementById('related-section');
+      const grid    = document.getElementById('related-grid');
+      if (!section || !grid) return;
+
+      section.style.display = 'block';
+      const flashPct = settings?.flashSaleActive ? (settings.flashSaleDiscount || 0) : 0;
+
+      grid.innerHTML = related.map((w, i) => {
+        const itemPct    = w.discount || 0;
+        const discPct    = Math.max(flashPct, itemPct);
+        const finalPrice = discPct > 0 ? w.price * (1 - discPct/100) : w.price;
+        const stockLevel = window.BifrostDB.constructor.stockLevel(w.stock);
+        const delays     = ['', 'reveal--delay-2', 'reveal--delay-3'];
+
+        return `
+          <article class="product-card reveal scale-in ${delays[i]}"
+                   onclick="window.location.href='product-detail.html?id=${w.id}'"
+                   aria-label="${w.name} ${w.vintage}">
+            <div class="vortex-bg" aria-hidden="true"></div>
+            ${discPct > 0 ? `<div class="discount-badge">−${discPct}% OFF</div>` : ''}
+            <div class="product-card__image-wrap">
+              ${w.imageUrl
+                ? `<img src="${w.imageUrl}" alt="${w.name}" loading="lazy">`
+                : `<div class="product-card__image-placeholder">
+                     <span class="placeholder-icon">${w.emoji || '🍷'}</span>
+                   </div>`}
+            </div>
+            <div class="product-card__overlay">
+              <div class="product-card__vintage">${w.vintage} · ${w.category}</div>
+              <div class="product-card__name">${w.name}</div>
+              <div class="product-card__price-row">
+                <span class="product-card__price">$${finalPrice.toFixed(2)}</span>
+                <span class="stock-indicator stock-indicator--${stockLevel}"></span>
+              </div>
+            </div>
+          </article>`;
+      }).join('');
+    }
+
+    function renderNotFound(msg) {
+      const content = document.getElementById('product-detail-content');
+      if (content) {
+        content.innerHTML = `
+          <div style="grid-column:1/-1; text-align:center; padding:80px 20px; display:flex; flex-direction:column; align-items:center; gap:20px;">
+            <div style="font-size:5rem;">🍷</div>
+            <h1 style="font-family:var(--font-heading); font-size:2rem;">Wine Not Found</h1>
+            <p style="color:var(--color-text-muted);">${msg || 'The wine you are looking for does not exist.'}</p>
+            <a href="shop.html" class="btn btn--primary">Back to Collection</a>
+          </div>`;
+      }
+    }
+
+    /* ── Quantity Controls ── */
+    function changeQty(delta) {
+      currentQty = Math.max(1, Math.min(currentWine?.stock || 99, currentQty + delta));
+      const input = document.getElementById('qty-input');
+      if (input) input.value = currentQty;
+    }
+
+    function onQtyChange(val) {
+      currentQty = Math.max(1, Math.min(currentWine?.stock || 99, parseInt(val) || 1));
+      const input = document.getElementById('qty-input');
+      if (input) input.value = currentQty;
+    }
+
+    /* ── Add to Cart ── */
+    async function addToCart() {
+      if (!currentWine || currentWine.stock <= 0) return;
+
+      const settings  = await window.BifrostDB.getSettings() || {};
+      const flashPct  = settings.flashSaleActive ? (settings.flashSaleDiscount || 0) : 0;
+      const itemPct   = currentWine.discount || 0;
+      const discPct   = Math.max(flashPct, itemPct);
+      currentWine.finalPrice = discPct > 0
+        ? currentWine.price * (1 - discPct / 100)
+        : currentWine.price;
+
+      window.Cart.add(currentWine, currentQty);
+    }
+
+    window.addToCart = addToCart;
+    window.changeQty = changeQty;
+    window.onQtyChange = onQtyChange;
+  </script>
+</body>
+</html>
