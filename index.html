@@ -85,9 +85,9 @@
     }
 
     .hero__logo-img {
-      width: clamp(180px, 30vw, 360px);
+      width: clamp(180px, 28vw, 340px);
       height: auto;
-      margin-bottom: var(--space-6);
+      flex-shrink: 0;
       filter: drop-shadow(0 0 30px rgba(212, 175, 55, 0.3));
       animation: floatY 6s ease-in-out infinite;
     }
@@ -157,6 +157,64 @@
       gap: var(--space-4);
       flex-wrap: wrap;
       justify-content: center;
+    }
+
+    /* ── Fila logo + botellas ────────────────────────────── */
+    .hero__logo-row {
+      display: flex;
+      align-items: flex-end;   /* botellas alineadas al pie del logo */
+      justify-content: center;
+      gap: 0;
+      margin-bottom: var(--space-6);
+      width: 100%;
+      /* permite que las botellas sobresalgan sin afectar el layout del contenido */
+      overflow: visible;
+    }
+
+    /* ── Hero Bottles (parallax, en flujo dentro de hero__logo-row) ── */
+    .hero-bottle {
+      width: clamp(220px, 28vw, 400px);
+      height: auto;
+      pointer-events: none;
+      flex-shrink: 0;
+      will-change: transform;
+      filter:
+        drop-shadow(0 20px 40px rgba(0,0,0,0.65))
+        drop-shadow(0 0 24px rgba(212,175,55,0.22));
+    }
+
+    .hero-bottle--left {
+      transform: rotate(-12deg);
+      margin-bottom: -10px;
+      margin-right: -36px;
+    }
+
+    .hero-bottle--right {
+      transform: rotate(12deg);
+      margin-bottom: -10px;
+      margin-left: -36px;
+    }
+
+    /* Tablet */
+    @media (max-width: 1100px) {
+      .hero-bottle {
+        width: clamp(170px, 22vw, 280px);
+      }
+    }
+
+    /* Móvil */
+    @media (max-width: 768px) {
+      .hero-bottle {
+        width: clamp(130px, 28vw, 190px);
+      }
+      .hero-bottle--left  { margin-right: -18px; }
+      .hero-bottle--right { margin-left:  -18px; }
+    }
+
+    @media (max-width: 420px) {
+      .hero-bottle {
+        width: clamp(105px, 26vw, 150px);
+      }
     }
 
     @keyframes floatYCenter {
@@ -610,9 +668,26 @@
 
       <!-- Contenido -->
       <div class="hero__content">
-        <!-- Logo PNG en Héroe -->
-        <img src="assets/images/ui/bifrost-logo.png" alt="Bifrost S.A — Vortex Reserve"
-          class="hero__logo-img hero-animate">
+        <!-- Fila: botella izquierda | logo | botella derecha -->
+        <div class="hero__logo-row hero-animate">
+          <img
+            id="hero-bottle-left"
+            src="assets/images/wines/bottles-1.png"
+            alt="" aria-hidden="true"
+            class="hero-bottle hero-bottle--left"
+          >
+          <img
+            src="assets/images/ui/bifrost-logo.png"
+            alt="Bifrost S.A — Vortex Reserve"
+            class="hero__logo-img"
+          >
+          <img
+            id="hero-bottle-right"
+            src="assets/images/wines/bottles-2.png"
+            alt="" aria-hidden="true"
+            class="hero-bottle hero-bottle--right"
+          >
+        </div>
 
         <p class="hero__eyebrow hero-animate">La Colección Vortex Reserve</p>
 
@@ -1010,6 +1085,49 @@
   <script src="js/database.js"></script>
   <script src="js/main.js"></script>
   <script src="js/effects.js"></script>
+
+  <!-- ════════ Parallax Botellas Hero ════════ -->
+  <script>
+    (function () {
+      const bottleL = document.getElementById('hero-bottle-left');
+      const bottleR = document.getElementById('hero-bottle-right');
+      if (!bottleL || !bottleR) return;
+
+      const hero = document.getElementById('hero');
+      const TILT_L   = -12;   /* inclinación base izquierda */
+      const TILT_R   =  12;   /* inclinación base derecha  */
+      const MAX_SLIDE = 220;  /* px máx de desplazamiento lateral */
+
+      let ticking = false;
+
+      function update() {
+        const heroH    = hero.offsetHeight;
+        const scrollY  = window.scrollY;
+        /* progress 0 = inicio del hero | 1 = hero completamente scrolleado */
+        const progress = Math.min(Math.max(scrollY / heroH, 0), 1);
+        const slide    = progress * MAX_SLIDE;
+
+        /* Las botellas van en flujo (flexbox), solo aplicamos translateX + tilt */
+        bottleL.style.transform = `rotate(${TILT_L - progress * 8}deg) translateX(${-slide}px)`;
+        bottleL.style.opacity   = String(Math.max(1 - progress * 0.95, 0));
+
+        bottleR.style.transform = `rotate(${TILT_R + progress * 8}deg) translateX(${slide}px)`;
+        bottleR.style.opacity   = String(Math.max(1 - progress * 0.95, 0));
+
+        ticking = false;
+      }
+
+      window.addEventListener('scroll', function () {
+        if (!ticking) {
+          requestAnimationFrame(update);
+          ticking = true;
+        }
+      }, { passive: true });
+
+      /* Estado inicial */
+      update();
+    })();
+  </script>
 
   <script>
     /* ── Widget de Contacto Flotante ────────────────────────── */
