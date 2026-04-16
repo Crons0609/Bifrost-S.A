@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maestro de Costos Simplificado — Bifrost S.A.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ════ TOKENS ════ */
+    :root {
+      --bg:           #0a0b0f;
+      --surface:      #111318;
+      --surface2:     #181b23;
+      --surface3:     #1e222e;
+      --border:       rgba(255,255,255,0.07);
+      --border-gold:  rgba(212,175,55,0.3);
+
+      --gold:         #D4AF37;
+      --gold-dim:     rgba(212,175,55,0.12);
+      --gold-glow:    rgba(212,175,55,0.08);
+      --teal:         #45A29E;
+      --teal-dim:     rgba(69,162,158,0.12);
+      --green:        #4CAF50;
+      --green-dim:    rgba(76,175,80,0.12);
+      --red:          #EF5350;
+      --red-dim:      rgba(239,83,80,0.12);
+      --orange:       #FF9800;
+
+      --text:         #E8EAF0;
+      --text-2:       #9AA0B4;
+      --text-muted:   #5A6080;
+
+      --font:         'Space Grotesk', sans-serif;
+      --font-head:    'Outfit', sans-serif;
+      --font-mono:    'JetBrains Mono', monospace;
+
+      --r-sm:  6px;
+      --r-md:  10px;
+      --r-lg:  14px;
+      --r-xl:  20px;
+
+      --transition: 0.18s ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ════ SCROLLBAR ════ */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--surface); }
+    ::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 4px; }
+
+    /* ════ TOPBAR ════ */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,11,15,0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .topbar__brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .topbar__icon {
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+
+    .topbar__title {
+      font-family: var(--font-head);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .topbar__sub {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    .topbar__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 99px;
+      background: var(--teal-dim);
+      border: 1px solid rgba(69,162,158,0.2);
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--teal);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ════ LAYOUT ════ */
+    .layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 0;
+      min-height: calc(100vh - 58px);
+    }
+
+    /* ════ SIDEBAR ════ */
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* ════ CONTENT ════ */
+    .content {
+      padding: 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      overflow-y: auto;
+    }
+
+    /* ════ CARD ════ */
+    .card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 1.1rem;
+    }
+
+    .card--gold {
+      border-color: var(--border-gold);
+      background: linear-gradient(135deg, rgba(212,175,55,0.04) 0%, var(--surface2) 100%);
+    }
+
+    .card--result {
+      background: var(--surface3);
+      border-color: var(--border-gold);
+    }
+
+    .card__hdr {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      margin-bottom: 0.9rem;
+      padding-bottom: 0.7rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card__icon {
+      font-size: 1rem;
+      line-height: 1;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--r-sm);
+      background: var(--gold-dim);
+      flex-shrink: 0;
+    }
+
+    .card__title {
+      font-family: var(--font-head);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .card__subtitle {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    .step-badge {
+      margin-left: auto;
+      padding: 0.15rem 0.55rem;
+      border-radius: 99px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      background: var(--gold-dim);
+      color: var(--gold);
+      letter-spacing: 0.08em;
+    }
+
+    /* ════ FORM ELEMENTS ════ */
+    .form-group {
+      margin-bottom: 0.75rem;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      padding: 0.55rem 0.75rem;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 0.83rem;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .form-input:focus, .form-select:focus {
+      border-color: rgba(212,175,55,0.5);
+      box-shadow: 0 0 0 3px rgba(212,175,55,0.07);
+    }
+
+    .form-input.input-gold {
+      color: var(--gold);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    .form-input.input-big {
+      font-size: 1.1rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--teal);
+      text-align: center;
+      padding: 0.75rem;
+    }
+
+    .form-select option {
+      background: var(--surface);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    .form-row-3 {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1.2fr;
+      gap: 0.55rem;
+    }
+
+    /* ════ INSUMO ROWS ════ */
+    .insumo-row {
+      display: grid;
+      grid-template-columns: 1.5fr 0.8fr 0.8fr 1fr 28px;
+      gap: 0.45rem;
+      align-items: center;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      animation: fadeRow 0.25s ease;
+    }
+
+    @keyframes fadeRow {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    .insumo-row .form-input {
+      padding: 0.35rem 0.5rem;
+      font-size: 0.78rem;
+    }
+
+    .insumo-header {
+      display: grid;
+      grid-template-columns: 1.5fr 0.8fr 0.8fr 1fr 28px;
+      gap: 0.45rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0.3rem;
+    }
+
+    .col-label {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .btn-remove {
+      width: 26px;
+      height: 26px;
+      border-radius: var(--r-sm);
+      border: 1px solid rgba(239,83,80,0.25);
+      background: rgba(239,83,80,0.08);
+      color: var(--red);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.85rem;
+      line-height: 1;
+      transition: background var(--transition), border-color var(--transition);
+    }
+
+    .btn-remove:hover {
+      background: rgba(239,83,80,0.2);
+      border-color: rgba(239,83,80,0.4);
+    }
+
+    /* ════ BUTTONS ════ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0.55rem 1rem;
+      border-radius: var(--r-sm);
+      border: none;
+      font-family: var(--font);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      line-height: 1;
+      text-decoration: none;
+    }
+
+    .btn--gold {
+      background: linear-gradient(135deg, #D4AF37, #B8960C);
+      color: #000;
+      box-shadow: 0 2px 12px rgba(212,175,55,0.25);
+    }
+
+    .btn--gold:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(212,175,55,0.4);
+    }
+
+    .btn--gold:active { transform: none; }
+
+    .btn--outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-2);
+    }
+
+    .btn--outline:hover {
+      border-color: rgba(212,175,55,0.35);
+      color: var(--gold);
+      background: var(--gold-dim);
+    }
+
+    .btn--teal {
+      background: rgba(69,162,158,0.15);
+      border: 1px solid rgba(69,162,158,0.3);
+      color: var(--teal);
+    }
+
+    .btn--teal:hover {
+      background: rgba(69,162,158,0.25);
+    }
+
+    .btn--danger {
+      background: rgba(239,83,80,0.1);
+      border: 1px solid rgba(239,83,80,0.25);
+      color: var(--red);
+    }
+
+    .btn--danger:hover {
+      background: rgba(239,83,80,0.2);
+    }
+
+    .btn--full { width: 100%; }
+
+    .btn--sm {
+      padding: 0.35rem 0.65rem;
+      font-size: 0.73rem;
+    }
+
+    /* ════ RESULT PANEL ════ */
+    .result-panel {
+      position: sticky;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    .result-metric {
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 0.9rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .result-metric--primary {
+      border-color: var(--border-gold);
+      background: linear-gradient(135deg, rgba(212,175,55,0.06) 0%, var(--surface3) 100%);
+      box-shadow: 0 0 20px rgba(212,175,55,0.05);
+    }
+
+    .result-metric--teal {
+      border-color: rgba(69,162,158,0.25);
+      background: linear-gradient(135deg, rgba(69,162,158,0.06) 0%, var(--surface3) 100%);
+    }
+
+    .result-metric--green {
+      border-color: rgba(76,175,80,0.25);
+      background: linear-gradient(135deg, rgba(76,175,80,0.06) 0%, var(--surface3) 100%);
+    }
+
+    .metric__label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .metric__value {
+      font-family: var(--font-mono);
+      font-size: 1.6rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .metric__sub {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    .metric__icon {
+      font-size: 1.75rem;
+      opacity: 0.6;
+    }
+
+    .metric--primary .metric__value { color: var(--gold); }
+    .metric--teal .metric__value { color: var(--teal); }
+    .metric--green .metric__value { color: var(--green); }
+
+    /* ════ HISTORY TABLE ════ */
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .history-table th {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      padding: 0.5rem 0.6rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .history-table td {
+      padding: 0.6rem 0.6rem;
+      font-size: 0.8rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      vertical-align: middle;
+    }
+
+    .history-table tr:hover td {
+      background: rgba(255,255,255,0.02);
+    }
+
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* ════ RECIPE SELECTOR ════ */
+    .recipe-select-wrap {
+      display: flex;
+      gap: 0.5rem;
+      align-items: stretch;
+    }
+
+    .recipe-select-wrap .form-select {
+      flex: 1;
+    }
+
+    /* ════ DIVIDER ════ */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0.3rem 0;
+    }
+
+    /* ════ HIGHLIGHT BOX ════ */
+    .info-box {
+      padding: 0.65rem 0.85rem;
+      border-radius: var(--r-sm);
+      background: rgba(69,162,158,0.07);
+      border: 1px solid rgba(69,162,158,0.15);
+      font-size: 0.73rem;
+      color: var(--teal);
+      line-height: 1.5;
+    }
+
+    .info-box strong { color: #7ECBC8; }
+
+    /* ════ TOAST ════ */
+    #toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 9999;
+      padding: 0.7rem 1.2rem;
+      border-radius: var(--r-md);
+      font-size: 0.82rem;
+      font-weight: 600;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      max-width: 320px;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: none;
+    }
+
+    #toast.success {
+      background: rgba(76,175,80,0.15);
+      border: 1px solid rgba(76,175,80,0.3);
+      color: #81C784;
+    }
+
+    #toast.error {
+      background: rgba(239,83,80,0.15);
+      border: 1px solid rgba(239,83,80,0.3);
+      color: #EF9A9A;
+    }
+
+    #toast.info {
+      background: rgba(69,162,158,0.15);
+      border: 1px solid rgba(69,162,158,0.3);
+      color: var(--teal);
+    }
+
+    /* ════ EMPTY STATE ════ */
+    .empty-state {
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+
+    .empty-state__icon { font-size: 2.5rem; margin-bottom: 0.6rem; opacity: 0.4; }
+    .empty-state__text { font-size: 0.8rem; color: var(--text-muted); }
+
+    /* ════ RESPONSIVE ════ */
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+      .result-panel {
+        position: relative;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .topbar { padding: 0.7rem 1rem; }
+      .topbar__title { font-size: 0.9rem; }
+      .content, .sidebar { padding: 1rem; }
+      .form-row, .form-row-3 { grid-template-columns: 1fr; }
+      .insumo-row, .insumo-header { grid-template-columns: 1.5fr 0.8fr 28px; }
+      .insumo-row .col-qty, .insumo-row .col-unit,
+      .col-label:nth-child(2), .col-label:nth-child(3) { display: none; }
+      .metric__value { font-size: 1.3rem; }
+    }
+
+    @media print {
+      .topbar__badge, #btn-save, #btn-add-insumo { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar__brand">
+    <div class="topbar__icon">🛢️</div>
+    <div>
+      <div class="topbar__title">Maestro de Costos Simplificado</div>
+      <div class="topbar__sub">Bifrost S.A. · Sistema de Costeo por Barril PET</div>
+    </div>
+  </div>
+  <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+    <span class="topbar__badge">⚡ Sin impuestos | Sin CIF</span>
+    <button class="btn btn--outline btn--sm" onclick="resetFormulario()" title="Limpiar formulario">
+      🗑️ Nueva
+    </button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ════════════════════════════════════
+       SIDEBAR: Formulario de entrada
+  ════════════════════════════════════ -->
+  <aside class="sidebar">
+
+    <!-- ── Receta / Historial ── -->
+    <div class="card card--gold">
+      <div class="card__hdr">
+        <div class="card__icon">📁</div>
+        <div>
+          <div class="card__title">Receta Guardada</div>
+          <div class="card__subtitle">Carga cantidades de una producción anterior</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cargar receta anterior</label>
+        <div class="recipe-select-wrap">
+          <select class="form-select" id="sel-recipe">
+            <option value="">— Seleccionar receta —</option>
+          </select>
+          <button class="btn btn--teal btn--sm" onclick="cargarReceta()" title="Cargar receta seleccionada">Cargar</button>
+        </div>
+      </div>
+      <div class="info-box">
+        💡 Al cargar, se restauran <strong>cantidades y unidades</strong>, pero no los precios — para que puedas actualizarlos según el mercado actual.
+      </div>
+    </div>
+
+    <!-- ── PASO 1: Materia Prima Base ── -->
+    <div class="card">
+      <div class="card__hdr">
+        <div class="card__icon">🌿</div>
+        <div>
+          <div class="card__title">Materia Prima Base</div>
+          <div class="card__subtitle">Fruta, grano u otro insumo principal</div>
+        </div>
+        <span class="step-badge">PASO 1</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="mp-nombre">Nombre de la MP</label>
+        <input type="text" id="mp-nombre" class="form-input" placeholder="Ej: Tamarindo, Corozo M, Jamaica…" oninput="calcular()">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="mp-cantidad">Cantidad comprada</label>
+          <input type="number" id="mp-cantidad" class="form-input input-gold" placeholder="60" min="0" step="0.01" oninput="calcular()">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="mp-unidad">Unidad</label>
+          <select id="mp-unidad" class="form-select" onchange="calcular()">
+            <option value="lbs">Libras (lbs)</option>
+            <option value="kg">Kilogramos (kg)</option>
+            <option value="sacos">Sacos</option>
+            <option value="und">Unidades</option>
+            <option value="litros">Litros</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="mp-costo-total">Costo total de esa cantidad (NIO)</label>
+        <input type="number" id="mp-costo-total" class="form-input input-gold" placeholder="600" min="0" step="0.01" oninput="calcular()">
+      </div>
+
+      <div class="divider"></div>
+
+      <div style="margin-bottom:0.5rem;">
+        <span style="font-size:0.72rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-muted);">💪 Destajo / Preparación</span>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="destajo-por-saco">Costo por saco/und (NIO)</label>
+          <input type="number" id="destajo-por-saco" class="form-input input-gold" placeholder="100" min="0" step="0.01" oninput="calcular()">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="destajo-unidades">Número de sacos/und</label>
+          <input type="number" id="destajo-unidades" class="form-input input-gold" placeholder="1" min="0" step="1" oninput="calcular()">
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PASO 2: Insumos ── -->
+    <div class="card">
+      <div class="card__hdr">
+        <div class="card__icon">🧪</div>
+        <div>
+          <div class="card__title">Insumos del Lote</div>
+          <div class="card__subtitle">Agua, azúcar, levadura y más</div>
+        </div>
+        <span class="step-badge">PASO 2</span>
+      </div>
+
+      <!-- Agua -->
+      <div style="margin-bottom:0.5rem;">
+        <span style="font-size:0.7rem; font-weight:700; color:var(--teal); letter-spacing:0.06em; text-transform:uppercase;">💧 Agua</span>
+      </div>
+      <div class="form-row" style="margin-bottom:0.8rem;">
+        <div class="form-group">
+          <label class="form-label" for="agua-litros">Litros utilizados</label>
+          <input type="number" id="agua-litros" class="form-input input-gold" placeholder="200" min="0" step="0.1" oninput="calcular()">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="agua-costo">Costo total del agua (NIO)</label>
+          <input type="number" id="agua-costo" class="form-input input-gold" placeholder="50" min="0" step="0.01" oninput="calcular()">
+        </div>
+      </div>
+
+      <!-- Azúcar -->
+      <div style="margin-bottom:0.5rem;">
+        <span style="font-size:0.7rem; font-weight:700; color:var(--gold); letter-spacing:0.06em; text-transform:uppercase;">🍬 Azúcar</span>
+      </div>
+      <div class="form-row-3" style="margin-bottom:0.8rem;">
+        <div class="form-group">
+          <label class="form-label" for="azucar-cantidad">Cantidad</label>
+          <input type="number" id="azucar-cantidad" class="form-input input-gold" placeholder="20" min="0" step="0.01" oninput="calcular()">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="azucar-unidad">Unidad</label>
+          <select id="azucar-unidad" class="form-select" onchange="calcular()">
+            <option value="lbs">lbs</option>
+            <option value="kg">kg</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="azucar-precio">Precio/unidad (NIO)</label>
+          <input type="number" id="azucar-precio" class="form-input input-gold" placeholder="55" min="0" step="0.01" oninput="calcular()">
+        </div>
+      </div>
+
+      <!-- Levadura -->
+      <div style="margin-bottom:0.5rem;">
+        <span style="font-size:0.7rem; font-weight:700; color:var(--orange); letter-spacing:0.06em; text-transform:uppercase;">🦠 Levadura</span>
+      </div>
+      <div class="form-row-3" style="margin-bottom:0.8rem;">
+        <div class="form-group">
+          <label class="form-label" for="levadura-cantidad">Cantidad</label>
+          <input type="number" id="levadura-cantidad" class="form-input input-gold" placeholder="0.5" min="0" step="0.001" oninput="calcular()">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="levadura-unidad">Unidad</label>
+          <select id="levadura-unidad" class="form-select" onchange="calcular()">
+            <option value="lbs">lbs</option>
+            <option value="gr">gr</option>
+            <option value="sobres">sobres</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="levadura-precio">Precio/unidad (NIO)</label>
+          <input type="number" id="levadura-precio" class="form-input input-gold" placeholder="60" min="0" step="0.01" oninput="calcular()">
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Otros insumos dinámicos -->
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.6rem; margin-top:0.6rem;">
+        <span style="font-size:0.7rem; font-weight:700; color:var(--text-2); letter-spacing:0.06em; text-transform:uppercase;">✨ Otros Insumos</span>
+        <button class="btn btn--teal btn--sm" id="btn-add-insumo" onclick="agregarInsumo()">
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          Agregar Insumo
+        </button>
+      </div>
+
+      <div class="insumo-header">
+        <span class="col-label">Nombre</span>
+        <span class="col-label col-qty">Cant.</span>
+        <span class="col-label col-unit">Unidad</span>
+        <span class="col-label">Costo total</span>
+        <span></span>
+      </div>
+
+      <div id="insumos-extra-container">
+        <!-- Filas dinámicas aquí -->
+      </div>
+
+      <div id="insumos-empty" style="font-size:0.75rem; color:var(--text-muted); padding:0.5rem 0; text-align:center;">
+        Sin insumos adicionales aún
+      </div>
+    </div>
+
+    <!-- ── PASO 3: Rendimiento ── -->
+    <div class="card">
+      <div class="card__hdr">
+        <div class="card__icon">📊</div>
+        <div>
+          <div class="card__title">Rendimiento Final</div>
+          <div class="card__subtitle">Dato clave del lote</div>
+        </div>
+        <span class="step-badge">PASO 3</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="litros-obtenidos">Litros totales de mosto obtenidos</label>
+        <input type="number" id="litros-obtenidos" class="form-input input-big" placeholder="208" min="0.1" step="0.1" oninput="calcular()">
+      </div>
+      <div class="info-box">
+        🛢️ 1 Barril PET 55 galones ≈ <strong>208 litros</strong>. Incluye el agua de dilución que agregas para ajustar sabor/alcohol.
+      </div>
+    </div>
+
+    <!-- ── PASO 4: Envasado Externo ── -->
+    <div class="card">
+      <div class="card__hdr">
+        <div class="card__icon">🍾</div>
+        <div>
+          <div class="card__title">Envasado Externo</div>
+          <div class="card__subtitle">Tercerizado — opcional hasta cotización</div>
+        </div>
+        <span class="step-badge">PASO 4</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="costo-embotellado-mil">Costo de embotellado por 1,000 litros (NIO)</label>
+        <input type="number" id="costo-embotellado-mil" class="form-input" placeholder="0 — pendiente cotización" min="0" step="0.01" oninput="calcular()">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="costo-envase-und">Costo botella + tapón + etiqueta por unidad (NIO)</label>
+        <input type="number" id="costo-envase-und" class="form-input" placeholder="0 — opcional" min="0" step="0.01" oninput="calcular()">
+      </div>
+    </div>
+
+    <!-- ── Guardar Receta ── -->
+    <div class="card card--gold">
+      <div class="card__hdr">
+        <div class="card__icon">💾</div>
+        <div>
+          <div class="card__title">Guardar como Receta</div>
+          <div class="card__subtitle">Guarda cantidades para futuras producciones</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="receta-nombre">Nombre de la receta</label>
+        <input type="text" id="receta-nombre" class="form-input" placeholder="Ej: Tamarindo — Feb 2026">
+      </div>
+
+      <button class="btn btn--gold btn--full" id="btn-save" onclick="guardarReceta()">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+        Guardar Receta
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- ════════════════════════════════════
+       CONTENT: Resultados + Historial
+  ════════════════════════════════════ -->
+  <main class="content">
+
+    <!-- Panel de Resultados -->
+    <div class="result-panel">
+
+      <!-- Costo Total Lote -->
+      <div class="result-metric result-metric--primary">
+        <div>
+          <div class="metric__label">Costo Total del Lote</div>
+          <div class="metric__value" style="color:var(--gold);" id="r-costo-total">C$ 0.00</div>
+          <div class="metric__sub" id="r-costo-detalle">Suma de todos los insumos</div>
+        </div>
+        <div class="metric__icon">🧮</div>
+      </div>
+
+      <!-- Costo por Litro -->
+      <div class="result-metric result-metric--teal">
+        <div>
+          <div class="metric__label">Costo Neto por Litro de Mosto</div>
+          <div class="metric__value" style="color:var(--teal);" id="r-costo-litro">C$ —</div>
+          <div class="metric__sub" id="r-litros-sub">Ingresa los litros obtenidos</div>
+        </div>
+        <div class="metric__icon">💧</div>
+      </div>
+
+      <!-- Costo por Botella -->
+      <div class="result-metric result-metric--green">
+        <div>
+          <div class="metric__label">Costo Estimado por Botella (750 ml)</div>
+          <div class="metric__value" style="color:var(--green);" id="r-costo-botella">C$ —</div>
+          <div class="metric__sub" id="r-botella-sub">Sin embotellar</div>
+        </div>
+        <div class="metric__icon">🍾</div>
+      </div>
+
+      <!-- Costo con envase (condicional) -->
+      <div class="result-metric" id="r-bloque-envase" style="display:none;">
+        <div>
+          <div class="metric__label">Costo Botella + Envase Completo</div>
+          <div class="metric__value" style="color:var(--orange);" id="r-costo-con-envase">C$ —</div>
+          <div class="metric__sub">Incluye embotellado externo + envase propio</div>
+        </div>
+        <div class="metric__icon">📦</div>
+      </div>
+
+      <!-- Desglose Rápido -->
+      <div class="card" style="margin-top:0.2rem;">
+        <div class="card__hdr">
+          <div class="card__icon">📋</div>
+          <div class="card__title">Desglose del Lote</div>
+        </div>
+        <div id="r-desglose" style="font-size:0.8rem; color:var(--text-2); line-height:2;">
+          <span style="color:var(--text-muted);">Sin datos aún…</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Historial de Recetas -->
+    <div class="card">
+      <div class="card__hdr">
+        <div class="card__icon">📚</div>
+        <div>
+          <div class="card__title">Historial de Recetas</div>
+          <div class="card__subtitle">Producciones guardadas anteriormente</div>
+        </div>
+        <button class="btn btn--outline btn--sm" onclick="cargarHistorial()" title="Refrescar historial">↺</button>
+      </div>
+
+      <div id="history-wrap">
+        <div class="empty-state">
+          <div class="empty-state__icon">📭</div>
+          <div class="empty-state__text">No hay recetas guardadas todavía.</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script src="../js/admin-costos-simple.js"></script>
+
+</body>
+</html>
