@@ -21,52 +21,66 @@ const FB_CONFIG = {
   appId: "1:943196918782:web:5e197c094948a6517a66af"
 };
 
-// Inicializar Firebase usando el SDK compat (no módulos ES)
-let _fbApp = null;
-let _fbDb  = null;
+let _fbDb = null;
+let _fbReadyResolve = null;
+const _fbReady = new Promise(res => _fbReadyResolve = res);
 
-function _initFirebase() {
-  try {
-    if (typeof firebase === 'undefined') return null;
-    if (!firebase.apps.length) {
-      _fbApp = firebase.initializeApp(FB_CONFIG);
-    } else {
-      _fbApp = firebase.apps[0];
+// Carga el SDK compat de Firebase dinámicamente y lo inicializa
+(function _bootstrapFirebase() {
+  const scripts = [
+    'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js',
+    'https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js'
+  ];
+  let chain = Promise.resolve();
+  scripts.forEach(src => {
+    chain = chain.then(() => new Promise(res => {
+      if (document.querySelector(`script[src="${src}"]`)) return res();
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = res;
+      s.onerror = res;
+      document.head.appendChild(s);
+    }));
+  });
+  chain.then(() => {
+    try {
+      if (typeof firebase === 'undefined') throw new Error('SDK no cargó');
+      if (!firebase.apps.length) firebase.initializeApp(FB_CONFIG);
+      _fbDb = firebase.database();
+      console.log('🔥 Firebase Realtime DB conectado a bifrost-sa');
+    } catch(e) {
+      console.warn('⚠️ Firebase no disponible:', e.message);
     }
-    _fbDb = firebase.database();
-    return _fbDb;
-  } catch (e) {
-    console.warn('⚠️ Firebase no disponible:', e.message);
-    return null;
-  }
-}
+    _fbReadyResolve();
+  });
+})();
 
-// Helper: Escribe en Firebase si está disponible
+// Helpers — esperan a que Firebase esté listo antes de escribir
 async function _fbSet(path, data) {
-  const db = _fbDb || _initFirebase();
-  if (!db) return;
-  try { await db.ref(path).set(data); } catch(e) { console.warn('Firebase set error:', e.message); }
+  await _fbReady;
+  if (!_fbDb) return;
+  try { await _fbDb.ref(path).set(data); } catch(e) { console.warn('FB set error:', e.message); }
 }
 
 async function _fbPush(path, data) {
-  const db = _fbDb || _initFirebase();
-  if (!db) return null;
+  await _fbReady;
+  if (!_fbDb) return null;
   try {
-    const ref = await db.ref(path).push(data);
+    const ref = await _fbDb.ref(path).push(data);
     return ref.key;
-  } catch(e) { console.warn('Firebase push error:', e.message); return null; }
+  } catch(e) { console.warn('FB push error:', e.message); return null; }
 }
 
 async function _fbUpdate(path, data) {
-  const db = _fbDb || _initFirebase();
-  if (!db) return;
-  try { await db.ref(path).update(data); } catch(e) { console.warn('Firebase update error:', e.message); }
+  await _fbReady;
+  if (!_fbDb) return;
+  try { await _fbDb.ref(path).update(data); } catch(e) { console.warn('FB update error:', e.message); }
 }
 
 async function _fbRemove(path) {
-  const db = _fbDb || _initFirebase();
-  if (!db) return;
-  try { await db.ref(path).remove(); } catch(e) { console.warn('Firebase remove error:', e.message); }
+  await _fbReady;
+  if (!_fbDb) return;
+  try { await _fbDb.ref(path).remove(); } catch(e) { console.warn('FB remove error:', e.message); }
 }
 
 
@@ -584,8 +598,8 @@ class BifrostDB {
         admin.id = Date.now();
         admins.push(admin);
         localStorage.setItem('bifrost_admins', JSON.stringify(admins));
-        // Sync to Firebase
-        _fbPush('erp/admins', { ...admin }).catch(() => {});
+        // Sync to Firebase bajo 'Administradores'
+        _fbSet(`Administradores/${admin.id}`, { ...admin }).catch(() => {});
         resolve(admin);
         return;
       }
@@ -594,8 +608,7 @@ class BifrostDB {
       const req   = store.add(admin);
       req.onsuccess = () => {
         admin.id = req.result;
-        // Sync to Firebase (use id as key)
-        _fbSet(`erp/admins/${admin.id}`, { ...admin }).catch(() => {});
+        _fbSet(`Administradores/${admin.id}`, { ...admin }).catch(() => {});
         resolve(admin);
       };
       req.onerror = () => reject(req.error);
@@ -608,7 +621,7 @@ class BifrostDB {
         let admins = JSON.parse(localStorage.getItem('bifrost_admins') || '[]');
         admins = admins.filter(a => a.id !== Number(id));
         localStorage.setItem('bifrost_admins', JSON.stringify(admins));
-        _fbRemove(`erp/admins/${id}`).catch(() => {});
+        _fbRemove(`Administradores/${id}`).catch(() => {});
         resolve();
         return;
       }
@@ -616,7 +629,7 @@ class BifrostDB {
       const store = tx.objectStore(ADMINS_STORE);
       const req   = store.delete(Number(id));
       req.onsuccess = () => {
-        _fbRemove(`erp/admins/${id}`).catch(() => {});
+        _fbRemove(`Administradores/${id}`).catch(() => {});
         resolve();
       };
       req.onerror = () => reject(req.error);
@@ -630,7 +643,7 @@ class BifrostDB {
         const idx    = admins.findIndex(a => a.id === admin.id);
         if (idx !== -1) admins[idx] = admin;
         localStorage.setItem('bifrost_admins', JSON.stringify(admins));
-        _fbUpdate(`erp/admins/${admin.id}`, { ...admin }).catch(() => {});
+        _fbUpdate(`Administradores/${admin.id}`, { ...admin }).catch(() => {});
         resolve(admin);
         return;
       }
@@ -638,7 +651,7 @@ class BifrostDB {
       const store = tx.objectStore(ADMINS_STORE);
       const req   = store.put(admin);
       req.onsuccess = () => {
-        _fbUpdate(`erp/admins/${admin.id}`, { ...admin }).catch(() => {});
+        _fbUpdate(`Administradores/${admin.id}`, { ...admin }).catch(() => {});
         resolve(admin);
       };
       req.onerror = () => reject(req.error);
@@ -651,30 +664,7 @@ class BifrostDB {
   }
 }
 
-// Cargar Firebase SDK compat antes de instanciar BifrostDB
-function _loadFirebaseSDK() {
-  const scripts = [
-    'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js',
-    'https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js'
-  ];
-  let chain = Promise.resolve();
-  scripts.forEach(src => {
-    chain = chain.then(() => new Promise((res, rej) => {
-      if (document.querySelector(`script[src="${src}"]`)) return res();
-      const s = document.createElement('script');
-      s.src = src;
-      s.onload = res;
-      s.onerror = res; // no bloquear si falla
-      document.head.appendChild(s);
-    }));
-  });
-  return chain;
-}
-
-_loadFirebaseSDK().then(() => {
-  _initFirebase();
-  console.log('🔥 Firebase SDK compat cargado y listo.');
-}).catch(() => {});
 
 const DB = new BifrostDB();
 window.BifrostDB = DB;
+
