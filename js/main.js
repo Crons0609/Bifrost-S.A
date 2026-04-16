@@ -282,43 +282,109 @@ window.resolvePath = function(path) {
   return isStatics ? `../${path}` : path;
 };
 
-/* ── Checkout "Inquiry" ─────────────────────────────────────── */
-function showInquiryChoiceModal(message) {
-  const existing = document.getElementById('inquiry-modal');
+/* ── Checkout Flow con Backend ──────────────────────────────── */
+window.submitBifrostCheckout = async function(event) {
+  event.preventDefault();
+  
+  const form = event.target;
+  const btn = form.querySelector('button[type="submit"]');
+  const originalText = btn.innerHTML;
+  
+  const nombre = form.nombre.value.trim();
+  const telefono = form.telefono.value.trim();
+  const direccion = form.direccion.value.trim();
+  
+  if (!nombre || !telefono) {
+    window.showToast("Ciertos campos son obligatorios", "warning");
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.innerHTML = `<span style="opacity: 0.7;">Procesando...</span>`;
+  
+  try {
+    const payload = {
+      items: window.Cart.items,
+      total: window.Cart.total,
+      cliente: { nombre, telefono, direccion }
+    };
+    
+    // Resolvemos el path relativo si estamos en statics/
+    const baseUrl = window.location.pathname.includes('/statics/') ? '../' : '';
+    // Como baseUrl puede ser '' desde index, agregamos la barra a la API
+    const apiUrl = baseUrl ? \`\${baseUrl}/api/checkout\` : '/api/checkout';
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok && data.success) {
+      window.Cart.clear();
+      window.closeCart();
+      document.getElementById('checkout-modal').remove();
+      window.showToast("¡Pedido recibido exitosamente!", "success");
+      
+      // Mostrar modal final de agradecimiento
+      const successModalHtml = \`
+        <div class="overlay-backdrop active" id="success-modal" style="z-index: 10000; display:flex; align-items:center; justify-content:center; opacity:0; animation: fadeIn 0.3s forwards;">
+          <div class="glass" style="padding: 2.5rem 2rem; max-width: 400px; width: 90%; text-align: center; position: relative;">
+            <div style="color: #4CAF50; margin-bottom: 1rem;"><svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+            <h3 style="font-family: var(--font-heading); font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--color-gold);">Pedido Confirmado</h3>
+            <p style="color: var(--color-text-muted); font-size: 0.95rem; line-height:1.5; margin-bottom:1.5rem;">Tu pedido ha sido recibido exitosamente (ID: #\${data.pedidoId || 'N/A'}). Un sumiller se pondrá en contacto pronto para gestionar tu orden.</p>
+            <button onclick="document.getElementById('success-modal').remove()" class="btn btn--primary" style="width:100%; justify-content:center;">Cerrar</button>
+          </div>
+        </div>
+      \`;
+      document.body.insertAdjacentHTML('beforeend', successModalHtml);
+    } else {
+      throw new Error(data.error || "Error del servidor");
+    }
+  } catch (error) {
+    console.error(error);
+    window.showToast("Fallo al enviar el pedido. Intenta nuevamente.", "error");
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+  }
+};
+
+function showCheckoutModal() {
+  const existing = document.getElementById('checkout-modal');
   if(existing) existing.remove();
 
-  const encodedMsg = encodeURIComponent(message);
-  
-  // Resolve base urls from CSS variables or fallback
-  const waBase = getComputedStyle(document.documentElement).getPropertyValue('--link-whatsapp').replace(/"/g,'').trim() || 'https://wa.me/50576060334';
-  const tgBase = getComputedStyle(document.documentElement).getPropertyValue('--link-telegram').replace(/"/g,'').trim() || 'https://t.me/bifrostwines';
-  
-  const waLink = `${waBase}?text=${encodedMsg}`;
-  const tgLink = `${tgBase}?text=${encodedMsg}`;
-
-  // Build and insert modal
-  const modalHtml = `
-    <div class="overlay-backdrop active" id="inquiry-modal" style="z-index: 10000; display:flex; align-items:center; justify-content:center; opacity:0; animation: fadeIn 0.3s forwards;">
-      <div class="glass" style="padding: 2.5rem 2rem; max-width: 400px; width: 90%; text-align: center; position: relative;">
-        <button onclick="document.getElementById('inquiry-modal').remove()" aria-label="Cerrar" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--color-text-muted); cursor: pointer; padding:0.5rem;">
+  const modalHtml = \`
+    <div class="overlay-backdrop active" id="checkout-modal" style="z-index: 10000; display:flex; align-items:center; justify-content:center; opacity:0; animation: fadeIn 0.3s forwards;">
+      <div class="glass" style="padding: 2.5rem 2rem; max-width: 420px; width: 90%; text-align: left; position: relative;">
+        <button onclick="document.getElementById('checkout-modal').remove()" aria-label="Cerrar" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--color-text-muted); cursor: pointer; padding:0.5rem;">
           <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
-        <h3 style="font-family: var(--font-heading); font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--color-gold);">Enviar Consulta</h3>
-        <p style="color: var(--color-text-muted); margin-bottom: 2rem; font-size: 0.95rem; line-height:1.5;">Selecciona la plataforma para enviarnos los detalles de tu cotización.</p>
+        <h3 style="font-family: var(--font-heading); font-size: 1.5rem; margin-bottom: 0.2rem; color: var(--color-gold); text-align: center;">Confirmar Pedido</h3>
+        <p style="color: var(--color-text-muted); margin-bottom: 1.5rem; font-size: 0.9rem; line-height:1.5; text-align: center;">Completa tus datos para enviar la orden al sistema de Bifrost.</p>
         
-        <div style="display: flex; flex-direction: column; gap: 1rem;">
-          <a href="${waLink}" target="_blank" onclick="Cart.clear(); closeCart(); document.getElementById('inquiry-modal').remove();" class="btn btn--primary" style="background: #25D366; color: white; border-color: #25D366; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z M12.004 2C6.477 2 2 6.477 2 12.004a9.965 9.965 0 001.367 5.02L2 22l5.134-1.345A9.97 9.97 0 0012.004 22C17.53 22 22 17.523 22 12.004S17.53 2 12.004 2z"/></svg>
-            WhatsApp
-          </a>
-          <a href="${tgLink}" target="_blank" onclick="Cart.clear(); closeCart(); document.getElementById('inquiry-modal').remove();" class="btn btn--outline" style="border-color: #2AABEE; color: #2AABEE; display: flex; align-items: center; justify-content: center; gap: 0.5rem; border-width: 2px;">
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-            Telegram
-          </a>
-        </div>
+        <form onsubmit="window.submitBifrostCheckout(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--color-text-secondary); margin-bottom:0.3rem;">Nombre Completo *</label>
+            <input type="text" name="nombre" required style="width:100%; padding:0.8rem; border-radius: var(--radius-md); border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.5); color:#fff; font-family:inherit;">
+          </div>
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--color-text-secondary); margin-bottom:0.3rem;">Teléfono / WhatsApp *</label>
+            <input type="tel" name="telefono" required style="width:100%; padding:0.8rem; border-radius: var(--radius-md); border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.5); color:#fff; font-family:inherit;">
+          </div>
+          <div>
+            <label style="display:block; font-size:0.85rem; color:var(--color-text-secondary); margin-bottom:0.3rem;">Dirección o Notas (Opcional)</label>
+            <textarea name="direccion" rows="3" style="width:100%; padding:0.8rem; border-radius: var(--radius-md); border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.5); color:#fff; font-family:inherit; resize:vertical;"></textarea>
+          </div>
+          
+          <div style="margin-top: 0.5rem;">
+            <button type="submit" class="btn btn--primary" style="width:100%; justify-content:center;">Enviar Pedido • \${window.formatPrice(window.Cart.total)}</button>
+          </div>
+        </form>
       </div>
     </div>
-  `;
+  \`;
   document.body.insertAdjacentHTML('beforeend', modalHtml);
 }
 
@@ -332,16 +398,7 @@ function initCheckoutBtn() {
         window.showToast('Tu cava está vacía', 'warning');
         return;
       }
-
-      // Generate invoice-style message
-      let msg = "Hola Bifrost S.A, me gustaría solicitar una cotización para los siguientes vinos:\n\n";
-      window.Cart.items.forEach(item => {
-        msg += `• ${item.qty}x ${item.name} - ${item.vintage} (${formatPrice(item.price)}/u)\n`;
-      });
-      msg += `\nSubtotal estimado: ${formatPrice(window.Cart.total)}\n`;
-      msg += "\nEspero su respuesta para conocer detalles sobre envío y pago. ¡Gracias!";
-
-      showInquiryChoiceModal(msg);
+      showCheckoutModal();
     });
   });
 }

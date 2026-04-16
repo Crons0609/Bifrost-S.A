@@ -7,26 +7,53 @@ const path = require('path');
 const fs = require('fs');
 
 // ── 1. CONFIGURACIÓN FIREBASE ADMIN ──
-// Busca la llave generada en la configuración del proyecto Firebase -> Cuentas de Servicio
 const serviceAccountPath = path.join(__dirname, 'firebase-service-account.json');
 
+let serviceAccount = null;
+
+// En Producción (Render) leeremos la clave en formato texto desde las Variables de Entorno
+if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+  try {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+  } catch (err) {
+    console.error("⚠️ Error leyendo FIREBASE_SERVICE_ACCOUNT_KEY:", err.message);
+  }
+} else if (fs.existsSync(serviceAccountPath)) {
+  serviceAccount = require(serviceAccountPath);
+}
+
 let db = null;
-if (fs.existsSync(serviceAccountPath)) {
-  const serviceAccount = require(serviceAccountPath);
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    // Asegúrate de definir FIREBASE_DATABASE_URL en tu .env o hardcodearla
-    databaseURL: process.env.FIREBASE_DATABASE_URL || "https://tu-proyecto.firebaseio.com"
-  });
-  db = admin.database();
-  console.log("🔥 Firebase Admin inicializado.");
+if (serviceAccount) {
+  try {
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+      // En Render puedes declarar FIREBASE_DATABASE_URL también
+      databaseURL: process.env.FIREBASE_DATABASE_URL || "https://bifrost-sa-default-rtdb.firebaseio.com"
+    });
+    db = admin.database();
+    console.log("🔥 Firebase Admin inicializado.");
+  } catch (err) {
+    console.error("⚠️ Error inicializando Firebase:", err.message);
+  }
 } else {
-  console.warn("⚠️ ALERTA: No se encontró 'firebase-service-account.json'. Firebase no sincronizará.");
+  console.warn("⚠️ ALERTA: No se encontró 'firebase-service-account.json' ni la variable 'FIREBASE_SERVICE_ACCOUNT_KEY'. Firebase no sincronizará.");
 }
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// ── SERVIR EL FRONTEND (Web Service) ──
+// Servimos explícitamente las carpetas estáticas para no exponer archivos del backend y clave secretas
+app.use('/css', express.static(path.join(__dirname, 'css')));
+app.use('/js', express.static(path.join(__dirname, 'js')));
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
+app.use('/statics', express.static(path.join(__dirname, 'statics')));
+
+// Ruta principal para servir la página de inicio
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // ── 2. CONFIGURACIÓN TELEGRAM BOT ──
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -106,6 +133,53 @@ if (BOT_TOKEN) {
 
 // ── 3. ENDPOINTS API OPCIONALES (RENDER) ──
 app.get('/api/ping', (req, res) => res.send("ERP Backend Alive"));
+
+app.post('/api/checkout', async (req, res) => {
+  try {
+    const { items, total, cliente } = req.body;
+    
+    if (!items || items.length === 0 || !cliente || !cliente.nombre || !cliente.telefono) {
+      return res.status(400).json({ error: "Faltan datos del pedido o de contacto del cliente." });
+    }
+
+    let pedidoId = "PENDIENTE";
+    // 1. Guardar en Firebase
+    if (db) {
+      const ref = db.ref('erp/pedidos').push();
+      pedidoId = ref.key;
+      await ref.set({
+        items,
+        total,
+        cliente,
+        estado: 'pendiente',
+        timestamp: admin.database.ServerValue.TIMESTAMP
+      });
+    }
+
+    // 2. Avisar por Telegram
+    if (BOT_TOKEN && ADMIN_ID) {
+      let msg = `🔔 *NUEVO PEDIDO WEB*\n\n`;
+      msg += `👤 *Cliente:* ${cliente.nombre}\n`;
+      msg += `📱 *Teléfono:* ${cliente.telefono}\n`;
+      if (cliente.direccion) msg += `📍 *Dirección/Notas:* ${cliente.direccion}\n`;
+      msg += `\n🛒 *Resumen del Pedido:*\n`;
+      
+      items.forEach(item => {
+        msg += `• ${item.qty}x ${item.name} (-$${(item.price * item.qty).toFixed(2)})\n`;
+      });
+      
+      msg += `\n💰 *Total Pagar:* $${total.toFixed(2)}\n`;
+      msg += `*(ID: ${pedidoId})*`;
+      
+      bot.telegram.sendMessage(ADMIN_ID, msg, { parse_mode: 'Markdown' }).catch(console.error);
+    }
+    
+    res.json({ success: true, pedidoId, message: "Pedido procesado." });
+  } catch (error) {
+    console.error("Error en /api/checkout:", error);
+    res.status(500).json({ error: "Error interno" });
+  }
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

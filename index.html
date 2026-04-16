@@ -28,7 +28,7 @@
     :root {
       --link-whatsapp: "https://wa.me/50576060334";
       /* Reemplazar con la URL real */
-      --link-telegram: "https://t.me/bifrostwines";
+      --link-telegram: "https://t.me/Young_plague_FTP";
       /* Reemplazar con la URL real */
       --link-facebook: "https://facebook.com/bifrostwines";
       /* Reemplazar con la URL real */
@@ -162,7 +162,8 @@
     /* ── Fila logo + botellas ────────────────────────────── */
     .hero__logo-row {
       display: flex;
-      align-items: flex-end;   /* botellas alineadas al pie del logo */
+      align-items: flex-end;
+      /* botellas alineadas al pie del logo */
       justify-content: center;
       gap: 0;
       margin-bottom: var(--space-6);
@@ -179,8 +180,7 @@
       flex-shrink: 0;
       will-change: transform;
       filter:
-        drop-shadow(0 20px 40px rgba(0,0,0,0.65))
-        drop-shadow(0 0 24px rgba(212,175,55,0.22));
+        drop-shadow(0 20px 40px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 24px rgba(212, 175, 55, 0.22));
     }
 
     .hero-bottle--left {
@@ -207,8 +207,14 @@
       .hero-bottle {
         width: clamp(130px, 28vw, 190px);
       }
-      .hero-bottle--left  { margin-right: -18px; }
-      .hero-bottle--right { margin-left:  -18px; }
+
+      .hero-bottle--left {
+        margin-right: -18px;
+      }
+
+      .hero-bottle--right {
+        margin-left: -18px;
+      }
     }
 
     @media (max-width: 420px) {
@@ -670,23 +676,11 @@
       <div class="hero__content">
         <!-- Fila: botella izquierda | logo | botella derecha -->
         <div class="hero__logo-row hero-animate">
-          <img
-            id="hero-bottle-left"
-            src="assets/images/wines/bottles-1.png"
-            alt="" aria-hidden="true"
-            class="hero-bottle hero-bottle--left"
-          >
-          <img
-            src="assets/images/ui/bifrost-logo.png"
-            alt="Bifrost S.A — Vortex Reserve"
-            class="hero__logo-img"
-          >
-          <img
-            id="hero-bottle-right"
-            src="assets/images/wines/bottles-2.png"
-            alt="" aria-hidden="true"
-            class="hero-bottle hero-bottle--right"
-          >
+          <img id="hero-bottle-left" src="assets/images/wines/bottles-1.png" alt="" aria-hidden="true"
+            class="hero-bottle hero-bottle--left">
+          <img src="assets/images/ui/bifrost-logo.png" alt="Bifrost S.A — Vortex Reserve" class="hero__logo-img">
+          <img id="hero-bottle-right" src="assets/images/wines/bottles-2.png" alt="" aria-hidden="true"
+            class="hero-bottle hero-bottle--right">
         </div>
 
         <p class="hero__eyebrow hero-animate">La Colección Vortex Reserve</p>
@@ -899,7 +893,7 @@
                   d="M12.004 2C6.477 2 2 6.477 2 12.004a9.965 9.965 0 001.367 5.02L2 22l5.134-1.345A9.97 9.97 0 0012.004 22C17.53 22 22 17.523 22 12.004S17.53 2 12.004 2zm0 18.163a8.155 8.155 0 01-4.154-1.134l-.298-.177-3.05.799.814-2.972-.194-.306A8.147 8.147 0 013.84 12.004c0-4.512 3.67-8.182 8.164-8.182 4.494 0 8.163 3.67 8.163 8.182 0 4.513-3.669 8.159-8.163 8.159z" />
               </svg>
             </a>
-            <a href="https://t.me/bifrostwines" class="footer__social-link" target="_blank" rel="noopener"
+            <a href="https://t.me/Young_plague_FTP" class="footer__social-link" target="_blank" rel="noopener"
               aria-label="Telegram" data-social="telegram">
               <svg fill="currentColor" viewBox="0 0 24 24">
                 <path
@@ -1094,25 +1088,25 @@
       if (!bottleL || !bottleR) return;
 
       const hero = document.getElementById('hero');
-      const TILT_L   = -12;   /* inclinación base izquierda */
-      const TILT_R   =  12;   /* inclinación base derecha  */
+      const TILT_L = -12;   /* inclinación base izquierda */
+      const TILT_R = 12;   /* inclinación base derecha  */
       const MAX_SLIDE = 220;  /* px máx de desplazamiento lateral */
 
       let ticking = false;
 
       function update() {
-        const heroH    = hero.offsetHeight;
-        const scrollY  = window.scrollY;
+        const heroH = hero.offsetHeight;
+        const scrollY = window.scrollY;
         /* progress 0 = inicio del hero | 1 = hero completamente scrolleado */
         const progress = Math.min(Math.max(scrollY / heroH, 0), 1);
-        const slide    = progress * MAX_SLIDE;
+        const slide = progress * MAX_SLIDE;
 
         /* Las botellas van en flujo (flexbox), solo aplicamos translateX + tilt */
         bottleL.style.transform = `rotate(${TILT_L - progress * 8}deg) translateX(${-slide}px)`;
-        bottleL.style.opacity   = String(Math.max(1 - progress * 0.95, 0));
+        bottleL.style.opacity = String(Math.max(1 - progress * 0.95, 0));
 
         bottleR.style.transform = `rotate(${TILT_R + progress * 8}deg) translateX(${slide}px)`;
-        bottleR.style.opacity   = String(Math.max(1 - progress * 0.95, 0));
+        bottleR.style.opacity = String(Math.max(1 - progress * 0.95, 0));
 
         ticking = false;
       }
