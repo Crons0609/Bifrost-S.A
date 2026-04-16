@@ -61,19 +61,25 @@ const ADMIN_ID = process.env.ADMIN_TELEGRAM_ID;
 
 const bot = new Telegraf(BOT_TOKEN || "MODO_SEGURO_DUMMY");
 
-bot.use((ctx, next) => {
-  if (ctx.from && ctx.from.id.toString() === ADMIN_ID) return next();
-  if (ctx.from) {
-    ctx.reply("⛔ Bifrost S.A ERP: Acceso Denegado.");
-  }
-});
+// Función Auxiliar para Seguridad
+const isAdmin = (ctx) => {
+  if (!ctx.from) return false;
+  const idStr = ctx.from.id.toString();
+  return idStr === ADMIN_ID || idStr === process.env.ADMIN_ID;
+};
 
 bot.start((ctx) => {
-  ctx.reply("🍷 Bienvenido al ERP de Bifrost S.A.\n\nComandos:\n/stock - Ver inventario\n+gasto [monto] [motivo] - Añadir gasto de producción\n/responder [ID_Mensaje] [Texto] - Para contestar al cliente");
+  if (isAdmin(ctx)) {
+    ctx.reply("🍷 Bienvenido al ERP de Bifrost S.A.\n\nComandos:\n/stock - Ver inventario\n/listar_recetas - Ver lotes activos\n+gasto [monto] [motivo] - Añadir gasto de producción\n/responder [ID_Mensaje] [Texto] - Para contestar al cliente");
+  } else {
+    const nombre = ctx.from.first_name || '';
+    ctx.reply(`¡Hola ${nombre}! 👋 Bienvenido a Bifrost S.A. 🍷\nSoy el asistente virtual de la bodega.\nPuedes consultarme sobre nuestro stock disponible, precios o enviarnos un mensaje y te atenderemos a la brevedad.`);
+  }
 });
 
 // Registrar Gasto en Firebase
 bot.hears(/^\+gasto\s+(\d+(?:\.\d+)?)\s+(.+)/i, async (ctx) => {
+  if (!isAdmin(ctx)) return;
   if (!db) return ctx.reply("❌ Error: Firebase no configurado.");
   const monto = parseFloat(ctx.match[1]);
   const motivo = ctx.match[2];
@@ -94,6 +100,7 @@ bot.hears(/^\+gasto\s+(\d+(?:\.\d+)?)\s+(.+)/i, async (ctx) => {
 // Comando de respuesta a un mensaje de cliente
 // Formato: /responder [numero O ID] [mensaje...]
 bot.hears(/^\/responder\s+(\S+)\s+(.+)/i, async (ctx) => {
+  if (!isAdmin(ctx)) return;
   if (!db) return;
   const msgId = ctx.match[1];
   const respuesta = ctx.match[2];
@@ -117,9 +124,6 @@ bot.hears(/^\/responder\s+(\S+)\s+(.+)/i, async (ctx) => {
 // ═══════════════════════════════════════════════════════
 // MAESTRO DE COSTOS SIMPLIFICADO: COMANDOS BOT TELEGRAM
 // ═══════════════════════════════════════════════════════
-
-// Función Auxiliar para Seguridad
-const isAdmin = (ctx) => ctx.from && ctx.from.id.toString() === process.env.ADMIN_ID;
 
 // 1. Comando: /nueva_receta
 // Ej: /nueva_receta Tamarindo 60lb 600nio destajo:100 agua:200L:50nio azucar:20lb:1100nio levadura:0.5lb:30nio canela:40nio litros_obtenidos:208
