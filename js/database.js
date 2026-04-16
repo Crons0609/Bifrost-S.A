@@ -1,6 +1,6 @@
 /* ============================================================
    BIFROST WINES — database.js
-   Controlador IndexedDB + Datos de Semilla (Español - Nicaragua)
+   Controlador IndexedDB + Sincronización Firebase Realtime DB
    ============================================================ */
 
 const DB_NAME    = 'BifrostWinesDB';
@@ -9,6 +9,66 @@ const STORE_NAME = 'wines';
 const SETTINGS_STORE = 'settings';
 const SALES_STORE    = 'sales';
 const ADMINS_STORE   = 'admins';
+
+/* ── Firebase Web SDK (modo compat CDN) ───────────────────────── */
+const FB_CONFIG = {
+  apiKey: "AIzaSyASoDJQqXNWupnA0DicW6sWgm-zD7xe9HA",
+  authDomain: "bifrost-sa.firebaseapp.com",
+  databaseURL: "https://bifrost-sa-default-rtdb.firebaseio.com",
+  projectId: "bifrost-sa",
+  storageBucket: "bifrost-sa.firebasestorage.app",
+  messagingSenderId: "943196918782",
+  appId: "1:943196918782:web:5e197c094948a6517a66af"
+};
+
+// Inicializar Firebase usando el SDK compat (no módulos ES)
+let _fbApp = null;
+let _fbDb  = null;
+
+function _initFirebase() {
+  try {
+    if (typeof firebase === 'undefined') return null;
+    if (!firebase.apps.length) {
+      _fbApp = firebase.initializeApp(FB_CONFIG);
+    } else {
+      _fbApp = firebase.apps[0];
+    }
+    _fbDb = firebase.database();
+    return _fbDb;
+  } catch (e) {
+    console.warn('⚠️ Firebase no disponible:', e.message);
+    return null;
+  }
+}
+
+// Helper: Escribe en Firebase si está disponible
+async function _fbSet(path, data) {
+  const db = _fbDb || _initFirebase();
+  if (!db) return;
+  try { await db.ref(path).set(data); } catch(e) { console.warn('Firebase set error:', e.message); }
+}
+
+async function _fbPush(path, data) {
+  const db = _fbDb || _initFirebase();
+  if (!db) return null;
+  try {
+    const ref = await db.ref(path).push(data);
+    return ref.key;
+  } catch(e) { console.warn('Firebase push error:', e.message); return null; }
+}
+
+async function _fbUpdate(path, data) {
+  const db = _fbDb || _initFirebase();
+  if (!db) return;
+  try { await db.ref(path).update(data); } catch(e) { console.warn('Firebase update error:', e.message); }
+}
+
+async function _fbRemove(path) {
+  const db = _fbDb || _initFirebase();
+  if (!db) return;
+  try { await db.ref(path).remove(); } catch(e) { console.warn('Firebase remove error:', e.message); }
+}
+
 
 // ── Rutas de imágenes PNG ──────────────────────────────────────
 const IMG = {
@@ -524,14 +584,21 @@ class BifrostDB {
         admin.id = Date.now();
         admins.push(admin);
         localStorage.setItem('bifrost_admins', JSON.stringify(admins));
+        // Sync to Firebase
+        _fbPush('erp/admins', { ...admin }).catch(() => {});
         resolve(admin);
         return;
       }
       const tx    = this.db.transaction(ADMINS_STORE, 'readwrite');
       const store = tx.objectStore(ADMINS_STORE);
       const req   = store.add(admin);
-      req.onsuccess = () => { admin.id = req.result; resolve(admin); };
-      req.onerror   = () => reject(req.error);
+      req.onsuccess = () => {
+        admin.id = req.result;
+        // Sync to Firebase (use id as key)
+        _fbSet(`erp/admins/${admin.id}`, { ...admin }).catch(() => {});
+        resolve(admin);
+      };
+      req.onerror = () => reject(req.error);
     });
   }
 
@@ -541,14 +608,18 @@ class BifrostDB {
         let admins = JSON.parse(localStorage.getItem('bifrost_admins') || '[]');
         admins = admins.filter(a => a.id !== Number(id));
         localStorage.setItem('bifrost_admins', JSON.stringify(admins));
+        _fbRemove(`erp/admins/${id}`).catch(() => {});
         resolve();
         return;
       }
       const tx    = this.db.transaction(ADMINS_STORE, 'readwrite');
       const store = tx.objectStore(ADMINS_STORE);
       const req   = store.delete(Number(id));
-      req.onsuccess = () => resolve();
-      req.onerror   = () => reject(req.error);
+      req.onsuccess = () => {
+        _fbRemove(`erp/admins/${id}`).catch(() => {});
+        resolve();
+      };
+      req.onerror = () => reject(req.error);
     });
   }
 
@@ -559,14 +630,18 @@ class BifrostDB {
         const idx    = admins.findIndex(a => a.id === admin.id);
         if (idx !== -1) admins[idx] = admin;
         localStorage.setItem('bifrost_admins', JSON.stringify(admins));
+        _fbUpdate(`erp/admins/${admin.id}`, { ...admin }).catch(() => {});
         resolve(admin);
         return;
       }
       const tx    = this.db.transaction(ADMINS_STORE, 'readwrite');
       const store = tx.objectStore(ADMINS_STORE);
       const req   = store.put(admin);
-      req.onsuccess = () => resolve(admin);
-      req.onerror   = () => reject(req.error);
+      req.onsuccess = () => {
+        _fbUpdate(`erp/admins/${admin.id}`, { ...admin }).catch(() => {});
+        resolve(admin);
+      };
+      req.onerror = () => reject(req.error);
     });
   }
 
@@ -575,6 +650,31 @@ class BifrostDB {
     return admins.find(a => a.username === username && a.password === password && a.active) || null;
   }
 }
+
+// Cargar Firebase SDK compat antes de instanciar BifrostDB
+function _loadFirebaseSDK() {
+  const scripts = [
+    'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js',
+    'https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js'
+  ];
+  let chain = Promise.resolve();
+  scripts.forEach(src => {
+    chain = chain.then(() => new Promise((res, rej) => {
+      if (document.querySelector(`script[src="${src}"]`)) return res();
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = res;
+      s.onerror = res; // no bloquear si falla
+      document.head.appendChild(s);
+    }));
+  });
+  return chain;
+}
+
+_loadFirebaseSDK().then(() => {
+  _initFirebase();
+  console.log('🔥 Firebase SDK compat cargado y listo.');
+}).catch(() => {});
 
 const DB = new BifrostDB();
 window.BifrostDB = DB;
