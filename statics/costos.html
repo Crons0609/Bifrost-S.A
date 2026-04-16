@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maestro de Costos — Bifrost S.A ERP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      --gold: #D4AF37;
+      --gold-light: #F0D060;
+      --gold-dim: rgba(212,175,55,0.15);
+      --teal: #45A29E;
+      --bg: #08080F;
+      --surface: #0F0F1A;
+      --surface2: #161625;
+      --glass: rgba(255,255,255,0.04);
+      --glass-border: rgba(255,255,255,0.08);
+      --text: #F0EDE8;
+      --text-muted: #7A7A8C;
+      --text-secondary: #B8B4AA;
+      --green: #4CAF50;
+      --red: #EF5350;
+      --orange: #FF9800;
+      --font-heading: 'Playfair Display', Georgia, serif;
+      --font-body: 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --r-sm: 8px;
+      --r-md: 12px;
+      --r-lg: 16px;
+      --r-xl: 24px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Aurora Background ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 15% 20%, rgba(212,175,55,0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 80%, rgba(69,162,158,0.05) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Password Gate ── */
+    #auth-gate {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    #auth-gate.hidden { display: none; }
+
+    .auth-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--r-xl);
+      padding: 3rem 2.5rem;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      backdrop-filter: blur(20px);
+    }
+
+    .auth-card__logo {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem;
+      background: var(--gold-dim);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+
+    .auth-card h2 {
+      font-family: var(--font-heading);
+      font-size: 1.6rem;
+      color: var(--gold);
+      margin-bottom: 0.3rem;
+    }
+
+    .auth-card p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 1.8rem;
+    }
+
+    .auth-input-wrap {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    .auth-input {
+      width: 100%;
+      padding: 0.9rem 1.2rem;
+      border-radius: var(--r-md);
+      border: 1px solid var(--glass-border);
+      background: rgba(0,0,0,0.4);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .auth-input:focus { border-color: var(--gold); }
+
+    .auth-error {
+      color: var(--red);
+      font-size: 0.82rem;
+      margin-bottom: 0.8rem;
+      min-height: 1.2em;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--r-md);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .btn--gold {
+      background: linear-gradient(135deg, #C8A828, #E8C840);
+      color: #000;
+    }
+
+    .btn--gold:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(212,175,55,0.4); }
+
+    .btn--outline {
+      background: transparent;
+      border: 1px solid var(--glass-border);
+      color: var(--text-secondary);
+    }
+
+    .btn--outline:hover { border-color: var(--gold); color: var(--gold); }
+
+    .btn--danger {
+      background: rgba(239,83,80,0.15);
+      color: var(--red);
+      border: 1px solid rgba(239,83,80,0.3);
+    }
+
+    .btn--full { width: 100%; }
+
+    /* ── Main Layout ── */
+    #app { position: relative; z-index: 1; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      border-bottom: 1px solid var(--glass-border);
+      background: rgba(8,8,15,0.8);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar__brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .topbar__logo {
+      width: 36px;
+      height: 36px;
+      background: var(--gold-dim);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .topbar__title {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      color: var(--gold);
+    }
+
+    .topbar__subtitle { font-size: 0.75rem; color: var(--text-muted); }
+
+    .topbar__actions { display: flex; gap: 0.75rem; }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 0;
+      min-height: calc(100vh - 65px);
+    }
+
+    /* ── Left Sidebar ── */
+    .sidebar {
+      border-right: 1px solid var(--glass-border);
+      padding: 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    /* ── Content Area ── */
+    .content {
+      padding: 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--r-lg);
+      padding: 1.2rem;
+    }
+
+    .card--gold-border { border-color: rgba(212,175,55,0.3); }
+
+    .card__header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .card__icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--r-sm);
+      background: var(--gold-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .card__title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    /* ── Form Controls ── */
+    .form-group { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.8rem; }
+    .form-label { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; letter-spacing: 0.05em; }
+
+    .form-input, .form-select {
+      padding: 0.6rem 0.85rem;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--glass-border);
+      background: rgba(0,0,0,0.35);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus, .form-select:focus { border-color: var(--gold); }
+    .form-select option { background: var(--surface); }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    /* ── Inputs Table ── */
+    .insumos-table { width: 100%; border-collapse: collapse; }
+
+    .insumos-table th {
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 0.4rem 0.5rem;
+      text-align: left;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .insumos-table td {
+      padding: 0.4rem 0.5rem;
+      font-size: 0.82rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .insumos-table td:last-child { text-align: right; }
+
+    .insumo-price-input {
+      width: 80px;
+      padding: 0.3rem 0.5rem;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--glass-border);
+      background: rgba(0,0,0,0.4);
+      color: var(--gold);
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      text-align: right;
+      outline: none;
+    }
+
+    .insumo-price-input:focus { border-color: var(--gold); }
+
+    .insumo-unit {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+    }
+
+    /* ── Result Cascade ── */
+    .cascade-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .cost-block {
+      background: var(--surface2);
+      border-radius: var(--r-md);
+      padding: 1rem;
+      border-left: 3px solid transparent;
+    }
+
+    .cost-block--mp { border-color: var(--teal); }
+    .cost-block--mod { border-color: #9C27B0; }
+    .cost-block--cif { border-color: var(--orange); }
+
+    .cost-block__label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.4rem; }
+    .cost-block__value { font-family: var(--font-mono); font-size: 1.4rem; font-weight: 700; }
+    .cost-block__sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem; }
+    .cost-block--mp .cost-block__value { color: var(--teal); }
+    .cost-block--mod .cost-block__value { color: #CE93D8; }
+    .cost-block--cif .cost-block__value { color: var(--orange); }
+
+    /* ── PVP Hero ── */
+    .pvp-hero {
+      background: linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(69,162,158,0.05) 100%);
+      border: 1px solid rgba(212,175,55,0.25);
+      border-radius: var(--r-xl);
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .pvp-hero__label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-muted); }
+    .pvp-hero__main { font-family: var(--font-heading); font-size: 3.2rem; font-weight: 900; color: var(--gold); line-height: 1; }
+    .pvp-hero__secondary { font-family: var(--font-mono); font-size: 1.1rem; color: var(--teal); margin-top: 0.3rem; }
+    .pvp-hero__desc { font-size: 0.78rem; color: var(--text-muted); max-width: 280px; margin-top: 0.4rem; }
+
+    .pvp-badge { text-align: right; }
+    .pvp-badge__bottles { font-family: var(--font-mono); font-size: 2.5rem; font-weight: 700; color: var(--gold); }
+    .pvp-badge__label { font-size: 0.72rem; color: var(--text-muted); }
+
+    /* ── Cascade Breakdown Table ── */
+    .breakdown-table { width: 100%; border-collapse: collapse; }
+
+    .breakdown-table tr:not(:last-child) td { border-bottom: 1px solid rgba(255,255,255,0.04); }
+
+    .breakdown-table td {
+      padding: 0.55rem 0.6rem;
+      font-size: 0.83rem;
+    }
+
+    .breakdown-table td:last-child {
+      text-align: right;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+    }
+
+    .breakdown-table .total-row { background: rgba(212,175,55,0.07); }
+    .breakdown-table .total-row td { color: var(--gold); font-weight: 700; }
+    .breakdown-table .subtotal-row td { color: var(--text-secondary); font-style: italic; }
+    .breakdown-table .section-header td {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      padding-top: 0.9rem;
+      font-weight: 600;
+    }
+
+    .breakdown-table .angel-row td { color: #FF9800; }
+
+    /* ── Equilibrio Visual ── */
+    .equilibrio-bar {
+      height: 24px;
+      border-radius: 12px;
+      background: var(--surface2);
+      overflow: hidden;
+      position: relative;
+      margin: 0.7rem 0;
+    }
+
+    .equilibrio-bar__fill {
+      height: 100%;
+      border-radius: 12px;
+      background: linear-gradient(90deg, #EF5350, #FF9800, #4CAF50);
+      transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+    }
+
+    .equilibrio-bar__marker {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 3px;
+      background: #fff;
+    }
+
+    /* ── Simulator ── */
+    .sim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    .sim-item { padding: 0.8rem; background: var(--surface2); border-radius: var(--r-md); }
+
+    .sim-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem; }
+    .sim-name { font-size: 0.8rem; font-weight: 600; }
+    .sim-val { font-family: var(--font-mono); font-size: 0.85rem; color: var(--gold); }
+
+    .sim-slider {
+      width: 100%;
+      accent-color: var(--gold);
+      cursor: pointer;
+    }
+
+    .sim-range { display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--text-muted); }
+
+    .sim-result {
+      background: var(--surface2);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--r-md);
+      padding: 1rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .sim-stat { text-align: center; }
+    .sim-stat__val { font-family: var(--font-mono); font-size: 1.2rem; font-weight: 700; }
+    .sim-stat__lbl { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem; }
+    .sim-stat--up .sim-stat__val { color: var(--red); }
+    .sim-stat--down .sim-stat__val { color: var(--green); }
+    .sim-stat--neutral .sim-stat__val { color: var(--gold); }
+
+    /* ── Chart ── */
+    .chart-wrap { position: relative; height: 200px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .main-grid { grid-template-columns: 1fr; }
+      .sidebar { border-right: none; border-bottom: 1px solid var(--glass-border); }
+      .cascade-grid { grid-template-columns: 1fr 1fr; }
+      .sim-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .topbar { padding: 0.8rem 1rem; }
+      .cascade-grid { grid-template-columns: 1fr; }
+      .pvp-hero { grid-template-columns: 1fr; }
+      .pvp-badge { text-align: left; }
+    }
+
+    /* ── Print ── */
+    @media print {
+      #auth-gate, .topbar__actions { display: none !important; }
+      body { background: #fff; color: #000; }
+      .card { border: 1px solid #ccc; }
+    }
+
+    /* ── Utilities ── */
+    .tag {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 99px;
+      font-size: 0.68rem;
+      font-weight: 600;
+    }
+
+    .tag--gold { background: var(--gold-dim); color: var(--gold); }
+    .tag--green { background: rgba(76,175,80,0.15); color: var(--green); }
+    .tag--orange { background: rgba(255,152,0,0.15); color: var(--orange); }
+
+    .divider { height: 1px; background: var(--glass-border); margin: 0.5rem 0; }
+
+    .text-muted { color: var(--text-muted); }
+    .text-gold { color: var(--gold); }
+    .text-mono { font-family: var(--font-mono); }
+
+    .section-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .highlight-box {
+      background: rgba(212,175,55,0.06);
+      border-left: 3px solid var(--gold);
+      border-radius: 0 var(--r-sm) var(--r-sm) 0;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin: 0.8rem 0;
+      line-height: 1.5;
+    }
+
+    .highlight-box strong { color: var(--gold); }
+
+    /* ── Animations ── */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .animate-in { animation: fadeIn 0.4s ease both; }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════
+     GATE DE ACCESO
+════════════════════════════════════════════════════════ -->
+<div id="auth-gate">
+  <div class="auth-card">
+    <div class="auth-card__logo">🏰</div>
+    <h2>Maestro de Costos</h2>
+    <p>Acceso restringido al equipo contable de Bifrost S.A</p>
+    <div class="auth-input-wrap">
+      <input type="password" id="auth-pass" class="auth-input"
+        placeholder="Contraseña de administrador"
+        onkeydown="if(event.key==='Enter') checkAuth()">
+    </div>
+    <p class="auth-error" id="auth-error"></p>
+    <button class="btn btn--gold btn--full" onclick="checkAuth()">
+      🔐 Ingresar al Sistema
+    </button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     APLICACIÓN PRINCIPAL
+════════════════════════════════════════════════════════ -->
+<div id="app" style="display:none;">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar__brand">
+      <div class="topbar__logo">🍷</div>
+      <div>
+        <div class="topbar__title">Maestro de Costos Bifrost</div>
+        <div class="topbar__subtitle">Sistema ERP Contable · Bodega de Lujo</div>
+      </div>
+    </div>
+    <div class="topbar__actions">
+      <button class="btn btn--outline" onclick="window.print()">🖨️ Exportar PDF</button>
+      <a href="../index.html" class="btn btn--outline">← Volver</a>
+      <button class="btn btn--danger btn--outline" onclick="logout()">Salir</button>
+    </div>
+  </header>
+
+  <div class="main-grid">
+
+    <!-- ════ SIDEBAR IZQUIERDO ════ -->
+    <aside class="sidebar">
+
+      <!-- Ficha Técnica -->
+      <div class="card">
+        <div class="card__header">
+          <div class="card__icon">📋</div>
+          <span class="card__title">Ficha Técnica</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Vino / Producto</label>
+          <select class="form-select" id="ficha-select" onchange="loadFicha()">
+            <option value="gran_reserva">Bifrost Gran Reserva Corozo Tinto</option>
+            <option value="blanco_barrica">Blanco Fermentado en Barrica</option>
+            <option value="rosado_corozo">Rosado Corozo Premium</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Tamaño del lote (kg)</label>
+            <input type="number" class="form-input" id="lote-kg" value="200" oninput="calcular()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Rendimiento (L/kg)</label>
+            <input type="number" class="form-input" id="rendimiento" value="0.65" step="0.01" oninput="calcular()">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Meses en Barrica</label>
+            <input type="number" class="form-input" id="meses-barrica" value="12" oninput="calcular()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">% Ángel/mes</label>
+            <input type="number" class="form-input" id="angel-pct" value="0.8" step="0.1" oninput="calcular()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Precios de Insumos MP -->
+      <div class="card">
+        <div class="card__header">
+          <div class="card__icon">🌿</div>
+          <span class="card__title">Materia Prima</span>
+        </div>
+        <table class="insumos-table">
+          <thead>
+            <tr>
+              <th>Insumo</th>
+              <th>Unidad</th>
+              <th>Cant.</th>
+              <th>NIO</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Corozo M</td>
+              <td class="insumo-unit">Quintal</td>
+              <td><input type="number" class="insumo-price-input" id="q-corozo" value="4.4" step="0.1" oninput="calcular()"></td>
+              <td><input type="number" class="insumo-price-input" id="p-corozo" value="1000" oninput="calcular()"></td>
+            </tr>
+            <tr>
+              <td>Azúcar</td>
+              <td class="insumo-unit">Libra</td>
+              <td><input type="number" class="insumo-price-input" id="q-azucar" value="20" oninput="calcular()"></td>
+              <td><input type="number" class="insumo-price-input" id="p-azucar" value="55" oninput="calcular()"></td>
+            </tr>
+            <tr>
+              <td>Levadura</td>
+              <td class="insumo-unit">Libra</td>
+              <td><input type="number" class="insumo-price-input" id="q-levadura" value="0.5" step="0.1" oninput="calcular()"></td>
+              <td><input type="number" class="insumo-price-input" id="p-levadura" value="60" oninput="calcular()"></td>
+            </tr>
+            <tr>
+              <td>Nutrientes</td>
+              <td class="insumo-unit">Lote</td>
+              <td>—</td>
+              <td><input type="number" class="insumo-price-input" id="p-nutrientes" value="50" oninput="calcular()"></td>
+            </tr>
+            <tr>
+              <td>Agua</td>
+              <td class="insumo-unit">Lote</td>
+              <td>—</td>
+              <td><input type="number" class="insumo-price-input" id="p-agua" value="200" oninput="calcular()"></td>
+            </tr>
+            <tr>
+              <td>Enzimas</td>
+              <td class="insumo-unit">Lote</td>
+              <td>—</td>
+              <td><input type="number" class="insumo-price-input" id="p-enzimas" value="300" oninput="calcular()"></td>
+            </tr>
+            <tr>
+              <td>Sulfitos</td>
+              <td class="insumo-unit">Lote</td>
+              <td>—</td>
+              <td><input type="number" class="insumo-price-input" id="p-sulfitos" value="150" oninput="calcular()"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Envasado -->
+      <div class="card">
+        <div class="card__header">
+          <div class="card__icon">🍾</div>
+          <span class="card__title">Envasado / Botella</span>
+        </div>
+        <table class="insumos-table">
+          <thead>
+            <tr>
+              <th>Artículo</th>
+              <th>Variante</th>
+              <th>NIO/u</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Botella 750ml</td>
+              <td class="insumo-unit">Burdeos Premium</td>
+              <td><input type="number" class="insumo-price-input" id="e-botella" value="25" oninput="calcular()"></td>
+            </tr>
+            <tr>
+              <td>Corcho</td>
+              <td class="insumo-unit">Natural 1ª</td>
+              <td><input type="number" class="insumo-price-input" id="e-corcho" value="10" oninput="calcular()"></td>
+            </tr>
+            <tr>
+              <td>Cápsula</td>
+              <td class="insumo-unit">Lacre Lujo</td>
+              <td><input type="number" class="insumo-price-input" id="e-capsula" value="5" oninput="calcular()"></td>
+            </tr>
+            <tr>
+              <td>Etiqueta Frontal</td>
+              <td class="insumo-unit">Foil Stamping</td>
+              <td><input type="number" class="insumo-price-input" id="e-etiq-front" value="12" oninput="calcular()"></td>
+            </tr>
+            <tr>
+              <td>Contraetiqueta</td>
+              <td class="insumo-unit">Digital</td>
+              <td><input type="number" class="insumo-price-input" id="e-etiq-back" value="4" oninput="calcular()"></td>
+            </tr>
+            <tr>
+              <td>Collarín/Medallón</td>
+              <td class="insumo-unit">Detalle Lujo</td>
+              <td><input type="number" class="insumo-price-input" id="e-medallon" value="8" oninput="calcular()"></td>
+            </tr>
+            <tr>
+              <td>Caja (÷6)</td>
+              <td class="insumo-unit">Madera 6u</td>
+              <td><input type="number" class="insumo-price-input" id="e-caja" value="90" oninput="calcular()"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- MOD -->
+      <div class="card">
+        <div class="card__header">
+          <div class="card__icon">👨‍🔬</div>
+          <span class="card__title">Mano de Obra Directa</span>
+        </div>
+        <table class="insumos-table">
+          <thead>
+            <tr>
+              <th>Actividad</th>
+              <th>Horas</th>
+              <th>NIO/h</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Cosecha/Recepción</td>
+              <td><input type="number" class="insumo-price-input" id="m-h-cosecha" value="8" oninput="calcular()"></td>
+              <td><input type="number" class="insumo-price-input" id="m-p-cosecha" value="25" oninput="calcular()"></td>
+            </tr>
+            <tr>
+              <td>Bodega/Trasiegos</td>
+              <td><input type="number" class="insumo-price-input" id="m-h-bodega" value="10" oninput="calcular()"></td>
+              <td><input type="number" class="insumo-price-input" id="m-p-bodega" value="25" oninput="calcular()"></td>
+            </tr>
+            <tr>
+              <td>Embotellado</td>
+              <td><input type="number" class="insumo-price-input" id="m-h-embotell" value="4" oninput="calcular()"></td>
+              <td><input type="number" class="insumo-price-input" id="m-p-embotell" value="12.5" step="0.5" oninput="calcular()"></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="highlight-box" style="margin-top:0.8rem;">
+          ⚠️ <strong>Cargas Sociales:</strong> INSS Patronal 19% + INATEC 2% aplicables para presentación ante DGI Nicaragua.
+        </div>
+      </div>
+
+      <!-- CIF -->
+      <div class="card">
+        <div class="card__header">
+          <div class="card__icon">🏛️</div>
+          <span class="card__title">Costos Indirectos (CIF)</span>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Valor Barrica Nueva (NIO)</label>
+            <input type="number" class="form-input" id="c-barrica-val" value="18000" oninput="calcular()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Vida Útil (lotes)</label>
+            <input type="number" class="form-input" id="c-barrica-vida" value="3" oninput="calcular()">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Energía Bodega (NIO/lote)</label>
+            <input type="number" class="form-input" id="c-energia" value="1200" oninput="calcular()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Análisis Lab (NIO/lote)</label>
+            <input type="number" class="form-input" id="c-lab" value="1200" oninput="calcular()">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Limpieza CIP y Sanitización (NIO/lote)</label>
+          <input type="number" class="form-input" id="c-cip" value="400" oninput="calcular()">
+        </div>
+      </div>
+
+      <!-- Márgenes e Impuestos -->
+      <div class="card card--gold-border">
+        <div class="card__header">
+          <div class="card__icon">📊</div>
+          <span class="card__title">Márgenes e Impuestos</span>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Marketing (% c.costo)</label>
+            <input type="number" class="form-input" id="pct-marketing" value="15" oninput="calcular()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Margen Utilidad (%)</label>
+            <input type="number" class="form-input" id="pct-margen" value="55" oninput="calcular()">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">ISC Vino NIC (%)</label>
+            <input type="number" class="form-input" id="pct-isc" value="20" oninput="calcular()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">IVA (%)</label>
+            <input type="number" class="form-input" id="pct-iva" value="15" oninput="calcular()">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo de cambio NIO → USD</label>
+          <input type="number" class="form-input" id="tc-usd" value="36.5" step="0.1" oninput="calcular()">
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ════ CONTENT ════ -->
+    <section class="content">
+
+      <!-- Bloques de Costos -->
+      <div class="card animate-in">
+        <div class="card__header">
+          <div class="card__icon">⚗️</div>
+          <span class="card__title">Costo de Producción Total del Lote (CPT)</span>
+        </div>
+        <div class="cascade-grid">
+          <div class="cost-block cost-block--mp">
+            <div class="cost-block__label">Materia Prima (MP)</div>
+            <div class="cost-block__value" id="r-mp">0</div>
+            <div class="cost-block__sub" id="r-mp-pct">0% del CPT</div>
+          </div>
+          <div class="cost-block cost-block--mod">
+            <div class="cost-block__label">Mano de Obra (MOD)</div>
+            <div class="cost-block__value" id="r-mod">0</div>
+            <div class="cost-block__sub" id="r-mod-pct">0% del CPT</div>
+          </div>
+          <div class="cost-block cost-block--cif">
+            <div class="cost-block__label">Costos Indirectos (CIF)</div>
+            <div class="cost-block__value" id="r-cif">0</div>
+            <div class="cost-block__sub" id="r-cif-pct">0% del CPT</div>
+          </div>
+        </div>
+
+        <!-- Tabla de desglose -->
+        <table class="breakdown-table">
+          <tbody>
+            <tr class="section-header"><td colspan="2">Volumen y Litros</td></tr>
+            <tr><td>Litros brutos de mosto</td><td id="r-litros-brutos">0 L</td></tr>
+            <tr class="angel-row"><td>👼 Merma evaporativa Ángel (<span id="r-angel-pct-display">0</span> meses × <span id="r-angel-mpct-display">0</span>%/mes)</td><td id="r-litros-angel">-0 L</td></tr>
+            <tr><td>Merma fermentación y lías (-5%)</td><td id="r-litros-lias">-0 L</td></tr>
+            <tr class="total-row"><td>✅ Litros Netos para Embotellado</td><td id="r-litros-netos">0 L</td></tr>
+            <tr class="total-row"><td>🍾 Botellas de 750ml producidas</td><td id="r-botellas">0 u</td></tr>
+
+            <tr class="section-header"><td colspan="2">Cascada de Costos por Botella</td></tr>
+            <tr><td>Costo Producción Total del Lote (CPT)</td><td id="r-cpt">0 NIO</td></tr>
+            <tr><td>Costo por Litro (=CPT ÷ Litros Netos)</td><td id="r-costo-litro">0 NIO/L</td></tr>
+            <tr><td>Costo de vino en botella (× 0.75 L)</td><td id="r-costo-vino">0 NIO</td></tr>
+            <tr><td>Costo envasado completo</td><td id="r-envasado">0 NIO</td></tr>
+            <tr><td>Caja de embalaje prorrateada (÷6)</td><td id="r-caja-prorr">0 NIO</td></tr>
+            <tr class="total-row subtotal-row"><td>📦 Costo Ex-Works / Bodega</td><td id="r-ex-works">0 NIO</td></tr>
+
+            <tr class="section-header"><td colspan="2">Precio de Venta (PVP)</td></tr>
+            <tr><td>+ Gastos Mkt / Comercialización</td><td id="r-mkt">0 NIO</td></tr>
+            <tr><td>= Costo Comercializado</td><td id="r-costo-com">0 NIO</td></tr>
+            <tr><td>Margen de Utilidad Bruta Deseada</td><td id="r-margen-label">55%</td></tr>
+            <tr><td>PVP antes de impuestos</td><td id="r-pvp-antes">0 NIO</td></tr>
+            <tr><td>+ ISC Impuesto Selectivo Consumo</td><td id="r-isc">0 NIO</td></tr>
+            <tr><td>+ IVA</td><td id="r-iva-item">0 NIO</td></tr>
+            <tr class="total-row"><td>🏆 PVP Sugerido al Público</td><td id="r-pvp-final">0 NIO</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PVP Hero -->
+      <div class="pvp-hero animate-in">
+        <div>
+          <div class="pvp-hero__label">Precio de Venta al Público (PVP) Sugerido</div>
+          <div class="pvp-hero__main" id="hero-pvp-nio">0 NIO</div>
+          <div class="pvp-hero__secondary" id="hero-pvp-usd">≈ USD $0.00</div>
+          <div class="pvp-hero__desc">
+            Costo Ex-Works: <span class="text-mono text-gold" id="hero-ex-works">0</span> NIO ·
+            Margen efectivo: <span class="text-mono text-gold" id="hero-margen-real">0%</span>
+          </div>
+        </div>
+        <div class="pvp-badge">
+          <div class="pvp-badge__bottles" id="hero-botellas">0</div>
+          <div class="pvp-badge__label">Botellas del lote</div>
+        </div>
+      </div>
+
+      <!-- Punto de Equilibrio -->
+      <div class="card animate-in">
+        <div class="card__header">
+          <div class="card__icon">⚖️</div>
+          <span class="card__title">Punto de Equilibrio del Lote</span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+          <div style="text-align:center;">
+            <div style="font-family:var(--font-mono); font-size:2rem; font-weight:700; color:var(--red);" id="eq-botellas-min">0</div>
+            <div style="font-size:0.72rem; color:var(--text-muted);">botellas para cubrir costos</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-family:var(--font-mono); font-size:2rem; font-weight:700; color:var(--gold);" id="eq-botellas-total">0</div>
+            <div style="font-size:0.72rem; color:var(--text-muted);">botellas producidas</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-family:var(--font-mono); font-size:2rem; font-weight:700; color:var(--green);" id="eq-botellas-util">0</div>
+            <div style="font-size:0.72rem; color:var(--text-muted);">botellas de utilidad pura</div>
+          </div>
+        </div>
+        <div class="equilibrio-bar">
+          <div class="equilibrio-bar__fill" id="eq-bar" style="width:0%"></div>
+          <div class="equilibrio-bar__marker" id="eq-marker" style="left:0%"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:var(--text-muted); margin-top:0.3rem;">
+          <span>0 botellas</span>
+          <span id="eq-marker-label">Punto de equilibrio</span>
+          <span id="eq-total-label">0 total</span>
+        </div>
+        <div class="highlight-box" id="eq-summary">Calculando...</div>
+      </div>
+
+      <!-- Simulador de Escenarios -->
+      <div class="card animate-in">
+        <div class="card__header">
+          <div class="card__icon">🎛️</div>
+          <span class="card__title">Simulador de Escenarios</span>
+          <span class="tag tag--orange" style="margin-left:auto;">Sin guardar</span>
+        </div>
+        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1rem;">
+          Mueve los sliders para simular cambios en precios clave. No modifica los valores reales del lote.
+        </p>
+        <div class="sim-grid">
+          <div class="sim-item">
+            <div class="sim-header">
+              <span class="sim-name">Corozo M (NIO/Quintal)</span>
+              <span class="sim-val" id="sim-corozo-val">1,000</span>
+            </div>
+            <input type="range" class="sim-slider" id="sim-corozo" min="600" max="2000" value="1000" oninput="simular()">
+            <div class="sim-range"><span>600</span><span>2,000</span></div>
+          </div>
+          <div class="sim-item">
+            <div class="sim-header">
+              <span class="sim-name">Barrica Roble Francés (NIO)</span>
+              <span class="sim-val" id="sim-barrica-val">18,000</span>
+            </div>
+            <input type="range" class="sim-slider" id="sim-barrica" min="10000" max="35000" value="18000" step="500" oninput="simular()">
+            <div class="sim-range"><span>10,000</span><span>35,000</span></div>
+          </div>
+          <div class="sim-item">
+            <div class="sim-header">
+              <span class="sim-name">Botella de Vidrio (NIO)</span>
+              <span class="sim-val" id="sim-botella-val">25</span>
+            </div>
+            <input type="range" class="sim-slider" id="sim-botella" min="15" max="80" value="25" oninput="simular()">
+            <div class="sim-range"><span>15</span><span>80</span></div>
+          </div>
+          <div class="sim-item">
+            <div class="sim-header">
+              <span class="sim-name">Margen de Utilidad (%)</span>
+              <span class="sim-val" id="sim-margen-val">55%</span>
+            </div>
+            <input type="range" class="sim-slider" id="sim-margen" min="20" max="85" value="55" oninput="simular()">
+            <div class="sim-range"><span>20%</span><span>85%</span></div>
+          </div>
+        </div>
+
+        <div class="sim-result">
+          <div class="sim-stat sim-stat--neutral">
+            <div class="sim-stat__val" id="sim-pvp-result">0</div>
+            <div class="sim-stat__lbl">PVP Simulado (NIO)</div>
+          </div>
+          <div class="sim-stat">
+            <div class="sim-stat__val" id="sim-delta-abs" style="color:var(--text-muted);">±0</div>
+            <div class="sim-stat__lbl">Δ vs. PVP Real (NIO)</div>
+          </div>
+          <div class="sim-stat">
+            <div class="sim-stat__val" id="sim-delta-pct" style="color:var(--text-muted);">0%</div>
+            <div class="sim-stat__lbl">Δ Porcentual</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Historia de Costos -->
+      <div class="card animate-in">
+        <div class="card__header">
+          <div class="card__icon">📈</div>
+          <span class="card__title">Histórico de Costos — Últimos 12 Meses</span>
+          <span class="tag tag--gold" style="margin-left:auto;">Ilustrativo</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="cost-chart"></canvas>
+        </div>
+        <p style="font-size:0.72rem; color:var(--text-muted); margin-top:0.7rem;">
+          * Los valores serán históricos reales una vez que sincronices cada lote de producción con Firebase.
+        </p>
+      </div>
+
+    </section>
+  </div>
+</div>
+
+<script>
+// ──────────────────────────────────────────────────
+// AUTH
+// ──────────────────────────────────────────────────
+const PASS_HASH = 'bifrost2024erp'; // Cambia esto a algo más seguro
+
+function checkAuth() {
+  const pass = document.getElementById('auth-pass').value;
+  const err = document.getElementById('auth-error');
+  if (pass === PASS_HASH) {
+    document.getElementById('auth-gate').classList.add('hidden');
+    document.getElementById('app').style.display = 'block';
+    setTimeout(calcular, 100);
+    initChart();
+  } else {
+    err.textContent = '⚠️ Contraseña incorrecta. Intenta nuevamente.';
+    document.getElementById('auth-pass').value = '';
+  }
+}
+
+function logout() {
+  document.getElementById('auth-gate').classList.remove('hidden');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('auth-pass').value = '';
+}
+
+// ──────────────────────────────────────────────────
+// HELPERS
+// ──────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const num = id => parseFloat($(id).value) || 0;
+const fmt = (n, dec=2) => n.toLocaleString('es-NI', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+
+let pvpReal = 0;
+
+// ──────────────────────────────────────────────────
+// CÁLCULO PRINCIPAL
+// ──────────────────────────────────────────────────
+function calcular() {
+  // ─ MATERIA PRIMA ─
+  const mp_corozo = num('q-corozo') * num('p-corozo');
+  const mp_azucar = num('q-azucar') * num('p-azucar');
+  const mp_levadura = num('q-levadura') * num('p-levadura');
+  const mp_otros = num('p-nutrientes') + num('p-agua') + num('p-enzimas') + num('p-sulfitos');
+  const totalMP = mp_corozo + mp_azucar + mp_levadura + mp_otros;
+
+  // ─ MANO DE OBRA ─
+  const mod_cosecha = num('m-h-cosecha') * num('m-p-cosecha');
+  const mod_bodega = num('m-h-bodega') * num('m-p-bodega');
+  const mod_embotell = num('m-h-embotell') * num('m-p-embotell');
+  const totalMOD = mod_cosecha + mod_bodega + mod_embotell;
+
+  // ─ CIF ─
+  const cif_barrica = num('c-barrica-val') / Math.max(num('c-barrica-vida'), 1);
+  const cif_energia = num('c-energia');
+  const cif_lab = num('c-lab');
+  const cif_cip = num('c-cip');
+  const totalCIF = cif_barrica + cif_energia + cif_lab + cif_cip;
+
+  // ─ CPT ─
+  const CPT = totalMP + totalMOD + totalCIF;
+
+  // ─ LITROS ─
+  const lote_kg = num('lote-kg');
+  const rendimiento = num('rendimiento');
+  const litroBrutos = lote_kg * rendimiento;
+  const litrosMermaLias = litroBrutos * 0.05;
+  const litrosTrasLias = litroBrutos - litrosMermaLias;
+
+  // Ángel de Evaporación (compuesto)
+  const meses = num('meses-barrica');
+  const angelPctMensual = num('angel-pct') / 100;
+  const litrosPostAngel = litrosTrasLias * Math.pow(1 - angelPctMensual, meses);
+  const litrosPerdidosAngel = litrosTrasLias - litrosPostAngel;
+  const litrosNetos = litrosPostAngel;
+  const totalBotellas = Math.floor((litrosNetos / 0.75) * 10) / 10;
+
+  // ─ COSTOS POR BOTELLA ─
+  const costoLitro = CPT / litrosNetos;
+  const costoVinoBot = costoLitro * 0.75;
+  const envasado = num('e-botella') + num('e-corcho') + num('e-capsula') +
+                   num('e-etiq-front') + num('e-etiq-back') + num('e-medallon');
+  const cajaProrr = num('e-caja') / 6;
+  const exWorks = costoVinoBot + envasado + cajaProrr;
+
+  // ─ PVP ─
+  const pctMkt = num('pct-marketing') / 100;
+  const pctMargen = num('pct-margen') / 100;
+  const pctISC = num('pct-isc') / 100;
+  const pctIVA = num('pct-iva') / 100;
+  const tc = num('tc-usd');
+
+  const mkting = exWorks * pctMkt;
+  const costoCom = exWorks + mkting;
+  const pvpAntesImp = costoCom / (1 - pctMargen);
+  const iscVal = pvpAntesImp * pctISC;
+  const pvpConISC = pvpAntesImp + iscVal;
+  const ivaVal = pvpConISC * pctIVA;
+  const pvpFinal = pvpConISC + ivaVal;
+  pvpReal = pvpFinal;
+  const pvpUSD = pvpFinal / tc;
+  const margenReal = ((pvpFinal - exWorks) / pvpFinal * 100);
+
+  // ─ PUNTO DE EQUILIBRIO ─
+  const varUnit = exWorks;
+  const contribucionUnit = pvpFinal - varUnit;
+  const breakEven = Math.ceil(CPT / contribucionUnit);
+  const botellasPuro = Math.floor(totalBotellas) - breakEven;
+  const pctBreakEven = Math.min((breakEven / totalBotellas) * 100, 100);
+
+  // ─────── ACTUALIZAR DOM ───────
+  // Bloques CPT
+  $('r-mp').textContent = fmt(totalMP) + ' NIO';
+  $('r-mp-pct').textContent = fmt(totalMP / CPT * 100, 1) + '% del CPT';
+  $('r-mod').textContent = fmt(totalMOD) + ' NIO';
+  $('r-mod-pct').textContent = fmt(totalMOD / CPT * 100, 1) + '% del CPT';
+  $('r-cif').textContent = fmt(totalCIF) + ' NIO';
+  $('r-cif-pct').textContent = fmt(totalCIF / CPT * 100, 1) + '% del CPT';
+
+  // Breakdown table
+  $('r-litros-brutos').textContent = fmt(litroBrutos, 1) + ' L';
+  $('r-angel-pct-display').textContent = meses;
+  $('r-angel-mpct-display').textContent = num('angel-pct');
+  $('r-litros-angel').textContent = '-' + fmt(litrosPerdidosAngel, 1) + ' L';
+  $('r-litros-lias').textContent = '-' + fmt(litrosMermaLias, 1) + ' L';
+  $('r-litros-netos').textContent = fmt(litrosNetos, 1) + ' L';
+  $('r-botellas').textContent = fmt(totalBotellas, 0) + ' u';
+  $('r-cpt').textContent = fmt(CPT) + ' NIO';
+  $('r-costo-litro').textContent = fmt(costoLitro) + ' NIO/L';
+  $('r-costo-vino').textContent = fmt(costoVinoBot) + ' NIO';
+  $('r-envasado').textContent = fmt(envasado) + ' NIO';
+  $('r-caja-prorr').textContent = fmt(cajaProrr) + ' NIO';
+  $('r-ex-works').textContent = fmt(exWorks) + ' NIO';
+  $('r-mkt').textContent = '+' + fmt(mkting) + ' NIO';
+  $('r-costo-com').textContent = fmt(costoCom) + ' NIO';
+  $('r-margen-label').textContent = num('pct-margen') + '%';
+  $('r-pvp-antes').textContent = fmt(pvpAntesImp) + ' NIO';
+  $('r-isc').textContent = '+' + fmt(iscVal) + ' NIO (' + num('pct-isc') + '%)';
+  $('r-iva-item').textContent = '+' + fmt(ivaVal) + ' NIO (' + num('pct-iva') + '%)';
+  $('r-pvp-final').textContent = fmt(pvpFinal) + ' NIO';
+
+  // Hero
+  $('hero-pvp-nio').textContent = fmt(pvpFinal) + ' NIO';
+  $('hero-pvp-usd').textContent = '≈ USD $' + fmt(pvpUSD);
+  $('hero-ex-works').textContent = fmt(exWorks);
+  $('hero-margen-real').textContent = fmt(margenReal, 1) + '%';
+  $('hero-botellas').textContent = fmt(totalBotellas, 0);
+
+  // Equilibrio
+  $('eq-botellas-min').textContent = breakEven;
+  $('eq-botellas-total').textContent = fmt(totalBotellas, 0);
+  $('eq-botellas-util').textContent = Math.max(botellasPuro, 0);
+  $('eq-bar').style.width = pctBreakEven + '%';
+  $('eq-marker').style.left = pctBreakEven + '%';
+  $('eq-marker-label').textContent = 'Equilibrio: bot. #' + breakEven;
+  $('eq-total-label').textContent = fmt(totalBotellas, 0) + ' total';
+  $('eq-summary').innerHTML = `Necesitas vender <strong>${breakEven} botellas</strong> (${fmt(pctBreakEven, 1)}% del lote) para cubrir el <strong>Costo Total del Lote de ${fmt(CPT)} NIO</strong>. Las ${Math.max(botellasPuro,0)} botellas restantes representan <strong>utilidad pura de ${fmt(Math.max(botellasPuro,0) * contribucionUnit)} NIO</strong>.`;
+
+  // Sincronizar sliders simulador con valores reales
+  syncSliders();
+}
+
+// ──────────────────────────────────────────────────
+// SIMULADOR
+// ──────────────────────────────────────────────────
+function syncSliders() {
+  const pCorozo = num('p-corozo');
+  const pBarrica = num('c-barrica-val');
+  const pBotella = num('e-botella');
+  const pMargen = num('pct-margen');
+
+  $('sim-corozo').value = pCorozo;
+  $('sim-barrica').value = pBarrica;
+  $('sim-botella').value = pBotella;
+  $('sim-margen').value = pMargen;
+
+  simular();
+}
+
+function simular() {
+  const sCorozo = parseFloat($('sim-corozo').value);
+  const sBarrica = parseFloat($('sim-barrica').value);
+  const sBotella = parseFloat($('sim-botella').value);
+  const sMargen = parseFloat($('sim-margen').value);
+
+  $('sim-corozo-val').textContent = fmt(sCorozo, 0);
+  $('sim-barrica-val').textContent = fmt(sBarrica, 0);
+  $('sim-botella-val').textContent = fmt(sBotella, 0);
+  $('sim-margen-val').textContent = sMargen + '%';
+
+  // Recalcular PVP simulado
+  const lote_kg = num('lote-kg');
+  const rendimiento = num('rendimiento');
+  const meses = num('meses-barrica');
+  const angelPct = num('angel-pct') / 100;
+
+  const litroBrutos = lote_kg * rendimiento;
+  const litrosTrasLias = litroBrutos * 0.95;
+  const litrosNetos = litrosTrasLias * Math.pow(1 - angelPct, meses);
+
+  // MP simulada
+  const simMP = (num('q-corozo') * sCorozo) +
+                (num('q-azucar') * num('p-azucar')) +
+                (num('q-levadura') * num('p-levadura')) +
+                num('p-nutrientes') + num('p-agua') + num('p-enzimas') + num('p-sulfitos');
+
+  // CIF simulada
+  const simCIF = (sBarrica / Math.max(num('c-barrica-vida'), 1)) +
+                  num('c-energia') + num('c-lab') + num('c-cip');
+
+  const simCPT = simMP + num('m-h-cosecha') * num('m-p-cosecha') +
+                  num('m-h-bodega') * num('m-p-bodega') +
+                  num('m-h-embotell') * num('m-p-embotell') + simCIF;
+
+  const simCL = simCPT / litrosNetos;
+  const simVino = simCL * 0.75;
+  const simEnvasado = sBotella + num('e-corcho') + num('e-capsula') +
+                       num('e-etiq-front') + num('e-etiq-back') + num('e-medallon');
+  const simEx = simVino + simEnvasado + (num('e-caja') / 6);
+  const simMkt = simEx * (num('pct-marketing') / 100);
+  const simCostCom = simEx + simMkt;
+  const simPvpAI = simCostCom / (1 - sMargen / 100);
+  const simPvpFinal = simPvpAI * (1 + num('pct-isc') / 100) * (1 + num('pct-iva') / 100);
+
+  const delta = simPvpFinal - pvpReal;
+  const deltaPct = pvpReal > 0 ? (delta / pvpReal * 100) : 0;
+
+  $('sim-pvp-result').textContent = fmt(simPvpFinal);
+  $('sim-delta-abs').textContent = (delta >= 0 ? '+' : '') + fmt(delta);
+  $('sim-delta-pct').textContent = (deltaPct >= 0 ? '+' : '') + fmt(deltaPct, 1) + '%';
+
+  // Color del delta
+  const deltaEl = $('sim-delta-abs');
+  const deltaPctEl = $('sim-delta-pct');
+  const color = delta > 0 ? 'var(--red)' : delta < 0 ? 'var(--green)' : 'var(--text-muted)';
+  deltaEl.style.color = color;
+  deltaPctEl.style.color = color;
+}
+
+// ──────────────────────────────────────────────────
+// FICHA TÉCNICA — Presets
+// ──────────────────────────────────────────────────
+const fichas = {
+  gran_reserva: { rendimiento: 0.65, meses: 12, angel: 0.8, kg: 200 },
+  blanco_barrica: { rendimiento: 0.72, meses: 6, angel: 0.6, kg: 150 },
+  rosado_corozo: { rendimiento: 0.68, meses: 3, angel: 0.5, kg: 100 },
+};
+
+function loadFicha() {
+  const key = $('ficha-select').value;
+  const f = fichas[key];
+  if (!f) return;
+  $('rendimiento').value = f.rendimiento;
+  $('meses-barrica').value = f.meses;
+  $('angel-pct').value = f.angel;
+  $('lote-kg').value = f.kg;
+  calcular();
+}
+
+// ──────────────────────────────────────────────────
+// CHART
+// ──────────────────────────────────────────────────
+function initChart() {
+  const labels = ['May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr'];
+  const costoExworks = [165, 168, 170, 172, 175, 178, 177, 180, 177, 175, 178, 177.6];
+  const pvpSugerido = [590, 600, 608, 614, 622, 632, 628, 640, 628, 622, 632, 626.5];
+
+  const ctx = document.getElementById('cost-chart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Costo Ex-Works / Botella (NIO)',
+          data: costoExworks,
+          borderColor: '#45A29E',
+          backgroundColor: 'rgba(69,162,158,0.08)',
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#45A29E',
+          pointRadius: 3,
+        },
+        {
+          label: 'PVP Sugerido (NIO)',
+          data: pvpSugerido,
+          borderColor: '#D4AF37',
+          backgroundColor: 'rgba(212,175,55,0.06)',
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#D4AF37',
+          pointRadius: 3,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: '#B8B4AA', font: { family: 'Inter', size: 11 } } },
+        tooltip: {
+          backgroundColor: '#0F0F1A',
+          borderColor: 'rgba(255,255,255,0.08)',
+          borderWidth: 1,
+          titleColor: '#D4AF37',
+          bodyColor: '#B8B4AA',
+          callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString('es-NI')} NIO` }
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#7A7A8C', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y: { ticks: { color: '#7A7A8C', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } }
+      }
+    }
+  });
+}
+</script>
+</body>
+</html>
