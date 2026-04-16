@@ -221,6 +221,13 @@
           <span class="tg-nav-badge" id="tg-nav-badge"></span>
         </button>
 
+        <button class="admin-nav-link" data-panel="uptime">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          Servidor / Uptime
+        </button>
+
         <span class="admin-nav-section-label">Quick Links</span>
         <a href="shop.html" class="admin-nav-link" target="_blank" rel="noopener">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
@@ -697,6 +704,59 @@
             </main>
           </div>
 
+          <!-- ========================================== -->
+          <!-- PANEL SERVIDOR / UPTIME (CRONJOB API) -->
+          <!-- ========================================== -->
+          <div class="admin-panel hidden" data-panel="uptime">
+            <div class="panel-header" style="margin-bottom: var(--space-6);">
+              <h2 style="font-family: var(--font-heading); font-size: var(--fs-xl);">Servidor & Uptime</h2>
+            </div>
+            
+            <div class="glass-card" style="padding: var(--space-6); max-width: 800px;">
+              <h3 style="margin-top: 0; color: var(--color-gold); display: flex; align-items: center; gap: 8px;">
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Mantener Activo el Backend (Ping API)
+              </h3>
+              
+              <p style="color: var(--color-text-secondary); line-height: 1.6; margin-bottom: var(--space-5);">
+                Los servidores gratuitos en Render se suspenden automáticamente después de 15 minutos sin recibir visitas web. 
+                Para evitar que el bot de Telegram y el sistema de pedidos se desactiven, debes configurar un <strong>Cronjob</strong> externo 
+                (por ejemplo en <a href="https://cron-job.org" target="_blank" style="color: #2aabee;">cron-job.org</a>) 
+                que haga una petición web cada 10 minutos a la siguiente URL:
+              </p>
+
+              <div style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-md); padding: var(--space-4); display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-6);">
+                <code id="api-ping-url" style="color: #a3e635; font-size: 0.95rem; word-break: break-all;">
+                  <!-- Se llena con JS -->
+                </code>
+                <button class="btn btn--sm btn--outline" onclick="navigator.clipboard.writeText(document.getElementById('api-ping-url').textContent.trim()); window.showToast('URL copiada al portapapeles', 'success');" style="flex-shrink: 0; margin-left: 15px;">
+                  📋 Copiar
+                </button>
+              </div>
+
+              <h4 style="margin-bottom: var(--space-3);">Instrucciones (cron-job.org)</h4>
+              <ol style="color: var(--color-text-secondary); line-height: 1.8; padding-left: 20px; list-style-type: decimal;">
+                <li>Crea una cuenta gratuita en cron-job.org</li>
+                <li>Haz clic en <strong>"Create Cronjob"</strong></li>
+                <li>Pega la URL de arriba en el campo <strong>URL</strong></li>
+                <li>En <strong>Schedule</strong> elige <em>"Every 10 minutes"</em></li>
+                <li>Guarda los cambios. ¡Listo! Tu servidor nunca más se dormirá.</li>
+              </ol>
+
+              <div style="margin-top: var(--space-6); border-top: 1px solid rgba(255,255,255,0.1); padding-top: var(--space-4);">
+                <button class="btn btn--secondary" id="btn-test-ping">
+                  <svg fill="currentColor" viewBox="0 0 24 24" width="16" height="16" style="margin-right: 5px;">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
+                  </svg>
+                  Probar Ping Ahora
+                </button>
+                <span id="ping-result" style="margin-left: 10px; font-size: 0.85rem; color: var(--color-text-muted);"></span>
+              </div>
+            </div>
+          </div>
+
       </div><!-- /.admin-content -->
     </div><!-- /.admin-main -->
   </div><!-- /.admin-layout -->
@@ -1103,6 +1163,61 @@
     });
     const statEl = document.getElementById('stat-total');
     if (statEl) statObserver.observe(statEl, { childList: true, characterData: true, subtree: true });
+
+    // ── Lógica Panel Uptime (Cronjob Ping) ──
+    const pingUrlEl = document.getElementById('api-ping-url');
+    const btnTestPing = document.getElementById('btn-test-ping');
+    const pingResult = document.getElementById('ping-result');
+
+    if (pingUrlEl) {
+      // Determinamos si estamos en producción (Render) para la URL a mostrar
+      let baseUrl = window.location.origin;
+      // Si el dashboard se está ejecutando desde file:// localmente, sugerir formato de Render
+      if (baseUrl === 'file://') {
+        baseUrl = 'https://tu-proyecto.onrender.com';
+      }
+      const pingUrl = baseUrl + '/api/ping';
+      pingUrlEl.textContent = pingUrl;
+
+      if (btnTestPing) {
+        btnTestPing.addEventListener('click', async () => {
+          btnTestPing.disabled = true;
+          if (pingResult) {
+            pingResult.textContent = 'Pinging...';
+            pingResult.style.color = 'var(--color-text-muted)';
+          }
+          
+          try {
+            // El backend usa Node.js con CORS habilitado
+            let targetUrl = baseUrl === 'https://tu-proyecto.onrender.com' 
+                            ? 'http://localhost:3000/api/ping' // Si es local dev mode
+                            : pingUrl; 
+            
+            const reqUrl = window.location.protocol === 'file:' ? 'http://localhost:3000/api/ping' : pingUrl;
+
+            const res = await fetch(reqUrl);
+            const text = await res.text();
+            
+            if (pingResult) {
+              if (res.ok) {
+                pingResult.textContent = `✅ Éxito: ${text} (${res.status})`;
+                pingResult.style.color = '#4CAF50';
+              } else {
+                pingResult.textContent = `❌ Error HTTP: ${res.status}`;
+                pingResult.style.color = '#F44336';
+              }
+            }
+          } catch (e) {
+            if (pingResult) {
+              pingResult.textContent = `❌ No se pudo contactar el servidor: ${e.message}`;
+              pingResult.style.color = '#F44336';
+            }
+          } finally {
+            btnTestPing.disabled = false;
+          }
+        });
+      }
+    }
   </script>
 </body>
 
