@@ -114,6 +114,196 @@ bot.hears(/^\/responder\s+(\S+)\s+(.+)/i, async (ctx) => {
   }
 });
 
+// ═══════════════════════════════════════════════════════
+// MAESTRO DE COSTOS SIMPLIFICADO: COMANDOS BOT TELEGRAM
+// ═══════════════════════════════════════════════════════
+
+// Función Auxiliar para Seguridad
+const isAdmin = (ctx) => ctx.from && ctx.from.id.toString() === process.env.ADMIN_ID;
+
+// 1. Comando: /nueva_receta
+// Ej: /nueva_receta Tamarindo 60lb 600nio destajo:100 agua:200L:50nio azucar:20lb:1100nio levadura:0.5lb:30nio canela:40nio litros_obtenidos:208
+bot.hears(/^\/nueva_receta\s+(.*)/i, async (ctx) => {
+  if (!db || !isAdmin(ctx)) return;
+
+  const argsString = ctx.match[1].trim();
+  const parts = argsString.split(/\s+/);
+  
+  if (parts.length < 4) {
+    return ctx.reply("❌ *Formato incorrecto.*\nEjemplo: `/nueva_receta Tamarindo 60lb 600nio destajo:100 agua:200L:50nio litros_obtenidos:208`", { parse_mode: 'Markdown' });
+  }
+
+  try {
+    const nombre = parts[0];
+    const qtyMP = parts[1]; 
+    const costoMPTotal = parseFloat(parts[2].replace(/[^\d.]/g, ''));
+
+    let destajo = 0;
+    let agua = 0, azucar = 0, levadura = 0;
+    let insumosExtra = [];
+    let litrosObtenidos = 0;
+
+    for (let i = 3; i < parts.length; i++) {
+      const p = parts[i].split(':'); 
+      const key = p[0].toLowerCase();
+      
+      if (key === 'litros_obtenidos') {
+        litrosObtenidos = parseFloat(p[p.length - 1]);
+        continue;
+      }
+      if (key === 'destajo') {
+        destajo = parseFloat(p[p.length - 1].replace(/[^\d.]/g, ''));
+        continue;
+      }
+
+      const costoText = p.length === 3 ? p[2] : p[1] || '0';
+      const costo = parseFloat(costoText.replace(/[^\d.]/g, '')) || 0;
+
+      if (key === 'agua') agua = costo;
+      else if (key === 'azucar') azucar = costo;
+      else if (key === 'levadura') levadura = costo;
+      else insumosExtra.push({ nombre: p[0], costo });
+    }
+
+    if (!litrosObtenidos) return ctx.reply("❌ Falta el parámetro obligatorio `litros_obtenidos:VALOR`", { parse_mode: 'Markdown' });
+
+    const totalExtras = insumosExtra.reduce((acc, el) => acc + el.costo, 0);
+    const costoTotalLote = costoMPTotal + destajo + agua + azucar + levadura + totalExtras;
+    const costoPorLitro = costoTotalLote / litrosObtenidos;
+    
+    const loteId = 'LOTE-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+    
+    // DB: Actualizar Costos
+    const recetaParams = {
+        id: loteId, nombre: nombre + " (App Telegram)", fecha: new Date().toISOString().split('T')[0],
+        campos: {
+          'p-materia-prima': costoMPTotal, 'p-destajo': destajo, 'p-agua': agua, 
+          'p-azucar': azucar, 'p-levadura': levadura, 'q-litros-finales': litrosObtenidos
+        },
+        res_costo_litro: costoPorLitro.toFixed(2),
+        in_extras: JSON.stringify(insumosExtra)
+    };
+
+    await db.ref(`costos_recetas/${loteId}`).set(recetaParams);
+    
+    // DB: Actualizar Stock/Inventario
+    await db.ref(`stock_lotes/${loteId}`).set({
+        nombre: nombre,
+        litros_disponibles: litrosObtenidos,
+        botellas_terminadas: 0,
+        fecha: Date.now()
+    });
+
+    let resMsg = `✅ *LOTES RECIÉN CREADOS Y GUARDADOS*\n\n`;
+    resMsg += `🆔 *Lote ID:* \`${loteId}\`\n`;
+    resMsg += `📦 *Cepa/Receta:* ${nombre}\n`;
+    resMsg += `💧 *Mosto Obtenido:* ${litrosObtenidos} L\n`;
+    resMsg += `💵 *Costo Producción:* C$ ${costoTotalLote.toFixed(2)}\n`;
+    resMsg += `🔥 *Costo/Litro Real:* C$ ${costoPorLitro.toFixed(2)}\n\n`;
+    resMsg += `Vender botellas:\n\`/registrar_venta ${loteId} 10 350\``;
+
+    ctx.reply(resMsg, { parse_mode: 'Markdown' });
+  } catch(e) {
+    ctx.reply("❌ Error al procesar: " + e.message);
+  }
+});
+
+// 2. Comando: /registrar_venta
+// Ej: /registrar_venta LOTE-XYZ 12 300
+bot.hears(/^\/registrar_venta\s+(\S+)\s+(\d+)\s+([\d.]+)/i, async (ctx) => {
+  if (!db || !isAdmin(ctx)) return;
+  const loteId = ctx.match[1].toUpperCase();
+  const botellasVenta = parseInt(ctx.match[2], 10);
+  const precioUnidad = parseFloat(ctx.match[3]);
+
+  try {
+    const sRef = db.ref(`stock_lotes/${loteId}`);
+    const snap = await sRef.once('value');
+    if (!snap.exists()) return ctx.reply(`❌ El Lote \`${loteId}\` no existe. Usa /listar_recetas.`, { parse_mode: 'Markdown' });
+    
+    const lote = snap.val();
+    let botsStock = lote.botellas_terminadas || 0;
+    let litrosStock = lote.litros_disponibles || 0;
+
+    let quedanLitros = litrosStock;
+    let quedanBotellas = botsStock;
+
+    if (botsStock >= botellasVenta) {
+        quedanBotellas -= botellasVenta; // Venta directa de botellas hechas
+    } else {
+        const botsFaltantes = botellasVenta - botsStock;
+        const litrosGastar = botsFaltantes * 0.75; // Asume botella 750ml
+        
+        if (litrosStock < litrosGastar) {
+           return ctx.reply(`⚠️ *Falta Inventario.*\nStock real: ${litrosStock.toFixed(2)}L en barril y ${botsStock} botellas listas.`, { parse_mode: 'Markdown' });
+        }
+        quedanBotellas = 0;
+        quedanLitros = litrosStock - litrosGastar;
+    }
+
+    await sRef.update({ litros_disponibles: quedanLitros, botellas_terminadas: quedanBotellas });
+    await db.ref('erp/ventas').push({ loteId, qty: botellasVenta, precio: precioUnidad, total: botellasVenta * precioUnidad, timestamp: Date.now() });
+
+    ctx.reply(`✅ *VENTA CERRADA*\n\nDescontadas: ${botellasVenta} botellas.\n*💰 Ingreso Total:* C$ ${(botellasVenta*precioUnidad).toFixed(2)}\n\n📦 *Stock Sobrante:*\n💧 Mosto: ${quedanLitros.toFixed(2)}L\n🍾 Botellas armadas: ${quedanBotellas}`, { parse_mode: 'Markdown' });
+  } catch(e) {
+    ctx.reply("❌ Error DB: " + e.message);
+  }
+});
+
+// 3. Comando: /consultar_stock
+bot.command('consultar_stock', async (ctx) => {
+  if (!db || !isAdmin(ctx)) return;
+  try {
+    const snap = await db.ref('stock_lotes').once('value');
+    if (!snap.exists()) return ctx.reply("❌ No hay lotes ni mosto registrado.");
+    
+    let msg = `📦 *INVENTARIO BIFROST S.A.*\n\n`;
+    let tL = 0, tB = 0;
+    snap.forEach(ch => {
+       const v = ch.val();
+       msg += `🔹 *${v.nombre}* (\`${ch.key}\`)\n💧 ${v.litros_disponibles.toFixed(2)} L | 🍾 ${v.botellas_terminadas} Bots\n\n`;
+       tL += v.litros_disponibles; tB += v.botellas_terminadas;
+    });
+    msg += `📊 *TOTAL GLOBAL:*\n🛢️ *Líquido:* ${tL.toFixed(2)} L\n📦 *Botellas Listas:* ${tB}`;
+    ctx.reply(msg, { parse_mode: 'Markdown' });
+  } catch(e) { ctx.reply("❌ " + e.message); }
+});
+
+// 4. Comando: /potencial_botellas
+bot.hears(/^\/potencial_botellas(?:@\S+)?(?:\s+(\S+))?/i, async (ctx) => {
+  if (!db || !isAdmin(ctx)) return;
+  const qId = ctx.match[1] ? ctx.match[1].toUpperCase() : null;
+  try {
+    let msg = `📊 *MÁXIMO TEÓRICO DE EMBOTELLADO*\n\n`;
+    const snap = await db.ref('stock_lotes').once('value');
+    if (!snap.exists()) return ctx.reply("No hay stock.");
+    
+    snap.forEach(ch => {
+       const v = ch.val();
+       if (!qId || ch.key === qId || qId.toLowerCase() === 'todos') {
+          const bots = Math.floor(v.litros_disponibles / 0.75);
+          msg += `🔹 *${v.nombre}* (\`${ch.key}\`):\nLiquido: ${v.litros_disponibles.toFixed(2)}L ➡️ Pude llenar *${bots} bots* (750ml)\n`;
+       }
+    });
+    ctx.reply(msg, { parse_mode: 'Markdown' });
+  } catch(e) { ctx.reply("❌ " + e.message); }
+});
+
+// 5. Comando: /listar_recetas
+bot.command('listar_recetas', async (ctx) => {
+  if (!db || !isAdmin(ctx)) return;
+  try {
+    const snap = await db.ref('stock_lotes').once('value');
+    if (!snap.exists()) return ctx.reply("No hay registros activos.");
+    let msg = `⚙️ *CÓDIGOS DE LOTES*\n\n_Copiar para usar en /registrar venta_\n\n`;
+    snap.forEach(ch => { msg += `• ${ch.val().nombre}\n\`${ch.key}\`\n\n`; });
+    ctx.reply(msg, { parse_mode: 'Markdown' });
+  } catch(e) { ctx.reply("❌ " + e.message); }
+});
+
+// ═══════════════════════════════════════════════════════
+
+
 // Listener Firebase -> Telegram Bot (Cuando un Cliente Nuevo pregunta)
 if (db && BOT_TOKEN && ADMIN_ID) {
   db.ref('mensajes').on('child_added', (snapshot) => {
