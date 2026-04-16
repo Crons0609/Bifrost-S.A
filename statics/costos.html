@@ -554,34 +554,20 @@
     /* ── Animations ── */
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
     .animate-in { animation: fadeIn 0.4s ease both; }
+
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
   </style>
 </head>
 <body>
 
 <!-- ════════════════════════════════════════════════════════
-     GATE DE ACCESO
-════════════════════════════════════════════════════════ -->
-<div id="auth-gate">
-  <div class="auth-card">
-    <div class="auth-card__logo">🏰</div>
-    <h2>Maestro de Costos</h2>
-    <p>Acceso restringido al equipo contable de Bifrost S.A</p>
-    <div class="auth-input-wrap">
-      <input type="password" id="auth-pass" class="auth-input"
-        placeholder="Contraseña de administrador"
-        onkeydown="if(event.key==='Enter') checkAuth()">
-    </div>
-    <p class="auth-error" id="auth-error"></p>
-    <button class="btn btn--gold btn--full" onclick="checkAuth()">
-      🔐 Ingresar al Sistema
-    </button>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════════════════════════
      APLICACIÓN PRINCIPAL
 ════════════════════════════════════════════════════════ -->
-<div id="app" style="display:none;">
+<div id="app">
 
   <!-- Topbar -->
   <header class="topbar">
@@ -595,7 +581,6 @@
     <div class="topbar__actions">
       <button class="btn btn--outline" onclick="window.print()">🖨️ Exportar PDF</button>
       <a href="../index.html" class="btn btn--outline">← Volver</a>
-      <button class="btn btn--danger btn--outline" onclick="logout()">Salir</button>
     </div>
   </header>
 
@@ -603,6 +588,22 @@
 
     <!-- ════ SIDEBAR IZQUIERDO ════ -->
     <aside class="sidebar">
+
+      <!-- Cargar Receta -->
+      <div class="card" style="background:linear-gradient(135deg,rgba(212,175,55,0.06) 0%,var(--surface) 100%);border-color:rgba(212,175,55,0.2);">
+        <div class="card__header">
+          <div class="card__icon">📁</div>
+          <span class="card__title">Receta Guardada</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cargar ficha anterior</label>
+          <div style="display:flex;gap:0.5rem;">
+            <select id="sel-recipe-lujo" class="form-select" style="flex:1;"></select>
+            <button class="btn btn--gold" onclick="cargarRecetaLujo()" style="padding:0.4rem 0.8rem;font-size:0.78rem;white-space:nowrap;">Cargar</button>
+          </div>
+        </div>
+        <p style="font-size:0.7rem;color:var(--text-muted);margin-top:0.3rem;">Restaura todos los parámetros de producción guardados.</p>
+      </div>
 
       <!-- Ficha Técnica -->
       <div class="card">
@@ -649,6 +650,7 @@
           <div class="card__icon">🌿</div>
           <span class="card__title">Materia Prima</span>
         </div>
+        <div class="table-responsive">
         <table class="insumos-table">
           <thead>
             <tr>
@@ -703,6 +705,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
 
       <!-- Envasado -->
@@ -711,6 +714,7 @@
           <div class="card__icon">🍾</div>
           <span class="card__title">Envasado / Botella</span>
         </div>
+        <div class="table-responsive">
         <table class="insumos-table">
           <thead>
             <tr>
@@ -757,6 +761,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
 
       <!-- MOD -->
@@ -765,6 +770,7 @@
           <div class="card__icon">👨‍🔬</div>
           <span class="card__title">Mano de Obra Directa</span>
         </div>
+        <div class="table-responsive">
         <table class="insumos-table">
           <thead>
             <tr>
@@ -791,6 +797,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
         <div class="highlight-box" style="margin-top:0.8rem;">
           ⚠️ <strong>Cargas Sociales:</strong> INSS Patronal 19% + INATEC 2% aplicables para presentación ante DGI Nicaragua.
         </div>
@@ -860,6 +867,22 @@
         </div>
       </div>
 
+      <!-- Guardar Receta -->
+      <div class="card" style="background:linear-gradient(135deg,rgba(212,175,55,0.06) 0%,var(--surface) 100%);border-color:rgba(212,175,55,0.25);">
+        <div class="card__header">
+          <div class="card__icon">💾</div>
+          <span class="card__title">Guardar como Receta</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nombre de la receta</label>
+          <input type="text" id="receta-lujo-nombre" class="form-input" placeholder="Ej: Gran Reserva Corozo — Lote Mar 2026">
+        </div>
+        <button onclick="guardarRecetaLujo()" class="btn btn--gold" style="width:100%;margin-top:0.3rem;">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+          Guardar Receta
+        </button>
+      </div>
+
     </aside>
 
     <!-- ════ CONTENT ════ -->
@@ -890,6 +913,7 @@
         </div>
 
         <!-- Tabla de desglose -->
+        <div class="table-responsive">
         <table class="breakdown-table">
           <tbody>
             <tr class="section-header"><td colspan="2">Volumen y Litros</td></tr>
@@ -917,6 +941,7 @@
             <tr class="total-row"><td>🏆 PVP Sugerido al Público</td><td id="r-pvp-final">0 NIO</td></tr>
           </tbody>
         </table>
+        </div>
       </div>
 
       <!-- PVP Hero -->
@@ -1044,36 +1069,24 @@
         </p>
       </div>
 
+      <!-- Historial de Recetas -->
+      <div class="card animate-in">
+        <div class="card__header">
+          <div class="card__icon">📚</div>
+          <span class="card__title">Historial de Fichas de Producción</span>
+          <button onclick="renderHistorialLujo()" style="margin-left:auto;background:none;border:1px solid var(--glass-border);border-radius:var(--r-sm);color:var(--text-muted);padding:0.2rem 0.5rem;cursor:pointer;font-size:0.75rem;">↺</button>
+        </div>
+        <div id="history-lujo-wrap">
+          <p style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:1.5rem 0;">No hay fichas guardadas todavía.</p>
+        </div>
+      </div>
+
     </section>
   </div>
 </div>
 
+
 <script>
-// ──────────────────────────────────────────────────
-// AUTH
-// ──────────────────────────────────────────────────
-const PASS_HASH = 'bifrost2024erp'; // Cambia esto a algo más seguro
-
-function checkAuth() {
-  const pass = document.getElementById('auth-pass').value;
-  const err = document.getElementById('auth-error');
-  if (pass === PASS_HASH) {
-    document.getElementById('auth-gate').classList.add('hidden');
-    document.getElementById('app').style.display = 'block';
-    setTimeout(calcular, 100);
-    initChart();
-  } else {
-    err.textContent = '⚠️ Contraseña incorrecta. Intenta nuevamente.';
-    document.getElementById('auth-pass').value = '';
-  }
-}
-
-function logout() {
-  document.getElementById('auth-gate').classList.remove('hidden');
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('auth-pass').value = '';
-}
-
 // ──────────────────────────────────────────────────
 // HELPERS
 // ──────────────────────────────────────────────────
@@ -1364,6 +1377,198 @@ function initChart() {
       }
     }
   });
+}
+
+// ── Bootstrap automático al cargar ──
+document.addEventListener('DOMContentLoaded', () => {
+  calcular();
+  initChart();
+  _lujo_populateSelector();
+  renderHistorialLujo();
+});
+
+// ══════════════════════════════════════════════════
+// SISTEMA DE RECETAS — Maestro de Costos Bifrost
+// ══════════════════════════════════════════════════
+
+const _LUJO_KEY = 'bifrost_cost_recetas_lujo';
+
+// IDs de todos los campos del formulario a guardar/restaurar
+const _LUJO_FIELDS = [
+  'ficha-select','lote-kg','rendimiento','meses-barrica','angel-pct',
+  'q-corozo','p-corozo','q-azucar','p-azucar','q-levadura','p-levadura',
+  'p-nutrientes','p-agua','p-enzimas','p-sulfitos',
+  'e-botella','e-corcho','e-capsula','e-etiq-front','e-etiq-back','e-medallon','e-caja',
+  'm-h-cosecha','m-p-cosecha','m-h-bodega','m-p-bodega','m-h-embotell','m-p-embotell',
+  'c-barrica-val','c-barrica-vida','c-energia','c-lab','c-cip',
+  'pct-marketing','pct-margen','pct-isc','pct-iva','tc-usd'
+];
+
+function _lujo_getRecetas() {
+  try { return JSON.parse(localStorage.getItem(_LUJO_KEY) || '[]'); } catch { return []; }
+}
+
+function _lujo_showToast(msg, ok = true) {
+  // Reutilizar el mecanismo de toast si existe, o crear uno temporal
+  const existing = document.getElementById('lujo-toast');
+  const t = existing || (() => {
+    const el = document.createElement('div');
+    el.id = 'lujo-toast';
+    el.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;padding:0.65rem 1.1rem;border-radius:10px;font-size:0.82rem;font-weight:600;opacity:0;transition:opacity 0.25s ease;pointer-events:none;max-width:320px;';
+    document.body.appendChild(el);
+    return el;
+  })();
+  t.textContent = msg;
+  t.style.background = ok ? 'rgba(76,175,80,0.18)' : 'rgba(239,83,80,0.18)';
+  t.style.border     = ok ? '1px solid rgba(76,175,80,0.35)' : '1px solid rgba(239,83,80,0.35)';
+  t.style.color      = ok ? '#81C784' : '#EF9A9A';
+  t.style.opacity    = '1';
+  clearTimeout(t._t);
+  t._t = setTimeout(() => { t.style.opacity = '0'; }, 3000);
+}
+
+function guardarRecetaLujo() {
+  const nombre = (document.getElementById('receta-lujo-nombre')?.value || '').trim();
+  if (!nombre) {
+    _lujo_showToast('⚠️ Escribe un nombre para la receta', false);
+    document.getElementById('receta-lujo-nombre')?.focus();
+    return;
+  }
+
+  // Capturar todos los campos
+  const campos = {};
+  _LUJO_FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) campos[id] = el.value;
+  });
+
+  // Capturar resultados actuales para el historial
+  const pvp   = document.getElementById('r-pvp-final')?.textContent || '—';
+  const exw   = document.getElementById('r-ex-works')?.textContent  || '—';
+  const bots  = document.getElementById('r-botellas')?.textContent  || '—';
+
+  const recetas = _lujo_getRecetas();
+  const existIdx = recetas.findIndex(r => r.nombre === nombre);
+  const receta = {
+    id:     existIdx !== -1 ? recetas[existIdx].id : `lujo_${Date.now()}`,
+    nombre,
+    fecha:  new Date().toISOString().split('T')[0],
+    campos,
+    res_pvp: pvp,
+    res_exw: exw,
+    res_bots: bots,
+  };
+
+  if (existIdx !== -1) { recetas[existIdx] = receta; }
+  else { recetas.push(receta); }
+
+  localStorage.setItem(_LUJO_KEY, JSON.stringify(recetas));
+
+  // Sync Firebase (silencioso)
+  try {
+    if (typeof firebase !== 'undefined' && firebase.apps?.length) {
+      firebase.database().ref(`costos_recetas_lujo/${receta.id}`).set(receta).catch(() => {});
+    }
+  } catch(e) {}
+
+  document.getElementById('receta-lujo-nombre').value = '';
+  _lujo_populateSelector();
+  renderHistorialLujo();
+  _lujo_showToast(`✅ Receta "${nombre}" guardada`);
+}
+
+function cargarRecetaLujo() {
+  const id = document.getElementById('sel-recipe-lujo')?.value;
+  if (!id) { _lujo_showToast('Selecciona una receta primero', false); return; }
+
+  const receta = _lujo_getRecetas().find(r => r.id === id);
+  if (!receta) { _lujo_showToast('Receta no encontrada', false); return; }
+
+  Object.entries(receta.campos || {}).forEach(([fieldId, val]) => {
+    const el = document.getElementById(fieldId);
+    if (el) el.value = val;
+  });
+
+  calcular();
+  _lujo_showToast(`📂 Receta "${receta.nombre}" cargada`);
+}
+
+function _lujo_cargarById(id) {
+  const sel = document.getElementById('sel-recipe-lujo');
+  if (sel) sel.value = id;
+  cargarRecetaLujo();
+}
+
+function eliminarRecetaLujo(id) {
+  const recetas = _lujo_getRecetas().filter(r => r.id !== id);
+  localStorage.setItem(_LUJO_KEY, JSON.stringify(recetas));
+  try {
+    if (typeof firebase !== 'undefined' && firebase.apps?.length) {
+      firebase.database().ref(`costos_recetas_lujo/${id}`).remove().catch(() => {});
+    }
+  } catch(e) {}
+  _lujo_populateSelector();
+  renderHistorialLujo();
+  _lujo_showToast('Receta eliminada', false);
+}
+
+function _lujo_populateSelector() {
+  const sel = document.getElementById('sel-recipe-lujo');
+  if (!sel) return;
+  const recetas = [..._lujo_getRecetas()].sort((a,b) => (b.fecha||'').localeCompare(a.fecha||''));
+  sel.innerHTML = '<option value="">— Seleccionar receta —</option>' +
+    recetas.map(r => `<option value="${r.id}">${r.nombre} (${r.fecha || '?'})</option>`).join('');
+}
+
+function renderHistorialLujo() {
+  const wrap = document.getElementById('history-lujo-wrap');
+  if (!wrap) return;
+  const recetas = [..._lujo_getRecetas()].sort((a,b) => (b.fecha||'').localeCompare(a.fecha||''));
+
+  if (recetas.length === 0) {
+    wrap.innerHTML = '<p style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:1.5rem 0;">No hay fichas guardadas todavía.</p>';
+    return;
+  }
+
+  wrap.innerHTML = `
+    <div class="table-responsive">
+    <table class="breakdown-table" style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr>
+          <th style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);padding:0.5rem 0.6rem;text-align:left;border-bottom:1px solid var(--glass-border);">Nombre</th>
+          <th style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);padding:0.5rem 0.6rem;text-align:left;border-bottom:1px solid var(--glass-border);">Fecha</th>
+          <th style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);padding:0.5rem 0.6rem;text-align:left;border-bottom:1px solid var(--glass-border);">Botellas</th>
+          <th style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);padding:0.5rem 0.6rem;text-align:left;border-bottom:1px solid var(--glass-border);">Ex-Works</th>
+          <th style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);padding:0.5rem 0.6rem;text-align:left;border-bottom:1px solid var(--glass-border);">PVP</th>
+          <th style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);padding:0.5rem 0.6rem;text-align:left;border-bottom:1px solid var(--glass-border);">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${recetas.map(r => `
+          <tr>
+            <td style="padding:0.6rem 0.6rem;font-size:0.8rem;font-weight:600;color:var(--text);border-bottom:1px solid rgba(255,255,255,0.03);">${r.nombre}</td>
+            <td style="padding:0.6rem 0.6rem;font-size:0.75rem;color:var(--text-muted);border-bottom:1px solid rgba(255,255,255,0.03);white-space:nowrap;">${r.fecha || '—'}</td>
+            <td style="padding:0.6rem 0.6rem;font-size:0.78rem;font-family:var(--font-mono);color:var(--teal);border-bottom:1px solid rgba(255,255,255,0.03);">${r.res_bots || '—'}</td>
+            <td style="padding:0.6rem 0.6rem;font-size:0.78rem;font-family:var(--font-mono);color:var(--orange);border-bottom:1px solid rgba(255,255,255,0.03);">${r.res_exw || '—'}</td>
+            <td style="padding:0.6rem 0.6rem;font-size:0.78rem;font-family:var(--font-mono);color:var(--gold);border-bottom:1px solid rgba(255,255,255,0.03);">${r.res_pvp || '—'}</td>
+            <td style="padding:0.6rem 0.6rem;border-bottom:1px solid rgba(255,255,255,0.03);">
+              <div style="display:flex;gap:0.35rem;flex-wrap:wrap;">
+                <button onclick="_lujo_cargarById('${r.id}')"
+                  style="padding:0.3rem 0.6rem;border-radius:6px;border:1px solid rgba(69,162,158,0.3);background:rgba(69,162,158,0.1);color:var(--teal);font-size:0.72rem;cursor:pointer;font-weight:600;">
+                  📂 Cargar
+                </button>
+                <button onclick="eliminarRecetaLujo('${r.id}')"
+                  style="padding:0.3rem 0.5rem;border-radius:6px;border:1px solid rgba(239,83,80,0.25);background:rgba(239,83,80,0.08);color:var(--red);font-size:0.72rem;cursor:pointer;">
+                  ✕
+                </button>
+              </div>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+    </div>
+  `;
 }
 </script>
 </body>

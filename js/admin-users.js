@@ -34,8 +34,8 @@ function renderAdminsTable() {
 
   tbody.innerHTML = adminsCache.map(admin => {
     const rc      = roleColors[admin.role] || roleColors.admin;
-    const isSelf  = admin.username === currentUser;
-    const isSuper = admin.role === 'superadmin';
+    const isSelf    = currentUser && admin.username === currentUser;
+    const isRootAdmin = admin.username === 'bifrost@admin'; // El superadmin raíz nunca se puede eliminar
     const dateStr = admin.createdAt
       ? new Date(admin.createdAt).toLocaleDateString('es-NI', { day:'2-digit', month:'short', year:'numeric' })
       : '—';
@@ -89,7 +89,7 @@ function renderAdminsTable() {
                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
             </svg>
           </button>
-          ${(!isSelf && !isSuper) ? `
+          ${(!isSelf && !isRootAdmin) ? `
             <button class="btn btn--sm btn--danger" onclick="deleteAdminUser(${admin.id})" title="Eliminar">
               <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -107,8 +107,8 @@ function renderAdminsTable() {
 async function toggleAdminActive(id) {
   const admin = adminsCache.find(a => a.id === id);
   if (!admin) return;
-  if (admin.role === 'superadmin') {
-    showToast('No puedes desactivar al superadministrador', 'warning');
+  if (admin.username === 'bifrost@admin') {
+    showToast('No puedes modificar al administrador raíz', 'warning');
     return;
   }
 
@@ -125,8 +125,8 @@ async function toggleAdminActive(id) {
 async function deleteAdminUser(id) {
   const admin = adminsCache.find(a => a.id === id);
   if (!admin) return;
-  if (admin.role === 'superadmin') {
-    showToast('No puedes eliminar al superadministrador', 'warning');
+  if (admin.username === 'bifrost@admin') {
+    showToast('No puedes eliminar el administrador raíz del sistema', 'warning');
     return;
   }
   if (!confirm(`¿Eliminar al administrador "${admin.username}"? Esta acción no se puede deshacer.`)) return;

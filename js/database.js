@@ -662,6 +662,31 @@ class BifrostDB {
     const admins = await this.getAllAdmins();
     return admins.find(a => a.username === username && a.password === password && a.active) || null;
   }
+
+  /* ══════════════════════════════════════════════════
+     RECETAS DE COSTOS SIMPLIFICADOS
+  ═══════════════════════════════════════════════════ */
+
+  getAllRecetas() {
+    try {
+      return JSON.parse(localStorage.getItem('bifrost_cost_recetas') || '[]');
+    } catch { return []; }
+  }
+
+  saveReceta(receta) {
+    const recetas = this.getAllRecetas();
+    const idx = recetas.findIndex(r => r.id === receta.id);
+    if (idx !== -1) recetas[idx] = receta; else recetas.push(receta);
+    localStorage.setItem('bifrost_cost_recetas', JSON.stringify(recetas));
+    _fbSet(`costos_recetas/${receta.id}`, receta).catch(() => {});
+    return receta;
+  }
+
+  deleteReceta(id) {
+    const recetas = this.getAllRecetas().filter(r => r.id !== id);
+    localStorage.setItem('bifrost_cost_recetas', JSON.stringify(recetas));
+    _fbRemove(`costos_recetas/${id}`).catch(() => {});
+  }
 }
 
 
