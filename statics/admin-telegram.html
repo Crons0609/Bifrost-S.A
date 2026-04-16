@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Bifrost Telegram Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  
+  <style>
+    :root {
+      --bg: #0F0F1A;
+      --surface: #1A1A24;
+      --surface-hover: #232330;
+      --border: rgba(255,255,255,0.06);
+      --text: #F0F0F0;
+      --text-muted: #8E8E93;
+      --primary: #0088cc; /* Telegram Blue */
+      --primary-dark: #0077b5;
+      --gold: #D4AF37;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; overflow: hidden; }
+
+    /* Layout */
+    .chat-app { display: flex; width: 100%; height: 100%; }
+    
+    /* Sidebar */
+    .sidebar { width: 320px; border-right: 1px solid var(--border); background: var(--surface); display: flex; flex-direction: column; }
+    .sidebar-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .sidebar-header h2 { font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 8px;}
+    .chat-list { flex: 1; overflow-y: auto; }
+    .chat-item { padding: 14px 16px; display: flex; gap: 12px; cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.2s; align-items: center;}
+    .chat-item:hover, .chat-item.active { background: var(--surface-hover); }
+    .chat-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), #005580); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; flex-shrink: 0;}
+    .chat-info { flex: 1; min-width: 0; }
+    .chat-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .chat-username { font-size: 0.75rem; color: var(--gold); }
+    .chat-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; font-size: 0.75rem; color: var(--text-muted); }
+    .unread-badge { background: var(--primary); color: white; border-radius: 12px; padding: 2px 8px; font-weight: bold; font-size: 0.7rem; }
+    
+    /* Main Area */
+    .main-area { flex: 1; display: flex; flex-direction: column; background: var(--bg); position: relative; }
+    
+    .chat-header { padding: 16px 24px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 16px; }
+    .chat-header .chat-avatar { width: 40px; height: 40px; font-size: 1.1rem; }
+    .chat-header h3 { font-size: 1.1rem; font-weight: 600; }
+    .chat-header p { font-size: 0.8rem; color: var(--text-muted); }
+    
+    .no-chat-selected { flex: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; color: var(--text-muted); }
+    .no-chat-selected svg { width: 64px; height: 64px; opacity: 0.2; margin-bottom: 16px; }
+
+    .messages-container { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 12px; }
+    
+    /* Bubbles */
+    .msg-wrap { display: flex; width: 100%; }
+    .msg-wrap.msg-admin { justify-content: flex-end; }
+    .msg-wrap.msg-user { justify-content: flex-start; }
+    
+    .msg-bubble { max-width: 70%; padding: 10px 14px; border-radius: 14px; font-size: 0.95rem; line-height: 1.4; position: relative; }
+    .msg-admin .msg-bubble { background: var(--primary-dark); color: white; border-bottom-right-radius: 4px; }
+    .msg-user .msg-bubble { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+    
+    .msg-time { font-size: 0.65rem; opacity: 0.7; margin-top: 4px; text-align: right; display: block; }
+    
+    /* Input Area */
+    .input-area { padding: 16px 24px; background: var(--surface); border-top: 1px solid var(--border); display: flex; gap: 12px; align-items: center; }
+    .input-box { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 20px; padding: 12px 16px; color: var(--text); font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
+    .input-box:focus { border-color: var(--primary); }
+    .btn-send { background: var(--primary); color: white; border: none; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s, background 0.2s; }
+    .btn-send:hover:not(:disabled) { background: #0099e6; transform: scale(1.05); }
+    .btn-send:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-send svg { width: 20px; height: 20px; margin-left: 2px; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+  </style>
+</head>
+<body>
+
+  <div class="chat-app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>
+          <svg style="width:20px;height:20px;color:var(--primary);" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.223-.548.223l.188-2.85 5.18-4.68c.223-.198-.054-.31-.346-.11l-6.4 4.03-2.76-.86c-.6-.188-.612-.6.126-.89l10.814-4.167c.502-.192.934.12.756.91v.002z"/></svg>
+          Telegram Chats
+        </h2>
+      </div>
+      <div class="chat-list" id="chat-list">
+        <div style="padding:24px;text-align:center;color:var(--text-muted);font-size:0.85rem;">Conectando a Firebase...</div>
+      </div>
+    </aside>
+
+    <!-- MAIN CHAT AREA -->
+    <main class="main-area" id="main-area">
+      <!-- Muestra por defecto -->
+      <div class="no-chat-selected" id="no-chat">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.223-.548.223l.188-2.85 5.18-4.68c.223-.198-.054-.31-.346-.11l-6.4 4.03-2.76-.86c-.6-.188-.612-.6.126-.89l10.814-4.167c.502-.192.934.12.756.91v.002z"/></svg>
+        <p>Selecciona un chat para empezar a responder</p>
+      </div>
+
+      <!-- Header del Chat Activo -->
+      <div class="chat-header" id="chat-header" style="display:none;">
+        <div class="chat-avatar" id="active-avatar">?</div>
+        <div>
+          <h3 id="active-name">Nombre Cliente</h3>
+          <p id="active-username">@usuario</p>
+        </div>
+      </div>
+
+      <!-- Contenedor de Mensajes -->
+      <div class="messages-container" id="messages-container" style="display:none;">
+        <!-- Se llena con JS -->
+      </div>
+
+      <!-- Input Área -->
+      <div class="input-area" id="input-area" style="display:none;">
+        <input type="text" class="input-box" id="msg-input" placeholder="Escribe un mensaje..." autocomplete="off">
+        <button class="btn-send" id="btn-send" disabled>
+          <svg fill="currentColor" viewBox="0 0 24 24"><path d="M2,21L23,12L2,3V10L17,12L2,14V21Z" /></svg>
+        </button>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/admin-telegram.js"></script>
+</body>
+</html>

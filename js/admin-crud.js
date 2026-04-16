@@ -65,6 +65,12 @@ function switchPanel(panel) {
     p.classList.toggle('hidden', p.dataset.panel !== panel);
   });
 
+  // Ocultar stat cards cuando se muestra el panel de Telegram
+  const statsGrid = document.querySelector('.admin-stats-grid');
+  if (statsGrid) {
+    statsGrid.style.display = panel === 'telegram' ? 'none' : '';
+  }
+
   // Update topbar title
   const titleEl = document.querySelector('.admin-topbar__title');
   if (titleEl) {
@@ -72,6 +78,9 @@ function switchPanel(panel) {
     titleEl.textContent = titles[panel] || 'Dashboard';
   }
 }
+
+// Exportar switchPanel globalmente
+window.switchPanel = switchPanel;
 
 /* ── Stat Cards ──────────────────────────────────────────────── */
 function updateStatCards() {

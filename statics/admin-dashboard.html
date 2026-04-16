@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,7 +23,7 @@
       text-align: center;
       cursor: pointer;
       transition: border-color var(--transition-base), background var(--transition-base);
-      background: rgba(212,175,55,0.03);
+      background: rgba(212, 175, 55, 0.03);
       min-height: 130px;
       display: flex;
       flex-direction: column;
@@ -30,11 +31,13 @@
       justify-content: center;
       gap: var(--space-2);
     }
+
     .img-upload-zone:hover,
     .img-upload-zone.drag-over {
       border-color: var(--color-gold);
-      background: rgba(212,175,55,0.07);
+      background: rgba(212, 175, 55, 0.07);
     }
+
     .img-upload-zone input[type="file"] {
       position: absolute;
       inset: 0;
@@ -43,6 +46,7 @@
       width: 100%;
       height: 100%;
     }
+
     .img-upload-zone__icon {
       width: 40px;
       height: 40px;
@@ -50,15 +54,18 @@
       opacity: 0.6;
       margin-bottom: 4px;
     }
+
     .img-upload-zone__label {
       font-size: var(--fs-sm);
       color: var(--color-text-muted);
       line-height: 1.5;
     }
+
     .img-upload-zone__label strong {
       color: var(--color-gold);
       font-weight: 600;
     }
+
     .img-upload-zone__hint {
       font-size: 0.68rem;
       color: var(--color-text-muted);
@@ -70,9 +77,10 @@
       position: relative;
       border-radius: var(--radius-lg);
       overflow: hidden;
-      border: 1px solid rgba(212,175,55,0.25);
-      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      background: rgba(0, 0, 0, 0.3);
     }
+
     .img-preview-wrap img {
       width: 100%;
       max-height: 200px;
@@ -80,6 +88,7 @@
       display: block;
       padding: var(--space-2);
     }
+
     .img-preview-clear {
       position: absolute;
       top: 8px;
@@ -98,15 +107,17 @@
       transition: background var(--transition-fast), transform var(--transition-fast);
       z-index: 2;
     }
+
     .img-preview-clear:hover {
       background: #F44336;
       transform: scale(1.1);
     }
+
     .img-size-badge {
       position: absolute;
       bottom: 8px;
       left: 8px;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0, 0, 0, 0.7);
       color: var(--color-text-muted);
       font-size: 0.65rem;
       padding: 2px 8px;
@@ -120,6 +131,7 @@
       gap: var(--space-3);
       margin-block: var(--space-3);
     }
+
     .url-separator::before,
     .url-separator::after {
       content: '';
@@ -127,6 +139,7 @@
       height: 1px;
       background: var(--color-glass-border);
     }
+
     .url-separator span {
       font-size: 0.7rem;
       color: var(--color-text-muted);
@@ -135,6 +148,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="admin-layout">
 
@@ -150,7 +164,7 @@
         <button class="admin-nav-link" data-panel="inventory" aria-current="page">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round"
-              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
           </svg>
           Inventory
           <span class="nav-badge" id="nav-wine-count">0</span>
@@ -159,7 +173,7 @@
         <button class="admin-nav-link" data-panel="costos">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round"
-              d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
           Maestro de Costos
         </button>
@@ -167,16 +181,17 @@
         <button class="admin-nav-link" data-panel="costos-simple">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round"
-              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
           Costos Simple
-          <span style="font-size:0.6rem; padding:1px 5px; border-radius:99px; background:rgba(69,162,158,0.2); color:#45A29E; font-weight:700; margin-left:auto;">PET</span>
+          <span
+            style="font-size:0.6rem; padding:1px 5px; border-radius:99px; background:rgba(69,162,158,0.2); color:#45A29E; font-weight:700; margin-left:auto;">PET</span>
         </button>
 
         <button class="admin-nav-link" data-panel="discounts">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round"
-              d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+              d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
           </svg>
           Discounts &amp; Sales
         </button>
@@ -184,7 +199,7 @@
         <button class="admin-nav-link" data-panel="sales">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round"
-              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
           </svg>
           Ventas
           <span class="nav-badge" id="nav-sales-count">0</span>
@@ -193,23 +208,31 @@
         <button class="admin-nav-link" data-panel="admins">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round"
-              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
           </svg>
           Administradores
+        </button>
+
+        <button class="admin-nav-link" data-panel="telegram" id="tg-nav-btn">
+          <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.223-.548.223l.188-2.85 5.18-4.68c.223-.198-.054-.31-.346-.11l-6.4 4.03-2.76-.86c-.6-.188-.612-.6.126-.89l10.814-4.167c.502-.192.934.12.756.91v.002z"/>
+          </svg>
+          Mensajes Telegram
+          <span class="tg-nav-badge" id="tg-nav-badge"></span>
         </button>
 
         <span class="admin-nav-section-label">Quick Links</span>
         <a href="shop.html" class="admin-nav-link" target="_blank" rel="noopener">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round"
-              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
           </svg>
           View Shop
         </a>
         <a href="../index.html" class="admin-nav-link" target="_blank" rel="noopener">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round"
-              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
           </svg>
           Homepage
         </a>
@@ -218,7 +241,8 @@
       <div class="admin-sidebar__footer">
         <button id="admin-logout" class="btn btn--danger btn-ripple" style="width:100%; font-size:0.75rem;">
           <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
           Logout
         </button>
@@ -235,7 +259,7 @@
             style="display:none; width:36px; height:36px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); color:var(--color-text-muted); align-items:center; justify-content:center;"
             aria-label="Toggle sidebar">
             <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
           <h1 class="admin-topbar__title" id="panel-title">Inventory Management</h1>
@@ -280,13 +304,11 @@
           <div class="admin-panel__header">
             <h2 class="admin-panel__title">Wine Inventory</h2>
             <div class="admin-panel__actions">
-              <input type="text" id="table-search" class="form-input"
-                placeholder="Search wines…"
-                style="width:220px; height:38px; padding:0 12px;"
-                aria-label="Search wines">
+              <input type="text" id="table-search" class="form-input" placeholder="Search wines…"
+                style="width:220px; height:38px; padding:0 12px;" aria-label="Search wines">
               <button id="add-wine-btn" class="btn btn--primary btn-ripple">
                 <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                 </svg>
                 Add Wine
               </button>
@@ -329,20 +351,18 @@
             <div class="admin-panel__actions">
               <a href="costos.html" target="_blank" class="btn btn--outline" style="font-size:0.8rem;">
                 <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
                 Abrir pantalla completa
               </a>
             </div>
           </div>
-          <div style="width:100%; min-height:800px; height:85vh; border-radius:var(--radius-lg); overflow:hidden; border:1px solid var(--color-glass-border);">
-            <iframe
-              id="costos-iframe"
-              src=""
-              data-src="costos.html"
+          <div
+            style="width:100%; min-height:800px; height:85vh; border-radius:var(--radius-lg); overflow:hidden; border:1px solid var(--color-glass-border);">
+            <iframe id="costos-iframe" src="" data-src="costos.html"
               style="width:100%; height:100%; border:none; background:var(--color-bg);"
-              title="Maestro de Costos Bifrost"
-              loading="lazy">
+              title="Maestro de Costos Bifrost" loading="lazy">
             </iframe>
           </div>
         </div>
@@ -359,20 +379,18 @@
             <div class="admin-panel__actions">
               <a href="costos-simple.html" target="_blank" class="btn btn--outline" style="font-size:0.8rem;">
                 <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
                 Pantalla completa
               </a>
             </div>
           </div>
-          <div style="width:100%; min-height:800px; height:85vh; border-radius:var(--radius-lg); overflow:hidden; border:1px solid var(--color-glass-border);">
-            <iframe
-              id="costos-simple-iframe"
-              src=""
-              data-src="costos-simple.html"
+          <div
+            style="width:100%; min-height:800px; height:85vh; border-radius:var(--radius-lg); overflow:hidden; border:1px solid var(--color-glass-border);">
+            <iframe id="costos-simple-iframe" src="" data-src="costos-simple.html"
               style="width:100%; height:100%; border:none; background:var(--color-bg);"
-              title="Maestro de Costos Simplificado — Barril PET"
-              loading="lazy">
+              title="Maestro de Costos Simplificado — Barril PET" loading="lazy">
             </iframe>
           </div>
         </div>
@@ -391,8 +409,7 @@
             <div style="display:flex; align-items:center; gap:var(--space-5); flex-wrap:wrap;">
               <div style="display:flex; align-items:center; gap:var(--space-3);">
                 <span style="font-size:var(--fs-sm); color:var(--color-text-muted);">Discount %:</span>
-                <input type="number" id="flash-sale-pct" class="form-input"
-                  value="20" min="1" max="99"
+                <input type="number" id="flash-sale-pct" class="form-input" value="20" min="1" max="99"
                   style="width:72px; height:36px; text-align:center; color:var(--color-gold); font-weight:700;"
                   aria-label="Flash sale discount percentage">
               </div>
@@ -468,25 +485,30 @@
             </div>
             <div class="admin-stat-card">
               <div class="admin-stat-card__label">Producto Top</div>
-              <div class="admin-stat-card__value" id="kpi-best-seller" style="font-size:var(--fs-sm);color:var(--color-gold);">—</div>
+              <div class="admin-stat-card__value" id="kpi-best-seller"
+                style="font-size:var(--fs-sm);color:var(--color-gold);">—</div>
               <div class="admin-stat-card__sub">Mayor demanda</div>
             </div>
           </div>
 
           <!-- Barra de distribución Web vs Mercado -->
-          <div class="glass" style="padding:var(--space-5);border-radius:var(--radius-lg);margin-bottom:var(--space-6);">
+          <div class="glass"
+            style="padding:var(--space-5);border-radius:var(--radius-lg);margin-bottom:var(--space-6);">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-3);">
-              <span style="font-size:var(--fs-sm);font-weight:600;color:var(--color-text-secondary);">Distribución de Ingresos</span>
+              <span style="font-size:var(--fs-sm);font-weight:600;color:var(--color-text-secondary);">Distribución de
+                Ingresos</span>
               <div style="display:flex;gap:var(--space-4);font-size:0.7rem;">
                 <span style="color:#45A29E;">● Web</span>
                 <span style="color:#D4AF37;">● Mercado</span>
               </div>
             </div>
-            <div style="height:10px;border-radius:var(--radius-full);background:rgba(255,255,255,0.05);overflow:hidden;display:flex;">
-              <div id="bar-web"    style="width:50%;background:#45A29E;transition:width 0.6s ease;"></div>
+            <div
+              style="height:10px;border-radius:var(--radius-full);background:rgba(255,255,255,0.05);overflow:hidden;display:flex;">
+              <div id="bar-web" style="width:50%;background:#45A29E;transition:width 0.6s ease;"></div>
               <div id="bar-mercado" style="width:50%;background:#D4AF37;transition:width 0.6s ease;"></div>
             </div>
-            <div style="display:flex;justify-content:space-between;margin-top:var(--space-2);font-size:0.7rem;color:var(--color-text-muted);">
+            <div
+              style="display:flex;justify-content:space-between;margin-top:var(--space-2);font-size:0.7rem;color:var(--color-text-muted);">
               <span id="bar-web-label">Web 50%</span>
               <span id="bar-mercado-label">Mercado 50%</span>
             </div>
@@ -512,7 +534,7 @@
               </select>
               <button id="add-sale-btn" class="btn btn--primary btn-ripple">
                 <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                 </svg>
                 Registrar Venta
               </button>
@@ -538,7 +560,10 @@
                 </tr>
               </thead>
               <tbody>
-                <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--color-text-muted);">Cargando ventas…</td></tr>
+                <tr>
+                  <td colspan="8" style="text-align:center;padding:40px;color:var(--color-text-muted);">Cargando ventas…
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -556,7 +581,7 @@
             <div class="admin-panel__actions">
               <button id="add-user-btn" class="btn btn--primary btn-ripple">
                 <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                 </svg>
                 Agregar Admin
               </button>
@@ -576,11 +601,101 @@
                 </tr>
               </thead>
               <tbody>
-                <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--color-text-muted);">Cargando…</td></tr>
+                <tr>
+                  <td colspan="6" style="text-align:center;padding:40px;color:var(--color-text-muted);">Cargando…</td>
+                </tr>
               </tbody>
             </table>
           </div>
         </div>
+          <!-- ════════════ TELEGRAM CHAT PANEL ════════════ -->
+          <!-- El panel de Telegram NO tiene las clases extra para que ocupe toda la altura -->
+          <div class="admin-panel telegram-panel hidden" data-panel="telegram" id="telegram-panel">
+            <!-- Sidebar de chats -->
+            <aside class="tg-sidebar" id="tg-sidebar">
+              <div class="tg-sidebar__header">
+                <div class="tg-sidebar__title">
+                  <svg fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.223-.548.223l.188-2.85 5.18-4.68c.223-.198-.054-.31-.346-.11l-6.4 4.03-2.76-.86c-.6-.188-.612-.6.126-.89l10.814-4.167c.502-.192.934.12.756.91v.002z"/>
+                  </svg>
+                  Telegram
+                </div>
+                <span class="tg-sidebar__count" id="tg-sidebar-count">0</span>
+              </div>
+              <div class="tg-search-wrap">
+                <input type="search" class="tg-search" id="tg-search"
+                  placeholder="Buscar por nombre o @usuario…" autocomplete="off">
+              </div>
+              <div class="tg-chat-list" id="tg-chat-list">
+                <div class="tg-empty-list">
+                  <svg fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.223-.548.223l.188-2.85 5.18-4.68c.223-.198-.054-.31-.346-.11l-6.4 4.03-2.76-.86c-.6-.188-.612-.6.126-.89l10.814-4.167c.502-.192.934.12.756.91v.002z"/>
+                  </svg>
+                  <p>Conectando a Firebase…</p>
+                </div>
+              </div>
+            </aside>
+
+            <!-- Área principal del chat -->
+            <main class="tg-main">
+              <!-- Estado vacío (sin chat seleccionado) -->
+              <div class="tg-no-chat" id="tg-no-chat">
+                <div class="tg-no-chat__icon">
+                  <svg fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.223-.548.223l.188-2.85 5.18-4.68c.223-.198-.054-.31-.346-.11l-6.4 4.03-2.76-.86c-.6-.188-.612-.6.126-.89l10.814-4.167c.502-.192.934.12.756.91v.002z"/>
+                  </svg>
+                </div>
+                <h3>Bandeja de Mensajes</h3>
+                <p>Selecciona una conversación de la lista para ver el historial y responder al usuario.</p>
+              </div>
+
+              <!-- Header del chat activo -->
+              <div class="tg-chat-header" id="tg-chat-header">
+                <!-- Botón back (móvil) -->
+                <button class="tg-icon-btn" id="tg-back-btn" title="Volver a la lista" style="display:none;" aria-label="Volver">
+                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                  </svg>
+                </button>
+                <div class="tg-avatar large" id="tg-header-avatar">?</div>
+                <div class="tg-header-info">
+                  <div class="tg-header-name" id="tg-header-name">Cliente</div>
+                  <div class="tg-header-sub" id="tg-header-sub"></div>
+                </div>
+              </div>
+
+              <!-- Mensajes -->
+              <div class="tg-messages" id="tg-messages">
+                <!-- Se llena dinámicamente con JS -->
+              </div>
+
+              <!-- Barra de respuestas predeterminadas (Quick Replies) -->
+              <div class="tg-quick-replies-bar" id="tg-quick-replies-bar">
+                <div class="tg-qr-label">Atajos:</div>
+                <div class="tg-qr-list" id="tg-quick-replies">
+                  <!-- Se genera dinámicamente por admin-telegram-panel.js -->
+                </div>
+              </div>
+
+              <!-- Input de respuesta -->
+              <div class="tg-input-area" id="tg-input-area">
+                <div class="tg-input-wrap">
+                  <textarea
+                    class="tg-input"
+                    id="tg-msg-input"
+                    placeholder="Escribe un mensaje para el cliente…"
+                    rows="1"
+                    autocomplete="off"
+                    aria-label="Mensaje"></textarea>
+                </div>
+                <button class="tg-send-btn" id="tg-send-btn" disabled aria-label="Enviar mensaje">
+                  <svg fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
+                  </svg>
+                </button>
+              </div>
+            </main>
+          </div>
 
       </div><!-- /.admin-content -->
     </div><!-- /.admin-main -->
@@ -592,11 +707,12 @@
     <div class="modal__panel glass--strong" style="max-width:720px; overflow-y:auto; max-height:90vh;">
       <button class="modal__close" aria-label="Close modal">
         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
 
-      <h2 id="wine-modal-title" style="font-family:var(--font-heading); font-size:var(--fs-xl); margin-bottom:var(--space-6);">
+      <h2 id="wine-modal-title"
+        style="font-family:var(--font-heading); font-size:var(--fs-xl); margin-bottom:var(--space-6);">
         Add New Wine
       </h2>
 
@@ -669,23 +785,24 @@
             <!-- Preview (oculto hasta que se cargue imagen) -->
             <div id="img-preview-wrap" class="img-preview-wrap" style="display:none; margin-bottom:var(--space-3);">
               <img id="img-preview" src="" alt="Vista previa">
-              <button type="button" class="img-preview-clear" id="img-clear-btn"
-                      title="Eliminar imagen" aria-label="Eliminar imagen">
+              <button type="button" class="img-preview-clear" id="img-clear-btn" title="Eliminar imagen"
+                aria-label="Eliminar imagen">
                 <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
               <span class="img-size-badge" id="img-size-badge"></span>
             </div>
 
             <!-- Zona de Arrastre / Clic -->
-            <div class="img-upload-zone" id="img-upload-zone"
-                 role="button" tabindex="0" aria-label="Haz clic o arrastra una imagen para subirla">
+            <div class="img-upload-zone" id="img-upload-zone" role="button" tabindex="0"
+              aria-label="Haz clic o arrastra una imagen para subirla">
               <input type="file" id="wine-image-file" accept="image/png,image/jpeg,image/webp,image/gif"
-                     aria-label="Seleccionar archivo de imagen">
-              <svg class="img-upload-zone__icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                aria-label="Seleccionar archivo de imagen">
+              <svg class="img-upload-zone__icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                stroke-width="1.5" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               <p class="img-upload-zone__label">
                 <strong>Haz clic para seleccionar</strong> o arrastra aquí
@@ -697,9 +814,8 @@
             <div class="url-separator"><span>o pega una URL externa</span></div>
 
             <!-- Campo URL como alternativa -->
-            <input type="url" id="wine-image" class="form-input"
-                   placeholder="https://ejemplo.com/imagen-del-vino.png"
-                   autocomplete="off">
+            <input type="url" id="wine-image" class="form-input" placeholder="https://ejemplo.com/imagen-del-vino.png"
+              autocomplete="off">
 
             <!-- Campo oculto donde se guarda el valor final (base64 o URL) -->
             <input type="hidden" id="wine-image-final" value="">
@@ -729,13 +845,15 @@
           <div class="form-group full-width" style="flex-direction:row; align-items:center; gap:var(--space-3);">
             <input type="checkbox" id="wine-featured"
               style="width:18px; height:18px; accent-color:var(--color-gold); cursor:pointer;">
-            <label class="form-label" for="wine-featured" style="cursor:pointer; margin:0; text-transform:none; font-size:var(--fs-sm);">
+            <label class="form-label" for="wine-featured"
+              style="cursor:pointer; margin:0; text-transform:none; font-size:var(--fs-sm);">
               Feature this wine on the homepage
             </label>
           </div>
 
           <!-- Buttons -->
-          <div class="full-width" style="display:flex; gap:var(--space-3); justify-content:flex-end; margin-top:var(--space-4);">
+          <div class="full-width"
+            style="display:flex; gap:var(--space-3); justify-content:flex-end; margin-top:var(--space-4);">
             <button type="button" id="cancel-wine-btn" class="btn btn--ghost">Cancel</button>
             <button type="submit" class="btn btn--primary btn-ripple">Save Wine</button>
           </div>
@@ -750,10 +868,12 @@
     <div class="modal__panel glass--strong" style="max-width:580px;overflow-y:auto;max-height:90vh;">
       <button class="modal__close" aria-label="Cerrar">
         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
-      <h2 id="sale-modal-title" style="font-family:var(--font-heading);font-size:var(--fs-xl);margin-bottom:var(--space-6);">Registrar Venta</h2>
+      <h2 id="sale-modal-title"
+        style="font-family:var(--font-heading);font-size:var(--fs-xl);margin-bottom:var(--space-6);">Registrar Venta
+      </h2>
 
       <form id="sale-form" novalidate>
         <div class="admin-modal-form">
@@ -785,7 +905,8 @@
           <!-- Nombre manual -->
           <div class="form-group full-width">
             <label class="form-label" for="sale-wine-name">Nombre del Producto *</label>
-            <input type="text" id="sale-wine-name" class="form-input" placeholder="Ej. Vortex Nebula 2019 o Ron Flor de Caña 7" required>
+            <input type="text" id="sale-wine-name" class="form-input"
+              placeholder="Ej. Vortex Nebula 2019 o Ron Flor de Caña 7" required>
           </div>
 
           <!-- Cantidad -->
@@ -802,13 +923,15 @@
 
           <!-- Total preview -->
           <div class="full-width" style="text-align:right;margin-top:-12px;margin-bottom:4px;">
-            <span id="sale-total-preview" style="font-size:var(--fs-lg);font-weight:700;color:var(--color-gold);">Total: $0.00</span>
+            <span id="sale-total-preview" style="font-size:var(--fs-lg);font-weight:700;color:var(--color-gold);">Total:
+              $0.00</span>
           </div>
 
           <!-- Notas -->
           <div class="form-group full-width">
             <label class="form-label" for="sale-notes">Notas (opcional)</label>
-            <input type="text" id="sale-notes" class="form-input" placeholder="Cliente VIP, feria del vino, evento corporativo…">
+            <input type="text" id="sale-notes" class="form-input"
+              placeholder="Cliente VIP, feria del vino, evento corporativo…">
           </div>
 
           <!-- Registrado por -->
@@ -818,7 +941,8 @@
           </div>
 
           <!-- Buttons -->
-          <div class="full-width" style="display:flex;gap:var(--space-3);justify-content:flex-end;margin-top:var(--space-4);">
+          <div class="full-width"
+            style="display:flex;gap:var(--space-3);justify-content:flex-end;margin-top:var(--space-4);">
             <button type="button" id="cancel-sale-btn" class="btn btn--ghost">Cancelar</button>
             <button type="submit" class="btn btn--primary btn-ripple">Guardar Venta</button>
           </div>
@@ -833,10 +957,12 @@
     <div class="modal__panel glass--strong" style="max-width:460px;overflow-y:auto;max-height:90vh;">
       <button class="modal__close" aria-label="Cerrar">
         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
-      <h2 id="user-modal-title" style="font-family:var(--font-heading);font-size:var(--fs-xl);margin-bottom:var(--space-6);">Agregar Administrador</h2>
+      <h2 id="user-modal-title"
+        style="font-family:var(--font-heading);font-size:var(--fs-xl);margin-bottom:var(--space-6);">Agregar
+        Administrador</h2>
 
       <form id="user-form" novalidate>
         <div style="display:flex;flex-direction:column;gap:var(--space-5);">
@@ -880,6 +1006,7 @@
   <script src="../js/admin-crud.js"></script>
   <script src="../js/admin-sales.js"></script>
   <script src="../js/admin-users.js"></script>
+  <script src="../js/admin-telegram-panel.js"></script>
 
   <script>
     // Show sidebar toggle on mobile
@@ -893,7 +1020,7 @@
     // Update nav badge after load
     window.addEventListener('bifrost:crud:update', () => {
       const count = document.getElementById('nav-wine-count');
-      const stat  = document.getElementById('stat-total');
+      const stat = document.getElementById('stat-total');
       if (count && stat) count.textContent = stat.textContent;
     });
 
@@ -914,7 +1041,14 @@
           usersInited = true;
           await window.initUsersPanel?.();
         }
-        
+        // Inicializar panel Telegram (lazy)
+        if (panel === 'telegram') {
+          await window.initTelegramPanel?.();
+          // Mostrar botón back en móvil
+          const backBtn = document.getElementById('tg-back-btn');
+          if (backBtn) backBtn.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
+        }
+
         // Auto-close sidebar on mobile
         const sidebar = document.querySelector('.admin-sidebar');
         if (sidebar && sidebar.classList.contains('mobile-open')) {
@@ -927,13 +1061,14 @@
     const origSwitch = window.switchPanel;
     if (origSwitch) {
       const _orig = origSwitch;
-      window.switchPanel = function(panel) {
+      window.switchPanel = function (panel) {
         _orig(panel);
         const extra = {
-          sales:         'Panel de Ventas',
-          admins:        'Administradores',
-          costos:        'Maestro de Costos Bifrost',
-          'costos-simple': '🛢️ Costos Simple — Barril PET'
+          sales: 'Panel de Ventas',
+          admins: 'Administradores',
+          costos: 'Maestro de Costos Bifrost',
+          'costos-simple': '🛢️ Costos Simple — Barril PET',
+          telegram: '💬 Mensajes Telegram'
         };
         if (extra[panel]) {
           const titleEl = document.querySelector('.admin-topbar__title');
@@ -960,7 +1095,7 @@
 
     // Fix: sync nav-wine-count from stat-total after render
     const statObserver = new MutationObserver(() => {
-      const nav  = document.getElementById('nav-wine-count');
+      const nav = document.getElementById('nav-wine-count');
       const stat = document.getElementById('stat-total');
       if (nav && stat && stat.textContent !== '—') {
         nav.textContent = stat.textContent;
@@ -970,4 +1105,5 @@
     if (statEl) statObserver.observe(statEl, { childList: true, characterData: true, subtree: true });
   </script>
 </body>
+
 </html>

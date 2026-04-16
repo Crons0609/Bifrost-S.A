@@ -302,9 +302,279 @@ bot.command('listar_recetas', async (ctx) => {
 });
 
 // ═══════════════════════════════════════════════════════
+// SISTEMA DE AUTO-RESPUESTAS INTELIGENTES CON MÉTRICAS
+// ═══════════════════════════════════════════════════════
 
+/**
+ * Detecta la intención del mensaje del cliente.
+ * Retorna una clave de intención o null si no se detecta.
+ */
+function detectarIntencion(texto) {
+  const t = texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-// Listener Firebase -> Telegram Bot (Cuando un Cliente Nuevo pregunta)
+  const intenciones = {
+    stock: [
+      'stock', 'inventario', 'disponible', 'tienen', 'hay', 'queda', 'quedan',
+      'cuanto tienen', 'cuantos tienen', 'que tienen', 'que venden', 'productos',
+      'litros', 'botellas', 'mosto', 'lote', 'existencia'
+    ],
+    precio: [
+      'precio', 'precios', 'cuanto cuesta', 'cuanto vale', 'cuanto es',
+      'cuanto cobran', 'costo', 'costos', 'valor', 'tarifa', 'cuanto',
+      'venta', 'comprar', 'adquirir', 'cotizacion', 'cotizar'
+    ],
+    catalogo: [
+      'catalogo', 'vinos', 'tipos', 'variedades', 'opciones', 'que vinos',
+      'lista', 'que tienen disponible', 'menu', 'carta', 'seleccion',
+      'cepa', 'cepas', 'sabor', 'presentacion'
+    ],
+    contacto: [
+      'contacto', 'telefono', 'llamar', 'whatsapp', 'ubicacion', 'direccion',
+      'donde estan', 'horario', 'horarios', 'atencion', 'hablar con', 'humano',
+      'persona', 'asesor'
+    ],
+    pedido: [
+      'pedido', 'pedir', 'ordenar', 'compra', 'comprar', 'hacer pedido',
+      'quiero', 'necesito', 'entregan', 'delivery', 'envio', 'envios',
+      'domicilio', 'despacho'
+    ],
+    saludo: [
+      'hola', 'buenas', 'buenos dias', 'buenas tardes', 'buenas noches',
+      'hey', 'hi', 'buen dia', 'saludos', 'que tal', 'como estan'
+    ]
+  };
+
+  for (const [intencion, palabras] of Object.entries(intenciones)) {
+    if (palabras.some(p => t.includes(p))) return intencion;
+  }
+  return null;
+}
+
+/**
+ * Genera respuesta automática basada en datos reales de Firebase.
+ * Retorna el texto de la respuesta o null si no aplica auto-respuesta.
+ */
+async function generarAutoRespuesta(intencion, userName) {
+  if (!db) return null;
+
+  const nombre = userName.split(' ')[0]; // Solo primer nombre
+
+  switch (intencion) {
+
+    case 'saludo':
+      return `¡Hola, ${nombre}! 👋 Bienvenido a *Bifrost S.A.* 🍷\n\n` +
+             `Soy el asistente virtual de la bodega. Puedo ayudarte con:\n\n` +
+             `📦 *¿Qué tenemos disponible?* — Pregunta por el stock\n` +
+             `💰 *¿Cuánto cuesta?* — Consulta precios por lote\n` +
+             `📋 *¿Cómo hacer un pedido?* — Te explico el proceso\n` +
+             `📞 *¿Hablar con alguien?* — Te conecto con un asesor\n\n` +
+             `_¿En qué puedo ayudarte hoy?_ 😊`;
+
+    case 'stock':
+    case 'catalogo': {
+      const snap = await db.ref('stock_lotes').once('value');
+      if (!snap.exists()) {
+        return `Hola ${nombre} 👋 En este momento estamos actualizando nuestro inventario.\n` +
+               `Escríbenos y te confirmaremos disponibilidad en breve. ✅`;
+      }
+
+      let respuesta = `¡Hola, ${nombre}! 🍷 Aquí tienes nuestro *inventario disponible* en tiempo real:\n\n`;
+      let totalLitros = 0;
+      let hayStock = false;
+
+      snap.forEach(child => {
+        const lote = child.val();
+        const litros = parseFloat(lote.litros_disponibles) || 0;
+        const botellas = parseInt(lote.botellas_terminadas) || 0;
+
+        if (litros > 0 || botellas > 0) {
+          hayStock = true;
+          respuesta += `🔹 *${lote.nombre}*\n`;
+          if (litros > 0) respuesta += `   💧 ${litros.toFixed(1)} L disponibles en barril\n`;
+          if (botellas > 0) respuesta += `   🍾 ${botellas} botellas envasadas\n`;
+          respuesta += '\n';
+          totalLitros += litros;
+        }
+      });
+
+      if (!hayStock) {
+        return `Hola ${nombre} 👋 Lamentablemente en este momento no contamos con stock disponible.\n` +
+               `Déjanos tu contacto y te avisamos cuando tengamos producción lista. 📬`;
+      }
+
+      respuesta += `📊 *Total en bodega:* ${totalLitros.toFixed(1)} L\n\n`;
+      respuesta += `_¿Te interesa alguno en particular? Pregunta por precios o cómo hacer tu pedido._ 😊`;
+      return respuesta;
+    }
+
+    case 'precio': {
+      const snap = await db.ref('stock_lotes').once('value');
+      const costsSnap = await db.ref('costos_recetas').once('value');
+
+      if (!snap.exists()) {
+        return `Hola ${nombre}! Para enviarte los precios actualizados, ` +
+               `por favor escríbenos directamente y un asesor te atenderá. 📞`;
+      }
+
+      // Construir mapa de costos por lote
+      const costos = {};
+      if (costsSnap.exists()) {
+        costsSnap.forEach(c => {
+          const v = c.val();
+          if (v.res_costo_litro) costos[c.key] = parseFloat(v.res_costo_litro);
+        });
+      }
+
+      let respuesta = `¡Hola, ${nombre}! 💰 Aquí te presento nuestra *lista de precios* actualizada:\n\n`;
+      let tienePrecios = false;
+
+      snap.forEach(child => {
+        const lote = child.val();
+        const litros = parseFloat(lote.litros_disponibles) || 0;
+        if (litros <= 0) return;
+
+        tienePrecios = true;
+        respuesta += `🔹 *${lote.nombre}*\n`;
+        respuesta += `   💧 Disponible: ${litros.toFixed(1)} L\n`;
+
+        // Usar costo de receta si existe (precio de costo interno)
+        // En producción real, aquí irían los precios de venta
+        respuesta += `   📞 _Precio disponible consultando con asesor_\n\n`;
+      });
+
+      if (!tienePrecios) {
+        return `Hola ${nombre}! En este momento no tenemos stock disponible. ` +
+               `Te contactamos cuando tengamos producción lista. 🍷`;
+      }
+
+      respuesta += `Para conocer los precios exactos por volumen y hacer tu pedido, ` +
+                   `responde a este chat y un asesor de Bifrost S.A. te contactará. ✅`;
+      return respuesta;
+    }
+
+    case 'pedido':
+      return `¡Hola, ${nombre}! 📦 *¿Cómo hacer tu pedido en Bifrost S.A.?*\n\n` +
+             `Es muy sencillo:\n\n` +
+             `1️⃣ *Consulta el stock disponible* — Pregunta "¿qué tienen disponible?"\n` +
+             `2️⃣ *Indícanos el producto y cantidad* que deseas\n` +
+             `3️⃣ *Confirma tu dirección* de entrega o punto de retiro\n` +
+             `4️⃣ *Un asesor te confirma* el total y coordina la entrega\n\n` +
+             `🚚 Realizamos entregas coordinadas con previo aviso.\n` +
+             `💳 Aceptamos distintos métodos de pago.\n\n` +
+             `_¿Deseas ver nuestro stock disponible ahora?_ 🍷`;
+
+    case 'contacto':
+      return `¡Hola, ${nombre}! 📞 *Contacto Bifrost S.A.*\n\n` +
+             `Un asesor humano ha sido notificado y se comunicará contigo.\n\n` +
+             `⏰ *Horario de atención:*\n` +
+             `Lunes a Viernes: 8:00 AM – 6:00 PM\n` +
+             `Sábados: 8:00 AM – 12:00 PM\n\n` +
+             `Mientras esperas, puedes preguntarme sobre:\n` +
+             `📦 Stock disponible · 🍷 Catálogo · 📋 Cómo pedir`;
+
+    default:
+      return null; // Sin auto-respuesta, el admin responde manualmente
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// CHATS DIRECTOS TELEGRAM (WHATSAPP BUSINESS STYLE)
+// ═══════════════════════════════════════════════════════
+
+// 1. Listener Bot -> Firebase (Clientes escriben al bot)
+bot.on('text', async (ctx) => {
+  // Evitar procesar comandos o mensajes del admin hacia sí mismo aquí
+  if (ctx.message.text.startsWith('/') || isAdmin(ctx)) return;
+
+  const chatId   = ctx.from.id.toString();
+  const userName = ctx.from.first_name || 'Desconocido';
+  const usernameStr = ctx.from.username ? `@${ctx.from.username}` : '';
+  const text     = ctx.message.text;
+
+  try {
+    const chatRef = db.ref(`telegram_chats/${chatId}`);
+
+    // ── Actualizar metadatos del chat ──────────────────────────
+    await chatRef.update({
+      userId:            chatId,
+      name:              userName,
+      username:          usernameStr,
+      last_message_time: Date.now(),
+    });
+
+    // Incrementar no leídos
+    const unreadSnap = await chatRef.child('unread_count').once('value');
+    await chatRef.child('unread_count').set((unreadSnap.val() || 0) + 1);
+
+    // Guardar mensaje del usuario en historial
+    await chatRef.child('messages').push({
+      sender:    'user',
+      text:      text,
+      timestamp: Date.now()
+    });
+
+    // ── Auto-Responder Inteligente ─────────────────────────────
+    const intencion = detectarIntencion(text);
+    if (intencion) {
+      const autoRespuesta = await generarAutoRespuesta(intencion, userName);
+      if (autoRespuesta) {
+        // Pequeña pausa para que se sienta natural (no instantáneo)
+        await new Promise(r => setTimeout(r, 900));
+
+        // Enviar al cliente via Telegram
+        await ctx.reply(autoRespuesta, { parse_mode: 'Markdown' });
+
+        // Guardar en historial (marcado como [auto] para distinguirlo)
+        await chatRef.child('messages').push({
+          sender:    'admin',
+          text:      autoRespuesta,
+          auto:      true,   // flag para mostrar indicador "Automático" en el dashboard
+          timestamp: Date.now()
+        });
+
+        // Actualizar preview del chat con el eco de la auto-respuesta
+        await chatRef.update({
+          last_message_time: Date.now(),
+          unread_count:      0
+        });
+
+        console.log(`🤖 Auto-respuesta [${intencion}] enviada a ${userName} (${chatId})`);
+      }
+    }
+
+  } catch(e) { console.error('Error en handler de chat Telegram:', e); }
+});
+
+// 2. Listener Firebase -> Telegram Bot (Cuando el Admin responde desde la Web)
+if (db && BOT_TOKEN) {
+  db.ref('telegram_outbox').on('child_added', async (snapshot) => {
+    const msgData = snapshot.val();
+    const msgKey = snapshot.key;
+    
+    // Si ya tuvo un fallo crítico, evitar bucle infinito
+    if (msgData.failed) return; 
+
+    try {
+      await bot.telegram.sendMessage(msgData.chatId, msgData.text);
+      
+      await db.ref(`telegram_chats/${msgData.chatId}/messages`).push({
+        sender: 'admin',
+        text: msgData.text,
+        timestamp: Date.now()
+      });
+      
+      await db.ref(`telegram_outbox/${msgKey}`).remove();
+      // Reseteamos el unread_count ya que le respondió
+      await db.ref(`telegram_chats/${msgData.chatId}`).update({ unread_count: 0 });
+      
+    } catch(e) {
+      console.error("Error re-enviando mensaje a Telegram:", e);
+      await db.ref(`telegram_outbox/${msgKey}`).update({ failed: true, error: e.message });
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════// Listener Firebase -> Telegram Bot (Cuando un Cliente Nuevo pregunta)
 if (db && BOT_TOKEN && ADMIN_ID) {
   db.ref('mensajes').on('child_added', (snapshot) => {
     const msg = snapshot.val();

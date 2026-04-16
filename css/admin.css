@@ -773,3 +773,768 @@ input:checked + .toggle-track::after {
     padding: 0 var(--space-5);
   }
 }
+/* ╔══════════════════════════════════════════╗
+   ║        TELEGRAM CHAT PANEL              ║
+   ╚══════════════════════════════════════════╝ */
+
+/* El panel de Telegram NO usa .admin-content padding, ocupa toda la pantalla */
+.admin-panel.telegram-panel {
+  display: flex;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-glass-border);
+  height: calc(100vh - 64px - 32px); /* viewport - topbar - padding */
+  min-height: 560px;
+  margin: 0;
+}
+
+.admin-panel.telegram-panel.hidden { display: none; }
+
+/* ── Sidebar de Chats ── */
+.tg-sidebar {
+  width: 300px;
+  flex-shrink: 0;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  background: rgba(8, 8, 16, 0.95);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.tg-sidebar__header {
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.02);
+}
+
+.tg-sidebar__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-heading);
+  font-size: var(--fs-md);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.tg-sidebar__title svg {
+  width: 20px;
+  height: 20px;
+  color: #0088cc;
+}
+
+.tg-sidebar__count {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(0, 136, 204, 0.15);
+  color: #2aabee;
+  border: 1px solid rgba(0, 136, 204, 0.25);
+}
+
+.tg-search-wrap {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  flex-shrink: 0;
+}
+
+.tg-search {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-full);
+  padding: 8px 14px;
+  color: var(--color-text-primary);
+  font-size: var(--fs-sm);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.tg-search:focus {
+  border-color: rgba(0,136,204,0.5);
+}
+
+.tg-search::placeholder {
+  color: var(--color-text-muted);
+}
+
+.tg-chat-list {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+
+.tg-chat-list::-webkit-scrollbar { width: 4px; }
+.tg-chat-list::-webkit-scrollbar-track { background: transparent; }
+.tg-chat-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+.tg-chat-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  transition: background var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.tg-chat-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #0088cc;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.tg-chat-item:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+.tg-chat-item.active {
+  background: rgba(0,136,204,0.08);
+  border-bottom-color: rgba(0,136,204,0.1);
+}
+
+.tg-chat-item.active::before {
+  opacity: 1;
+}
+
+.tg-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0088cc, #005580);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  position: relative;
+  box-shadow: 0 2px 12px rgba(0,136,204,0.3);
+}
+
+.tg-avatar.large {
+  width: 38px;
+  height: 38px;
+  font-size: 1rem;
+}
+
+.tg-avatar::after {
+  content: '';
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #4CAF50;
+  border: 2px solid rgba(8, 8, 16, 0.95);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.tg-avatar.online::after {
+  opacity: 1;
+}
+
+.tg-chat-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.tg-chat-name {
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+
+.tg-chat-preview {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tg-chat-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.tg-time {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+.tg-unread {
+  background: #0088cc;
+  color: white;
+  border-radius: 12px;
+  padding: 2px 7px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  min-width: 20px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,136,204,0.4);
+}
+
+.tg-empty-list {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
+
+.tg-empty-list svg {
+  width: 48px;
+  height: 48px;
+  opacity: 0.15;
+  margin-bottom: 12px;
+  display: block;
+  margin-inline: auto;
+}
+
+/* ── Área Principal de Conversación ── */
+.tg-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--color-bg-primary);
+  position: relative;
+}
+
+/* Estado vacío */
+.tg-no-chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  gap: 16px;
+  padding: 40px;
+}
+
+.tg-no-chat__icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(0,136,204,0.08);
+  border: 2px solid rgba(0,136,204,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tg-no-chat__icon svg {
+  width: 38px;
+  height: 38px;
+  color: rgba(0,136,204,0.4);
+}
+
+.tg-no-chat h3 {
+  font-family: var(--font-heading);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.tg-no-chat p {
+  font-size: var(--fs-sm);
+  text-align: center;
+  max-width: 260px;
+  line-height: 1.6;
+}
+
+/* Header del chat activo */
+.tg-chat-header {
+  padding: 14px 20px;
+  background: rgba(10,10,18,0.9);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+  display: none;
+}
+
+.tg-chat-header.visible {
+  display: flex;
+}
+
+.tg-header-info {
+  flex: 1;
+}
+
+.tg-header-name {
+  font-weight: 700;
+  font-size: var(--fs-md);
+  color: var(--color-text-primary);
+}
+
+.tg-header-sub {
+  font-size: 0.75rem;
+  color: #0088cc;
+  margin-top: 2px;
+}
+
+.tg-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.tg-icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background: transparent;
+}
+
+.tg-icon-btn:hover {
+  background: rgba(255,255,255,0.06);
+  color: var(--color-text-primary);
+  border-color: rgba(255,255,255,0.15);
+}
+
+.tg-icon-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Contenedor de mensajes */
+.tg-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+  /* Fondo sutil tipo Telegram */
+  background-image:
+    radial-gradient(ellipse at 20% 20%, rgba(0,136,204,0.03) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(212,175,55,0.02) 0%, transparent 60%);
+  display: none;
+}
+
+.tg-messages.visible {
+  display: flex;
+}
+
+.tg-messages::-webkit-scrollbar { width: 4px; }
+.tg-messages::-webkit-scrollbar-track { background: transparent; }
+.tg-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+/* Date separator */
+.tg-date-sep {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 8px 0;
+}
+
+.tg-date-sep span {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-full);
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+  padding: 3px 12px;
+  letter-spacing: 0.05em;
+}
+
+/* Burbujas de mensaje */
+.tg-msg-wrap {
+  display: flex;
+  width: 100%;
+  align-items: flex-end;
+  gap: 8px;
+  animation: msgIn 0.2s ease both;
+}
+
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tg-msg-wrap.from-user {
+  justify-content: flex-start;
+}
+
+.tg-msg-wrap.from-admin {
+  justify-content: flex-end;
+}
+
+.tg-msg-bubble {
+  max-width: 65%;
+  padding: 10px 14px 8px;
+  border-radius: 16px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  position: relative;
+  word-break: break-word;
+}
+
+.from-user .tg-msg-bubble {
+  background: rgba(30, 30, 46, 0.95);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-bottom-left-radius: 4px;
+  color: var(--color-text-primary);
+}
+
+.from-admin .tg-msg-bubble {
+  background: linear-gradient(135deg, #0077b5, #005580);
+  border-bottom-right-radius: 4px;
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(0,120,180,0.3);
+}
+
+.tg-msg-time {
+  font-size: 0.62rem;
+  opacity: 0.65;
+  display: block;
+  text-align: right;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.tg-msg-check {
+  display: inline-flex;
+  color: #4FC3F7;
+}
+
+.tg-msg-check svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Mini avatar en mensajes del usuario */
+.tg-msg-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0088cc, #005580);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  align-self: flex-end;
+}
+
+/* Área de input */
+.tg-input-area {
+  padding: 14px 20px;
+  background: rgba(10,10,18,0.95);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: none;
+  gap: 10px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.tg-input-area.visible {
+  display: flex;
+}
+
+.tg-input-wrap {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 22px;
+  display: flex;
+  align-items: flex-end;
+  padding: 8px 16px;
+  gap: 8px;
+  transition: border-color var(--transition-fast);
+}
+
+.tg-input-wrap:focus-within {
+  border-color: rgba(0,136,204,0.5);
+  box-shadow: 0 0 0 3px rgba(0,136,204,0.08);
+}
+
+.tg-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--color-text-primary);
+  font-size: var(--fs-sm);
+  resize: none;
+  max-height: 120px;
+  line-height: 1.5;
+  font-family: var(--font-body);
+  min-height: 24px;
+}
+
+.tg-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.tg-send-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0088cc, #006699);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 12px rgba(0,136,204,0.4);
+}
+
+.tg-send-btn:hover:not(:disabled) {
+  transform: scale(1.06);
+  box-shadow: 0 4px 20px rgba(0,136,204,0.5);
+  background: linear-gradient(135deg, #009ee0, #0077b5);
+}
+
+.tg-send-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.tg-send-btn svg {
+  width: 20px;
+  height: 20px;
+  margin-left: 2px;
+}
+
+/* Indicador de mensajes nuevos */
+.tg-typing {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  background: rgba(30,30,46,0.95);
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.06);
+  width: fit-content;
+  border-bottom-left-radius: 4px;
+}
+
+.tg-typing span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0088cc;
+  animation: tgTyping 1.4s ease-in-out infinite;
+}
+
+.tg-typing span:nth-child(2) { animation-delay: 0.2s; }
+.tg-typing span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes tgTyping {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-5px); opacity: 1; }
+}
+
+/* Badge de mensajes no leídos en nav */
+.tg-nav-badge {
+  margin-left: auto;
+  background: #0088cc;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  min-width: 18px;
+  text-align: center;
+  display: none;
+  animation: tgPulse 2s ease-in-out infinite;
+}
+
+.tg-nav-badge.has-unread {
+  display: inline-block;
+}
+
+@keyframes tgPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,136,204,0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(0,136,204,0); }
+}
+
+/* Panel de info de usuario en header (Telegram ID) */
+.tg-id-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  background: rgba(0,136,204,0.1);
+  border: 1px solid rgba(0,136,204,0.2);
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  color: #2aabee;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  user-select: all;
+}
+
+.tg-id-chip:hover {
+  background: rgba(0,136,204,0.18);
+}
+
+/* Telegram panel responsive */
+@media (max-width: 768px) {
+  .tg-sidebar {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 10;
+    transform: translateX(0);
+    transition: transform var(--transition-base);
+  }
+
+  .tg-sidebar.hidden-mobile {
+    transform: translateX(-100%);
+  }
+
+  .admin-panel.telegram-panel {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tg-msg-bubble {
+    max-width: 80%;
+  }
+}
+
+/* ── Quick Replies Bar ─────────────────────────────────────────── */
+.tg-quick-replies-bar {
+  display: none;           /* oculta hasta que hay un chat activo */
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px 6px;
+  background: rgba(8, 8, 16, 0.98);
+  border-top: 1px solid rgba(255,255,255,0.04);
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tg-quick-replies-bar::-webkit-scrollbar { display: none; }
+
+/* Se muestra cuando el área de input es visible (chat activo) */
+.tg-input-area.visible ~ .tg-quick-replies-bar,
+.tg-quick-replies-bar.visible {
+  display: flex;
+}
+
+/* Reordenar en el DOM: la barra va encima del input, ya la colocamos en HTML */
+.tg-quick-replies-bar {
+  order: 0;
+}
+
+.tg-qr-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tg-qr-list {
+  display: flex;
+  gap: 6px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tg-qr-list::-webkit-scrollbar { display: none; }
+
+.tg-qr-btn {
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(0,136,204,0.3);
+  background: rgba(0,136,204,0.08);
+  color: #2aabee;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.tg-qr-btn:hover:not(:disabled) {
+  background: rgba(0,136,204,0.18);
+  border-color: rgba(0,136,204,0.55);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0,136,204,0.25);
+}
+
+.tg-qr-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Badge 🤖 Auto en mensajes automáticos del bot ─────────────── */
+.tg-auto-badge {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: var(--radius-full);
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 5px;
+  border: 1px solid rgba(255,255,255,0.15);
+  letter-spacing: 0.04em;
+}
+
+/* Hacer visible la quick replies bar cuando el input area es visible */
+.tg-input-area.visible + .tg-_unused,
+#tg-quick-replies-bar {
+  /* managed via JS class toggle o siempre visible si hay chat */
+}
+
+/* Mostrar la barra quick replies cuando hay input visible */
+.tg-main:has(.tg-input-area.visible) .tg-quick-replies-bar {
+  display: flex;
+}
