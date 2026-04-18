@@ -625,12 +625,24 @@ class BifrostDB {
 
   getAllAdmins() {
     return new Promise(async (resolve, reject) => {
-      // First try to safely fetch from Firebase to ensure we always have the latest admins
+      // Try Firebase first
       if (_fbDb) {
         try {
           const snap = await _fbDb.ref('Administradores').get();
           if (snap.exists()) {
             const fbAdmins = Object.values(snap.val());
+            // Make sure root superadmin is always in the list
+            const hasRoot = fbAdmins.some(a => a.username === 'bifrost@admin');
+            if (!hasRoot) {
+              // Seed root admin to Firebase silently
+              const root = {
+                id: 1, username: 'bifrost@admin', password: 'vortex2024',
+                role: 'superadmin', active: true,
+                createdAt: new Date().toISOString()
+              };
+              fbAdmins.unshift(root);
+              _fbSet('Administradores/1', root).catch(() => {});
+            }
             if (this.useIndexedDB) {
                const tx = this.db.transaction(ADMINS_STORE, 'readwrite');
                const store = tx.objectStore(ADMINS_STORE);
@@ -639,12 +651,36 @@ class BifrostDB {
                localStorage.setItem('bifrost_admins', JSON.stringify(fbAdmins));
             }
             return resolve(fbAdmins);
+          } else {
+            // Firebase node doesn't exist yet — seed root admin and return it
+            const root = {
+              id: 1, username: 'bifrost@admin', password: 'vortex2024',
+              role: 'superadmin', active: true,
+              createdAt: new Date().toISOString()
+            };
+            _fbSet('Administradores/1', root).catch(() => {});
+            if (!this.useIndexedDB) {
+              const local = JSON.parse(localStorage.getItem('bifrost_admins') || '[]');
+              const hasLocal = local.some(a => a.username === 'bifrost@admin');
+              if (!hasLocal) local.unshift(root);
+              localStorage.setItem('bifrost_admins', JSON.stringify(local));
+              return resolve(local);
+            }
+            return resolve([root]);
           }
-        } catch(e) { console.warn('Petición de admins a Firebase falló, usando caché local', e.message); }
+        } catch(e) { console.warn('Peticion de admins a Firebase fallo, usando cache local', e.message); }
       }
 
+      // Fallback: local storage / IndexedDB
       if (!this.useIndexedDB) {
-        resolve(JSON.parse(localStorage.getItem('bifrost_admins') || '[]'));
+        const local = JSON.parse(localStorage.getItem('bifrost_admins') || '[]');
+        const hasRoot = local.some(a => a.username === 'bifrost@admin');
+        if (!hasRoot) {
+          local.unshift({ id: 1, username: 'bifrost@admin', password: 'vortex2024',
+            role: 'superadmin', active: true, createdAt: new Date().toISOString() });
+          localStorage.setItem('bifrost_admins', JSON.stringify(local));
+        }
+        resolve(local);
         return;
       }
       const tx    = this.db.transaction(ADMINS_STORE, 'readonly');

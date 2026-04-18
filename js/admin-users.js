@@ -12,6 +12,24 @@ async function initUsersPanel() {
   renderAdminsTable();
   initUserModal();
 
+  // ── Seguridad: solo superadmin puede agregar/eliminar admins ──
+  const isSuperAdmin = window.AdminAuth?.isSuperAdmin();
+  const addBtn = document.getElementById('add-user-btn');
+  if (addBtn) {
+    if (!isSuperAdmin) {
+      addBtn.style.display = 'none';
+      // Mostrar aviso en el panel
+      const panel = document.getElementById('admins-panel');
+      const header = panel?.querySelector('.admin-panel__header');
+      if (header) {
+        const notice = document.createElement('div');
+        notice.style.cssText = 'padding:0.6rem 1rem;background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.2);border-radius:10px;font-size:0.78rem;color:rgba(212,175,55,0.85);margin-top:0.5rem;';
+        notice.textContent = '⚠️ Solo los Super Administradores pueden agregar, editar o eliminar administradores.';
+        header.appendChild(notice);
+      }
+    }
+  }
+
   window.addEventListener('admins-updated', async () => {
     adminsCache = await window.BifrostDB.getAllAdmins();
     renderAdminsTable();
@@ -110,6 +128,10 @@ function renderAdminsTable() {
 
 /* ── Toggle Active ───────────────────────────────────────────── */
 async function toggleAdminActive(id) {
+  if (!window.AdminAuth?.isSuperAdmin()) {
+    showToast('Solo los superadministradores pueden activar/desactivar admins', 'warning');
+    return;
+  }
   const admin = adminsCache.find(a => a.id === id);
   if (!admin) return;
   if (admin.username === 'bifrost@admin') {
@@ -128,6 +150,10 @@ async function toggleAdminActive(id) {
 
 /* ── Delete ──────────────────────────────────────────────────── */
 async function deleteAdminUser(id) {
+  if (!window.AdminAuth?.isSuperAdmin()) {
+    showToast('Solo los superadministradores pueden eliminar admins', 'warning');
+    return;
+  }
   const admin = adminsCache.find(a => a.id === id);
   if (!admin) return;
   if (admin.username === 'bifrost@admin') {
@@ -229,7 +255,12 @@ async function saveAdminUser(form, modal) {
     if (!username) { showToast('El nombre de usuario es obligatorio', 'warning'); return; }
 
     if (!editingUserId) {
-      // New admin — password required
+      // New admin — only superadmin can add
+      if (!window.AdminAuth?.isSuperAdmin()) {
+        showToast('Solo los superadministradores pueden agregar nuevos admins', 'warning');
+        return;
+      }
+      // password required
       if (!password) { showToast('La contraseña es obligatoria', 'warning'); return; }
       if (password !== confirm) { showToast('Las contraseñas no coinciden', 'error'); return; }
       if (password.length < 6)  { showToast('La contraseña debe tener al menos 6 caracteres', 'warning'); return; }
