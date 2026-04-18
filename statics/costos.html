@@ -1054,7 +1054,26 @@ function removeU(i) { unitariosData.splice(i,1); renderUnitarios(); calcular(); 
 
 function renderMP() {
   const tbody = $('lista-mp');
+  if(!tbody) return;
   tbody.innerHTML = '';
+
+  // Auto-sync mpData with unitariosData so names appear automatically
+  const newMpData = [];
+  unitariosData.forEach(u => {
+     let existing = mpData.find(mp => mp.unitId === u.id);
+     if (existing) {
+         newMpData.push(existing);
+     } else {
+         newMpData.push({ unitId: u.id, usado: 0 }); 
+     }
+  });
+  mpData.forEach(mp => {
+     if (!unitariosData.find(u => u.id === mp.unitId)) {
+        newMpData.push(mp);
+     }
+  });
+  mpData = newMpData;
+
   mpData.forEach((mp, i) => {
     const tr = document.createElement('tr');
     // Generar opciones y precálculo
@@ -1071,23 +1090,34 @@ function renderMP() {
       totalLine = mp.usado; // Aquí usado funciona como valor absoluto
     }
 
-    tr.innerHTML = `
-      <td>
+    let nameDisplay = '';
+    let btnDisplay = '';
+    
+    if (mp.unitId === 'custom' || !refU) {
+      nameDisplay = `
         <select class="form-select" style="padding:0.2rem;font-size:0.75rem;" onchange="updateMP(${i},'unitId',this.value)">
           <option value="">-- Seleccionar --</option>
           ${options}
           ${customOpt}
         </select>
-      </td>
+      `;
+      btnDisplay = `<button class="btn btn--danger" style="padding:0.1rem 0.3rem;" onclick="removeMP(${i})">✕</button>`;
+    } else {
+      nameDisplay = `<div style="padding:0.2rem;font-size:0.8rem;font-weight:600;color:var(--text);">${refU.nombre}</div>`;
+      btnDisplay = ``;
+    }
+
+    tr.innerHTML = `
+      <td>${nameDisplay}</td>
       <td style="position:relative;">
         <input type="number" class="insumo-price-input" style="padding-right:1.3rem;" value="${mp.usado}" oninput="updateMP(${i},'usado',this.value)">
         ${refU ? `<span style="position:absolute; right:10px; top:50%; transform:translateY(-50%); font-size:0.65rem; color:var(--text-muted); pointer-events:none;">${refU.unit}</span>` : ''}
       </td>
       <td style="text-align:right;">
         <span style="font-family:var(--font-mono);font-size:0.8rem;color:var(--teal);font-weight:600;">${fmt(totalLine)}</span>
-        ${refU ? `<div style="font-size:0.6rem;color:var(--text-muted);line-height:1.2;margin-top:0.15rem;white-space:nowrap;">${refU.nombre} por ${refU.unit}: ${fmt(refU.precio)} - usado ${mp.usado}${refU.unit}</div>` : ''}
+        ${refU ? `<div style="font-size:0.6rem;color:var(--text-muted);line-height:1.2;margin-top:0.15rem;white-space:nowrap;">${refU.nombre}: ${fmt(refU.precio)}/${refU.unit} &middot; usado ${mp.usado}</div>` : ''}
       </td>
-      <td style="text-align:center;"><button class="btn btn--danger" style="padding:0.1rem 0.3rem;" onclick="removeMP(${i})">✕</button></td>
+      <td style="text-align:center;">${btnDisplay}</td>
     `;
     tbody.appendChild(tr);
   });
