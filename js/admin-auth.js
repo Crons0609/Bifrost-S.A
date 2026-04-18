@@ -93,34 +93,51 @@ function initLoginPage() {
     const username = document.getElementById('admin-username')?.value.trim();
     const password = document.getElementById('admin-password')?.value;
 
-    // Show loading
+    // Show loading state
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Authenticating…';
+    submitBtn.classList.add('loading');
+    submitBtn.querySelector('.btn-login__text').innerHTML = `
+      <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+        style="animation:spinBtn 0.7s linear infinite;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+      </svg>
+      Autenticando…`;
 
     setTimeout(async () => {
       const success = await AdminAuth.loginAsync(username, password);
       if (success) {
-        submitBtn.textContent = '✓ Success';
+        submitBtn.classList.remove('loading');
+        submitBtn.querySelector('.btn-login__text').innerHTML = `
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          ¡Acceso Concedido!`;
+        submitBtn.style.background = 'linear-gradient(135deg, #4CAF50, #66BB6A)';
         setTimeout(() => {
           window.location.replace('admin-dashboard.html');
         }, 600);
       } else {
         if (errorEl) {
-          errorEl.textContent = 'Invalid credentials. Try bifrost@admin / vortex2024';
+          errorEl.textContent = 'Credenciales inválidas. Intenta con bifrost@admin / vortex2024';
           errorEl.classList.add('show');
         }
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Enter Dashboard';
+        submitBtn.classList.remove('loading');
+        submitBtn.querySelector('.btn-login__text').innerHTML = `
+          <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+          Entrar al Dashboard`;
 
         // Shake the card
         const card = document.querySelector('.admin-login-card');
         if (card) {
-          card.style.animation = 'none';
+          card.style.transition = 'transform 80ms ease';
           card.style.transform = 'translateX(8px)';
           setTimeout(() => { card.style.transform = 'translateX(-8px)'; }, 80);
           setTimeout(() => { card.style.transform = 'translateX(6px)'; },  160);
           setTimeout(() => { card.style.transform = 'translateX(-6px)'; }, 240);
-          setTimeout(() => { card.style.transform = 'translateX(0)'; },    320);
+          setTimeout(() => { card.style.transform = 'translateX(0)'; card.style.transition = ''; }, 320);
         }
 
         // Clear after 4 seconds
