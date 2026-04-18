@@ -587,7 +587,7 @@ class BifrostDB {
       if (!_fbDb) return;
       _fbDb.ref('Administradores').on('value', (snap) => {
         if (!snap.exists()) return;
-        const fbAdmins = Object.values(snap.val());
+        const fbAdmins = Object.values(snap.val()).filter(Boolean);
         
         if (this.useIndexedDB) {
            const tx = this.db.transaction(ADMINS_STORE, 'readwrite');
@@ -630,7 +630,7 @@ class BifrostDB {
         try {
           const snap = await _fbDb.ref('Administradores').get();
           if (snap.exists()) {
-            const fbAdmins = Object.values(snap.val());
+            const fbAdmins = Object.values(snap.val()).filter(Boolean);
             // Make sure root superadmin is always in the list
             const hasRoot = fbAdmins.some(a => a.username === 'bifrost@admin');
             if (!hasRoot) {
@@ -764,7 +764,7 @@ class BifrostDB {
       try {
         const snap = await _fbDb.ref('Administradores').get();
         if (snap.exists()) {
-           const fbAdmins = Object.values(snap.val());
+           const fbAdmins = Object.values(snap.val()).filter(Boolean);
            if (this.useIndexedDB) {
               const tx = this.db.transaction(ADMINS_STORE, 'readwrite');
               const store = tx.objectStore(ADMINS_STORE);

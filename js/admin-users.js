@@ -7,10 +7,19 @@ let adminsCache = [];
 
 /* ── Bootstrap ───────────────────────────────────────────────── */
 async function initUsersPanel() {
-  await window.BifrostDB.ready();
-  adminsCache = await window.BifrostDB.getAllAdmins();
-  renderAdminsTable();
-  initUserModal();
+  const tbody = document.querySelector('#admins-table tbody');
+  try {
+    if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--color-text-muted);">Conectando a Firebase...</td></tr>';
+    await window.BifrostDB.ready();
+    adminsCache = await window.BifrostDB.getAllAdmins();
+    renderAdminsTable();
+    initUserModal();
+  } catch (err) {
+    console.error("Error cargando panel de admins:", err);
+    if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--color-danger);">
+      Error cargando administradores: ${err.message}.
+    </td></tr>`;
+  }
 
   // ── Seguridad: solo superadmin puede agregar/eliminar admins ──
   const isSuperAdmin = window.AdminAuth?.isSuperAdmin();
