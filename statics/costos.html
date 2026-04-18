@@ -653,8 +653,12 @@
             <input type="number" class="form-input" id="meses-barrica" value="0" oninput="calcular()">
           </div>
           <div class="form-group">
-            <label class="form-label">% Ángel/mes</label>
+            <label class="form-label">% Merma Ángel/mes</label>
             <input type="number" class="form-input" id="angel-pct" value="0" step="0.1" oninput="calcular()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">% Merma Lías</label>
+            <input type="number" class="form-input" id="merma-lias" value="5" step="0.1" oninput="calcular()">
           </div>
         </div>
       </div>
@@ -881,9 +885,9 @@
             <tr class="section-header"><td colspan="2">Volumen y Litros</td></tr>
             <tr><td>Litros brutos de mosto</td><td id="r-litros-brutos">0 L</td></tr>
             <tr class="angel-row"><td>👼 Merma evaporativa Ángel (<span id="r-angel-pct-display">0</span> meses × <span id="r-angel-mpct-display">0</span>%/mes)</td><td id="r-litros-angel">-0 L</td></tr>
-            <tr><td>Merma fermentación y lías (-5%)</td><td id="r-litros-lias">-0 L</td></tr>
+            <tr><td>Merma fermentación y lías (-<span id="merma-lias-display">5</span>%)</td><td id="r-litros-lias">-0 L</td></tr>
             <tr class="total-row"><td>✅ Litros Netos para Embotellado</td><td id="r-litros-netos">0 L</td></tr>
-            <tr class="total-row"><td>🍾 Botellas de 750ml producidas</td><td id="r-botellas">0 u</td></tr>
+            <tr class="total-row"><td>🍾 Botellas de <span id="botella-vol-display">750</span>ml producidas</td><td id="r-botellas">0 u</td></tr>
 
             <tr class="section-header"><td colspan="2">Cascada de Costos por Botella</td></tr>
             <tr><td>Costo Producción Total del Lote (CPT)</td><td id="r-cpt">0 NIO</td></tr>
@@ -900,7 +904,14 @@
             <tr><td>PVP antes de impuestos</td><td id="r-pvp-antes">0 NIO</td></tr>
             <tr><td>+ ISC Impuesto Selectivo Consumo</td><td id="r-isc">0 NIO</td></tr>
             <tr><td>+ IVA</td><td id="r-iva-item">0 NIO</td></tr>
-            <tr class="total-row"><td>🏆 PVP Sugerido al Público</td><td id="r-pvp-final">0 NIO</td></tr>
+            <tr class="total-row subtotal-row" style="color:var(--gold);">
+              <td>💰 Costo Total de Botella (Sin Margen/Impuestos)</td>
+              <td id="r-costo-total-sin-pvp">0 NIO</td>
+            </tr>
+            <tr class="total-row" style="background:rgba(212,175,55,0.08);">
+              <td>🏆 PVP Sugerido al Público</td>
+              <td id="r-pvp-final">0 NIO</td>
+            </tr>
           </tbody>
         </table>
         </div>
@@ -1207,7 +1218,8 @@ function calcular() {
   // ─ LITROS ─
   const litroBrutos = num('lote-kg'); // Ahora asumimos que Lote KG es directamente L obtenidos como pidió
   const rendimiento = 1; //num('rendimiento');
-  const litrosMermaLias = litroBrutos * 0.05;
+  const pctLias = num('merma-lias') / 100;
+  const litrosMermaLias = litroBrutos * pctLias;
   const litrosTrasLias = litroBrutos - litrosMermaLias;
 
   // Ángel de Evaporación
@@ -1216,7 +1228,7 @@ function calcular() {
   const litrosPostAngel = litrosTrasLias * Math.pow(1 - angelPctMensual, meses);
   const litrosPerdidosAngel = litrosTrasLias - litrosPostAngel;
   const litrosNetos = litrosPostAngel;
-  const botVol = num('botella-vol') || 0.75;
+  const botVol = parseFloat($('botella-vol')?.value || 0.75);
   const totalBotellas = Math.floor((litrosNetos / botVol) * 10) / 10;
 
   // ─ COSTOS POR BOTELLA ─
@@ -1263,6 +1275,9 @@ function calcular() {
   if($('r-litros-brutos')) $('r-litros-brutos').textContent = fmt(litroBrutos, 1) + ' L';
   if($('r-angel-pct-display')) $('r-angel-pct-display').textContent = meses;
   if($('r-angel-mpct-display')) $('r-angel-mpct-display').textContent = num('angel-pct');
+  if($('merma-lias-display')) $('merma-lias-display').textContent = num('merma-lias');
+  if($('botella-vol-display')) $('botella-vol-display').textContent = (botVol * 1000);
+  
   if($('r-litros-angel')) $('r-litros-angel').textContent = '-' + fmt(litrosPerdidosAngel, 1) + ' L';
   if($('r-litros-lias')) $('r-litros-lias').textContent = '-' + fmt(litrosMermaLias, 1) + ' L';
   if($('r-litros-netos')) $('r-litros-netos').textContent = fmt(litrosNetos, 1) + ' L';
@@ -1279,6 +1294,8 @@ function calcular() {
   if($('r-pvp-antes')) $('r-pvp-antes').textContent = fmt(pvpAntesImp) + ' NIO';
   if($('r-isc')) $('r-isc').textContent = '+' + fmt(iscVal) + ' NIO (' + num('pct-isc') + '%)';
   if($('r-iva-item')) $('r-iva-item').textContent = '+' + fmt(ivaVal) + ' NIO (' + num('pct-iva') + '%)';
+  
+  if($('r-costo-total-sin-pvp')) $('r-costo-total-sin-pvp').textContent = fmt(costoCom) + ' NIO';
   if($('r-pvp-final')) $('r-pvp-final').textContent = fmt(pvpFinal) + ' NIO';
 
   if($('hero-pvp-nio')) $('hero-pvp-nio').textContent = fmt(pvpFinal) + ' NIO';
