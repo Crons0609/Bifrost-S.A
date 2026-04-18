@@ -621,6 +621,17 @@
       .topbar__badge, #btn-save, #btn-add-insumo { display: none !important; }
     }
   </style>
+
+  <!-- Auth Guard: require admin session -->
+  <script src="../js/admin-auth.js"></script>
+  <script>
+    (function() {
+      const key = 'bifrost_admin_session';
+      if (sessionStorage.getItem(key) !== 'authenticated') {
+        window.location.replace('admin-login.html');
+      }
+    })();
+  </script>
 </head>
 <body>
 

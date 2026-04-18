@@ -561,6 +561,18 @@
       -webkit-overflow-scrolling: touch;
     }
   </style>
+
+  <!-- Auth Guard: require admin session -->
+  <script src="../js/admin-auth.js"></script>
+  <script>
+    // Protect this page: redirect to login if not authenticated
+    (function() {
+      const key = 'bifrost_admin_session';
+      if (sessionStorage.getItem(key) !== 'authenticated') {
+        window.location.replace('admin-login.html');
+      }
+    })();
+  </script>
 </head>
 <body>
 
@@ -586,7 +598,6 @@
 
   <div class="main-grid">
 
-    <!-- ════ SIDEBAR IZQUIERDO ════ -->
     <!-- ════ SIDEBAR IZQUIERDO ════ -->
     <aside class="sidebar">
 
@@ -1229,6 +1240,22 @@ function calcular() {
   const litrosPerdidosAngel = litrosTrasLias - litrosPostAngel;
   const litrosNetos = litrosPostAngel;
   const botVol = parseFloat($('botella-vol')?.value || 0.75);
+
+  // Guard: si no hay litros, mostrar ceros y salir
+  if (litrosNetos <= 0 || CPT === 0) {
+    const zeroFields = ['r-litros-brutos','r-litros-angel','r-litros-lias','r-litros-netos',
+      'r-botellas','r-cpt','r-costo-litro','r-costo-vino','r-envasado','r-caja-prorr',
+      'r-ex-works','r-mkt','r-costo-com','r-pvp-antes','r-isc','r-iva-item',
+      'r-costo-total-sin-pvp','r-pvp-final','r-pvp-usd','eq-botellas-min',
+      'eq-botellas-total','eq-botellas-util'];
+    zeroFields.forEach(id => { if($(id)) $(id).textContent = '0'; });
+    if($('r-litros-brutos')) $('r-litros-brutos').textContent = fmt(litroBrutos, 1) + ' L';
+    if($('r-cpt')) $('r-cpt').textContent = fmt(CPT) + ' NIO';
+    if($('eq-summary') && litrosNetos <= 0 && litroBrutos > 0)
+      $('eq-summary').innerHTML = '<span style="color:var(--orange);">⚠️ Con los datos actuales no quedan litros netos para embotellar. Revisa los porcentajes de merma.</span>';
+    return;
+  }
+
   const totalBotellas = Math.floor((litrosNetos / botVol) * 10) / 10;
 
   // ─ COSTOS POR BOTELLA ─
@@ -1434,29 +1461,34 @@ function guardarRecetaLujo() {
 
   localStorage.setItem(_LUJO_KEY, JSON.stringify(recetas));
 
-
-  // PUSH A FIREBASE (Auto-link stock)
+  // Sync stock with Firebase eCommerce (only on explicit save)
   if (mcommerceId && bots && bots !== '—') {
-    const qty = parseInt(bots) || 0;
-    if (qty > 0) {
-      fetch(`https://bifrost-sa-default-rtdb.firebaseio.com/productos_ecommerce/${mcommerceId}.json`)
-        .then(r => r.json())
-        .then(data => {
-           if (data) {
-             const newStock = Math.max(0, (data.stock || 0) + qty);
-             fetch(`https://bifrost-sa-default-rtdb.firebaseio.com/productos_ecommerce/${mcommerceId}.json`, {
-               method: 'PATCH',
-               body: JSON.stringify({ stock: newStock })
-             });
-             _lujo_showToast(`+${qty} botellas añadidas a la tienda online`);
-           }
-        }).catch(err => console.error("Error updating firebase stock:", err));
-    }
+    _pushStockToFirebase(mcommerceId, parseInt(bots) || 0);
   }
 
   _lujo_populateSelector();
   renderHistorialLujo();
   _lujo_showToast(`✅ Proyecto "${nombre}" guardado exitosamente`);
+}
+
+// ─────────────────────────────────────────────────────────────
+// HELPER: Subir stock de botellas a Firebase eCommerce
+// ─────────────────────────────────────────────────────────────
+function _pushStockToFirebase(mcommerceId, qty) {
+  if (!mcommerceId || !qty || qty <= 0) return;
+  const base = 'https://bifrost-sa-default-rtdb.firebaseio.com';
+  fetch(`${base}/productos_ecommerce/${mcommerceId}.json`)
+    .then(r => r.json())
+    .then(data => {
+      if (data) {
+        const newStock = Math.max(0, (data.stock || 0) + qty);
+        fetch(`${base}/productos_ecommerce/${mcommerceId}.json`, {
+          method: 'PATCH',
+          body: JSON.stringify({ stock: newStock })
+        });
+        _lujo_showToast(`+${qty} botellas añadidas a la tienda online`);
+      }
+    }).catch(err => console.warn('Error actualizando stock Firebase:', err));
 }
 
 function _lujo_populateSelector() {
@@ -1504,28 +1536,21 @@ function cargarRecetaLujo() {
     mpData = [];
     cifData = [];
     
-    // Convertir todo a Custom inputs en Bifrost
-    if (parseFloat(recetaS.mp_costo_total) > 0) {
+    if (parseFloat(recetaS.mp_costo_total) > 0)
       mpData.push({ unitId: 'custom', nombreCustom: `MP: ${recetaS.mp_nombre || 'Fruta Base'}`, usado: parseFloat(recetaS.mp_costo_total) });
-    }
-    if (parseFloat(recetaS.agua_costo) > 0) {
-      mpData.push({ unitId: 'custom', nombreCustom: `Agua Lote`, usado: parseFloat(recetaS.agua_costo) });
-    }
-    if (parseFloat(recetaS.azucar_precio) > 0 && parseFloat(recetaS.azucar_cantidad)>0) {
-      mpData.push({ unitId: 'custom', nombreCustom: `Azúcar Lote`, usado: parseFloat(recetaS.azucar_precio)*parseFloat(recetaS.azucar_cantidad) });
-    }
-    if (parseFloat(recetaS.levadura_precio) > 0 && parseFloat(recetaS.levadura_cantidad)>0) {
-      mpData.push({ unitId: 'custom', nombreCustom: `Levadura Lote`, usado: parseFloat(recetaS.levadura_precio)*parseFloat(recetaS.levadura_cantidad) });
-    }
+    if (parseFloat(recetaS.agua_costo) > 0)
+      mpData.push({ unitId: 'custom', nombreCustom: 'Agua Lote', usado: parseFloat(recetaS.agua_costo) });
+    if (parseFloat(recetaS.azucar_precio) > 0 && parseFloat(recetaS.azucar_cantidad) > 0)
+      mpData.push({ unitId: 'custom', nombreCustom: 'Azúcar Lote', usado: parseFloat(recetaS.azucar_precio) * parseFloat(recetaS.azucar_cantidad) });
+    if (parseFloat(recetaS.levadura_precio) > 0 && parseFloat(recetaS.levadura_cantidad) > 0)
+      mpData.push({ unitId: 'custom', nombreCustom: 'Levadura Lote', usado: parseFloat(recetaS.levadura_precio) * parseFloat(recetaS.levadura_cantidad) });
     
-    // Insumos Adicionales
-    (recetaS.insumos_extra || []).forEach(ins => {
-      mpData.push({ unitId: 'custom', nombreCustom: ins.nombre || 'Extra', usado: parseFloat(ins.costoTotal) || 0 });
-    });
+    (recetaS.insumos_extra || []).forEach(ins =>
+      mpData.push({ unitId: 'custom', nombreCustom: ins.nombre || 'Extra', usado: parseFloat(ins.costoTotal) || 0 })
+    );
 
-    if (parseFloat(recetaS.destajo_por_saco) > 0) {
-      cifData.push({ concepto: 'Destajo MP', total: parseFloat(recetaS.destajo_por_saco)*parseFloat(recetaS.destajo_unidades||1) });
-    }
+    if (parseFloat(recetaS.destajo_por_saco) > 0)
+      cifData.push({ concepto: 'Destajo MP', total: parseFloat(recetaS.destajo_por_saco) * parseFloat(recetaS.destajo_unidades || 1) });
     
     renderMP();
     renderCIF();
@@ -1537,26 +1562,6 @@ function cargarRecetaLujo() {
 function eliminarRecetaLujo(id) {
   const recetas = _lujo_getRecetas().filter(r => r.id !== id);
   localStorage.setItem(_LUJO_KEY, JSON.stringify(recetas));
-
-  // PUSH A FIREBASE (Auto-link stock)
-  if (mcommerceId && bots && bots !== '—') {
-    const qty = parseInt(bots) || 0;
-    if (qty > 0) {
-      fetch(`https://bifrost-sa-default-rtdb.firebaseio.com/productos_ecommerce/${mcommerceId}.json`)
-        .then(r => r.json())
-        .then(data => {
-           if (data) {
-             const newStock = Math.max(0, (data.stock || 0) + qty);
-             fetch(`https://bifrost-sa-default-rtdb.firebaseio.com/productos_ecommerce/${mcommerceId}.json`, {
-               method: 'PATCH',
-               body: JSON.stringify({ stock: newStock })
-             });
-             _lujo_showToast(`+${qty} botellas añadidas a la tienda online`);
-           }
-        }).catch(err => console.error("Error updating firebase stock:", err));
-    }
-  }
-
   _lujo_populateSelector();
   renderHistorialLujo();
   _lujo_showToast('Proyecto eliminado', false);
@@ -1610,26 +1615,8 @@ document.addEventListener('DOMContentLoaded', () => {
   renderMP();
   renderCIF();
   calcular();
-
-  // PUSH A FIREBASE (Auto-link stock)
-  if (mcommerceId && bots && bots !== '—') {
-    const qty = parseInt(bots) || 0;
-    if (qty > 0) {
-      fetch(`https://bifrost-sa-default-rtdb.firebaseio.com/productos_ecommerce/${mcommerceId}.json`)
-        .then(r => r.json())
-        .then(data => {
-           if (data) {
-             const newStock = Math.max(0, (data.stock || 0) + qty);
-             fetch(`https://bifrost-sa-default-rtdb.firebaseio.com/productos_ecommerce/${mcommerceId}.json`, {
-               method: 'PATCH',
-               body: JSON.stringify({ stock: newStock })
-             });
-             _lujo_showToast(`+${qty} botellas añadidas a la tienda online`);
-           }
-        }).catch(err => console.error("Error updating firebase stock:", err));
-    }
-  }
-
+  // NOTE: Stock Firebase push ONLY happens on explicit save (guardarRecetaLujo)
+  // NOT on page load, to prevent stock duplication on every reload
   _lujo_populateSelector();
   renderHistorialLujo();
 });

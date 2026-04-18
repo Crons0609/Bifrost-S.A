@@ -52,9 +52,14 @@ const AdminAuth = {
     window.location.href = 'admin-login.html';
   },
 
-  requireAuth() {
+  requireAuth(requiredRole = null) {
     if (!this.isLoggedIn()) {
       window.location.replace('admin-login.html');
+      return false;
+    }
+    if (requiredRole && this.getRole() !== requiredRole) {
+      // Si se requiere superadmin y el usuario es solo admin, redirigir al dashboard
+      window.location.replace('admin-dashboard.html');
       return false;
     }
     return true;
@@ -118,7 +123,7 @@ function initLoginPage() {
         }, 600);
       } else {
         if (errorEl) {
-          errorEl.textContent = 'Credenciales inválidas. Intenta con bifrost@admin / vortex2024';
+          errorEl.textContent = 'Credenciales incorrectas. Verifica tu usuario y contraseña.';
           errorEl.classList.add('show');
         }
         submitBtn.disabled = false;

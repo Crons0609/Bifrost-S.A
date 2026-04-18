@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 const { Telegraf } = require('telegraf');
 const admin = require('firebase-admin');
 const path = require('path');
@@ -40,8 +41,35 @@ if (serviceAccount) {
 }
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+
+// ── CORS: solo permitir dominio de producción y localhost en dev ──
+const allowedOrigins = [
+  'https://bifrost-sa.onrender.com',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://localhost:5500',
+  'http://127.0.0.1:5500',
+];
+app.use(cors({
+  origin: (origin, cb) => {
+    // Permite requests sin origin (Postman, curl, server-to-server) en dev
+    if (!origin || allowedOrigins.some(o => origin.startsWith(o))) return cb(null, true);
+    cb(new Error('CORS: origen no permitido — ' + origin));
+  },
+  methods: ['GET', 'POST'],
+  optionsSuccessStatus: 200
+}));
+
+// ── Rate Limit: máx 20 checkouts cada 15 minutos por IP ──
+const checkoutLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiadas solicitudes. Intenta de nuevo en 15 minutos.' }
+});
+
+app.use(express.json({ limit: '1mb' }));
 
 // ── SERVIR EL FRONTEND (Web Service) ──
 // Servimos explícitamente las carpetas estáticas para no exponer archivos del backend y clave secretas
@@ -578,7 +606,7 @@ if (db && BOT_TOKEN) {
   });
 }
 
-// ═══════════════════════════════════════════════════════// Listener Firebase -> Telegram Bot (Cuando un Cliente Nuevo pregunta)
+// ── Listener Firebase -> Telegram Bot (Cuando un Cliente Nuevo pregunta) ──
 if (db && BOT_TOKEN && ADMIN_ID) {
   db.ref('mensajes').on('child_added', (snapshot) => {
     const msg = snapshot.val();
@@ -592,13 +620,16 @@ if (db && BOT_TOKEN && ADMIN_ID) {
 }
 
 if (BOT_TOKEN) {
-  bot.launch().then(() => console.log("🤖 Bot de Telegram inicializado y escuchando cambios."));
+  bot.launch().then(() => console.log('🤖 Bot de Telegram inicializado y escuchando cambios.'));
+  // Graceful shutdown — evita que el bot quede zombie en Render al reiniciar
+  process.once('SIGINT',  () => { bot.stop('SIGINT');  console.log('Bot detenido (SIGINT).'); });
+  process.once('SIGTERM', () => { bot.stop('SIGTERM'); console.log('Bot detenido (SIGTERM).'); });
 }
 
 // ── 3. ENDPOINTS API OPCIONALES (RENDER) ──
 app.get('/api/ping', (req, res) => res.send("ERP Backend Alive"));
 
-app.post('/api/checkout', async (req, res) => {
+app.post('/api/checkout', checkoutLimiter, async (req, res) => {
   try {
     const { items, total, cliente } = req.body;
     
