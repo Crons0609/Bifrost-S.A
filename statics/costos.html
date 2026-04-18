@@ -563,6 +563,13 @@
   </style>
 
   <!-- Auth Guard: require admin session -->
+  <script>
+    // Apply saved theme immediately before anything renders (prevents flash)
+    (function() {
+      const t = localStorage.getItem('bifrost_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
   <script src="../js/admin-auth.js"></script>
   <script>
     // Protect this page: redirect to login if not authenticated
@@ -573,6 +580,7 @@
       }
     })();
   </script>
+  <script src="../js/theme.js" defer></script>
 </head>
 <body>
 
@@ -591,8 +599,12 @@
       </div>
     </div>
     <div class="topbar__actions">
+      <button class="theme-toggle-btn" data-theme-toggle aria-label="Cambiar tema" style="font-family:var(--font-body);">
+        <span class="theme-icon"></span>
+        <span class="theme-label" style="font-size:0.72rem;">Modo Claro</span>
+      </button>
       <button class="btn btn--outline" onclick="window.print()">🖨️ Exportar PDF</button>
-      <a href="../index.html" class="btn btn--outline">← Volver</a>
+      <a href="admin-dashboard.html" class="btn btn--outline">← Dashboard</a>
     </div>
   </header>
 

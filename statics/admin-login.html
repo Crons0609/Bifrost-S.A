@@ -12,6 +12,15 @@
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/admin.css">
 
+  <!-- Preload theme to avoid flash -->
+  <script>
+    (function() {
+      const t = localStorage.getItem('bifrost_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <script src="../js/theme.js" defer></script>
+
   <style>
     /* ══════════════════════════════════════════
        LOGIN PAGE — PREMIUM REDESIGN
@@ -321,6 +330,13 @@
   <div class="login-orb login-orb--br" aria-hidden="true"></div>
 
   <!-- ════════════ ADMIN LOGIN ════════════ -->
+  <!-- Theme toggle floating button -->
+  <div style="position:fixed;top:1.25rem;right:1.5rem;z-index:100;">
+    <button class="theme-toggle-btn" data-theme-toggle aria-label="Cambiar tema">
+      <span class="theme-icon"></span>
+      <span class="theme-label">Modo Claro</span>
+    </button>
+  </div>
   <main class="admin-login-page" role="main" style="position:relative; z-index:1;">
     <div class="admin-login-card reveal scale-in">
       <!-- Badge -->

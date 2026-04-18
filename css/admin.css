@@ -1538,3 +1538,187 @@ input:checked + .toggle-track::after {
 .tg-main:has(.tg-input-area.visible) .tg-quick-replies-bar {
   display: flex;
 }
+
+/* ============================================================
+   LIGHT MODE OVERRIDES — Admin Panel
+   ============================================================ */
+
+[data-theme="light"] body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+/* Sidebar */
+[data-theme="light"] .admin-sidebar {
+  background: linear-gradient(180deg, #EDE8DC 0%, #E8E0D0 100%);
+  border-right-color: rgba(180,140,30,0.15);
+}
+
+[data-theme="light"] .admin-sidebar__brand {
+  border-bottom-color: rgba(180,140,30,0.15);
+}
+
+[data-theme="light"] .admin-nav__item {
+  color: #3D2E1A;
+}
+
+[data-theme="light"] .admin-nav__item:hover,
+[data-theme="light"] .admin-nav__item.active {
+  background: rgba(184,133,10,0.1);
+  color: #B8850A;
+}
+
+[data-theme="light"] .admin-nav__item.active {
+  border-left-color: #B8850A;
+}
+
+/* Topbar */
+[data-theme="light"] .admin-topbar {
+  background: rgba(240, 234, 220, 0.95);
+  border-bottom-color: rgba(180,140,30,0.18);
+}
+
+[data-theme="light"] .admin-topbar__title {
+  color: var(--color-text-primary);
+}
+
+[data-theme="light"] .admin-user-pill {
+  background: rgba(184,133,10,0.1);
+  border-color: rgba(180,140,30,0.25);
+  color: #B8850A;
+}
+
+/* Stat cards */
+[data-theme="light"] .admin-stat-card {
+  background: rgba(255,250,242,0.95);
+  border-color: rgba(180,140,30,0.18);
+  box-shadow: 0 2px 12px rgba(100,70,10,0.08);
+}
+
+[data-theme="light"] .admin-stat-card__label {
+  color: #8A7560;
+}
+
+[data-theme="light"] .admin-stat-card__sub {
+  color: #8A7560;
+}
+
+[data-theme="light"] .admin-stat-card__value {
+  color: #1A1208;
+}
+
+[data-theme="light"] .admin-stat-card__value.gold {
+  color: #B8850A;
+}
+
+[data-theme="light"] .admin-stat-card__value.success {
+  color: #2E7D32;
+}
+
+/* Tables */
+[data-theme="light"] .admin-table-wrap {
+  background: rgba(255,250,242,0.95);
+  border-color: rgba(180,140,30,0.15);
+}
+
+[data-theme="light"] .admin-table thead th {
+  background: rgba(237,232,220,0.95);
+  color: #8A7560;
+  border-bottom-color: rgba(180,140,30,0.18);
+}
+
+[data-theme="light"] .admin-table tbody tr {
+  border-bottom-color: rgba(180,140,30,0.08);
+}
+
+[data-theme="light"] .admin-table tbody tr:hover {
+  background: rgba(184,133,10,0.05);
+}
+
+/* Panels */
+[data-theme="light"] .admin-panel {
+  background: transparent;
+}
+
+[data-theme="light"] .admin-panel__header {
+  border-bottom-color: rgba(180,140,30,0.15);
+}
+
+[data-theme="light"] .admin-panel__title {
+  color: var(--color-text-primary);
+}
+
+/* Modals */
+[data-theme="light"] .modal__box {
+  background: rgba(248, 244, 234, 0.98);
+  border-color: rgba(180,140,30,0.2);
+  box-shadow: 0 20px 60px rgba(100,70,10,0.2);
+  backdrop-filter: blur(24px);
+}
+
+[data-theme="light"] .modal__header {
+  border-bottom-color: rgba(180,140,30,0.15);
+}
+
+[data-theme="light"] .modal__title {
+  color: var(--color-text-primary);
+}
+
+/* Forms */
+[data-theme="light"] .form-input,
+[data-theme="light"] .form-select,
+[data-theme="light"] .form-textarea {
+  background: rgba(255,252,245,0.9);
+  border-color: rgba(180,140,30,0.22);
+  color: #1A1208;
+}
+
+[data-theme="light"] .form-input:focus,
+[data-theme="light"] .form-select:focus,
+[data-theme="light"] .form-textarea:focus {
+  border-color: #B8850A;
+  background: #FFFDF7;
+}
+
+[data-theme="light"] .form-label {
+  color: #3D2E1A;
+}
+
+/* Login page */
+[data-theme="light"] .admin-login-page {
+  background: #F5F0E8;
+}
+
+[data-theme="light"] .admin-login-card {
+  background: rgba(255, 252, 242, 0.94);
+  border-color: rgba(180,140,30,0.22);
+  box-shadow:
+    0 0 0 1px rgba(180,140,30,0.08),
+    0 20px 60px rgba(100,70,10,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+/* Filter chips */
+[data-theme="light"] .filter-chip {
+  background: rgba(184,133,10,0.06);
+  border-color: rgba(180,140,30,0.2);
+  color: #3D2E1A;
+}
+
+[data-theme="light"] .filter-chip.active,
+[data-theme="light"] .filter-chip:hover {
+  background: rgba(184,133,10,0.14);
+  border-color: #B8850A;
+  color: #B8850A;
+}
+
+/* Glass utility */
+[data-theme="light"] .glass {
+  background: rgba(255,250,242,0.88);
+  border-color: rgba(180,140,30,0.18);
+}
+
+/* Scrollbar */
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #EDE8DC;
+}

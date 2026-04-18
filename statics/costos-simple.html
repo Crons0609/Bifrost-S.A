@@ -622,7 +622,13 @@
     }
   </style>
 
-  <!-- Auth Guard: require admin session -->
+  <!-- Auth Guard & Theme Preload -->
+  <script>
+    (function() {
+      const t = localStorage.getItem('bifrost_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
   <script src="../js/admin-auth.js"></script>
   <script>
     (function() {
@@ -632,6 +638,7 @@
       }
     })();
   </script>
+  <script src="../js/theme.js" defer></script>
 </head>
 <body>
 
@@ -645,6 +652,10 @@
     </div>
   </div>
   <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+    <button class="theme-toggle-btn" data-theme-toggle aria-label="Cambiar tema" style="font-family:var(--font-body);">
+      <span class="theme-icon"></span>
+      <span class="theme-label" style="font-size:0.72rem;">Modo Claro</span>
+    </button>
     <span class="topbar__badge">⚡ Sin impuestos | Sin CIF</span>
     <button class="btn btn--outline btn--sm" onclick="resetFormulario()" title="Limpiar formulario">
       🗑️ Nueva
