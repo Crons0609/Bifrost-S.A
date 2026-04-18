@@ -846,24 +846,28 @@
       </div>
     </div>
 
-    <!-- ── PASO 4: Envasado Externo ── -->
+    <!-- ── PASO 4: Envasado Externo y Margen ── -->
     <div class="card">
       <div class="card__hdr">
         <div class="card__icon">🍾</div>
         <div>
-          <div class="card__title">Envasado Externo</div>
-          <div class="card__subtitle">Tercerizado — opcional hasta cotización</div>
+          <div class="card__title">Envasado y Precio</div>
+          <div class="card__subtitle">Finalizado y estrategia de mercado</div>
         </div>
         <span class="step-badge">PASO 4</span>
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="costo-embotellado-mil">Costo de embotellado por 1,000 litros (NIO)</label>
+        <label class="form-label" for="costo-embotellado-mil">Costo embotellado x 1,000L (NIO)</label>
         <input type="number" id="costo-embotellado-mil" class="form-input" placeholder="0 — pendiente cotización" min="0" step="0.01" oninput="calcular()">
       </div>
       <div class="form-group">
-        <label class="form-label" for="costo-envase-und">Costo botella + tapón + etiqueta por unidad (NIO)</label>
+        <label class="form-label" for="costo-envase-und">Costo botella + tapón + etiqueta (NIO)</label>
         <input type="number" id="costo-envase-und" class="form-input" placeholder="0 — opcional" min="0" step="0.01" oninput="calcular()">
+      </div>
+      <div class="form-group" style="margin-top:0.8rem;">
+        <label class="form-label" for="margen-ganancia" style="color:var(--orange);">Margen de Ganancia (%)</label>
+        <input type="number" id="margen-ganancia" class="form-input input-gold" placeholder="50" value="50" min="0" step="1" oninput="calcular()">
       </div>
     </div>
 
@@ -938,6 +942,16 @@
         <div class="metric__icon">📦</div>
       </div>
 
+      <!-- Precio al Mercado -->
+      <div class="result-metric" id="r-bloque-precio" style="border-color:var(--gold); background:linear-gradient(135deg, rgba(212,175,55,0.08) 0%, var(--surface3) 100%); box-shadow: 0 0 15px rgba(212,175,55,0.08);">
+        <div>
+          <div class="metric__label" style="color:var(--gold);">Precio al Mercado Sugerido</div>
+          <div class="metric__value" style="color:var(--gold); font-size:1.8rem;" id="r-precio-mercado">C$ —</div>
+          <div class="metric__sub" id="r-precio-sub">Aplica tu margen configurado</div>
+        </div>
+        <div class="metric__icon">🏷️</div>
+      </div>
+
       <!-- Desglose Rápido -->
       <div class="card" style="margin-top:0.2rem;">
         <div class="card__hdr">
@@ -978,5 +992,20 @@
 
 <script src="../js/admin-costos-simple.js"></script>
 
+<script>
+function generarNuevoLote() {
+  const d = new Date();
+  const dias = ['dom','lun','mar','mie','jue','vie','sab'];
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  return dias[d.getDay()] + dd + mm + yyyy;
+}
+function actualizarLoteSimple() {
+  const el = document.getElementById('fruta-lote');
+  if(el && !el.value) { el.value = generarNuevoLote(); }
+}
+document.addEventListener('DOMContentLoaded', actualizarLoteSimple);
+</script>
 </body>
 </html>

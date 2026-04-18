@@ -277,6 +277,9 @@ class BifrostDB {
           await this._seedDefaultAdmin();
         }
 
+        this._startAdminSync();
+        this._startWinesSync();
+
         resolve(this);
       };
     });
@@ -357,9 +360,10 @@ class BifrostDB {
 
   addWine(wine) {
     return new Promise(async (resolve, reject) => {
+      wine.id = wine.id || Date.now();
+      if (_fbDb) await _fbDb.ref(`productos_ecommerce/${wine.id}`).set(wine);
       if (!this.useIndexedDB) {
         const wines = JSON.parse(localStorage.getItem('bifrost_wines') || '[]');
-        wine.id = Date.now();
         wines.push(wine);
         localStorage.setItem('bifrost_wines', JSON.stringify(wines));
         resolve(wine);
@@ -368,13 +372,14 @@ class BifrostDB {
       const tx = this.db.transaction(STORE_NAME, 'readwrite');
       const store = tx.objectStore(STORE_NAME);
       const request = store.add(wine);
-      request.onsuccess = () => { wine.id = request.result; resolve(wine); };
+      request.onsuccess = () => { resolve(wine); };
       request.onerror = () => reject(request.error);
     });
   }
 
   updateWine(wine) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      if (_fbDb) await _fbDb.ref(`productos_ecommerce/${wine.id}`).update(wine);
       if (!this.useIndexedDB) {
         const wines = JSON.parse(localStorage.getItem('bifrost_wines') || '[]');
         const idx = wines.findIndex(w => w.id === wine.id);
@@ -392,7 +397,8 @@ class BifrostDB {
   }
 
   deleteWine(id) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      if (_fbDb) await _fbDb.ref(`productos_ecommerce/${id}`).remove();
       if (!this.useIndexedDB) {
         let wines = JSON.parse(localStorage.getItem('bifrost_wines') || '[]');
         wines = wines.filter(w => w.id !== Number(id));
@@ -576,8 +582,47 @@ class BifrostDB {
     });
   }
 
+  _startAdminSync() {
+    _fbReady.then(() => {
+      if (!_fbDb) return;
+      _fbDb.ref('Administradores').on('value', (snap) => {
+        if (!snap.exists()) return;
+        const fbAdmins = Object.values(snap.val());
+        
+        if (this.useIndexedDB) {
+           const tx = this.db.transaction(ADMINS_STORE, 'readwrite');
+           const store = tx.objectStore(ADMINS_STORE);
+           fbAdmins.forEach(a => store.put(a));
+        } else {
+           localStorage.setItem('bifrost_admins', JSON.stringify(fbAdmins));
+        }
+        
+        // Notify UI to refresh the table if open
+        window.dispatchEvent(new Event('admins-updated'));
+      });
+    });
+  }
+
   getAllAdmins() {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      // First try to safely fetch from Firebase to ensure we always have the latest admins
+      if (_fbDb) {
+        try {
+          const snap = await _fbDb.ref('Administradores').get();
+          if (snap.exists()) {
+            const fbAdmins = Object.values(snap.val());
+            if (this.useIndexedDB) {
+               const tx = this.db.transaction(ADMINS_STORE, 'readwrite');
+               const store = tx.objectStore(ADMINS_STORE);
+               fbAdmins.forEach(a => store.put(a));
+            } else {
+               localStorage.setItem('bifrost_admins', JSON.stringify(fbAdmins));
+            }
+            return resolve(fbAdmins);
+          }
+        } catch(e) { console.warn('Petición de admins a Firebase falló, usando caché local', e.message); }
+      }
+
       if (!this.useIndexedDB) {
         resolve(JSON.parse(localStorage.getItem('bifrost_admins') || '[]'));
         return;
@@ -659,6 +704,21 @@ class BifrostDB {
   }
 
   async verifyAdmin(username, password) {
+    if (_fbDb) {
+      try {
+        const snap = await _fbDb.ref('Administradores').get();
+        if (snap.exists()) {
+           const fbAdmins = Object.values(snap.val());
+           if (this.useIndexedDB) {
+              const tx = this.db.transaction(ADMINS_STORE, 'readwrite');
+              const store = tx.objectStore(ADMINS_STORE);
+              fbAdmins.forEach(a => store.put(a));
+           }
+           return fbAdmins.find(a => a.username === username && a.password === password && a.active) || null;
+        }
+      } catch(e) { console.warn('Falló verificación remota, usando caché', e.message); }
+    }
+    
     const admins = await this.getAllAdmins();
     return admins.find(a => a.username === username && a.password === password && a.active) || null;
   }

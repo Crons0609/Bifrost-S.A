@@ -75,14 +75,24 @@ function calcular() {
 
     // Envasado condicional
     const hayEnvasado = costoEmbotPorMil > 0 || costoEnvaseUnd > 0;
+    let costoBaseFijarPrecio = costoPor750ml;
+
     if (hayEnvasado) {
       const embotPorLitro     = costoEmbotPorMil / 1000;
       const embotPorBotella   = embotPorLitro * 0.75;
       const costoConEnvase    = costoPor750ml + embotPorBotella + costoEnvaseUnd;
       $('r-costo-con-envase').textContent = fmt(costoConEnvase);
       $('r-bloque-envase').style.display  = '';
+      costoBaseFijarPrecio = costoConEnvase;
     } else {
       $('r-bloque-envase').style.display = 'none';
+      costoBaseFijarPrecio = costoPor750ml;
+    }
+
+    const margen = val('margen-ganancia') || 50;
+    const precioSugerido = costoBaseFijarPrecio * (1 + (margen / 100));
+    if ($('r-precio-mercado')) {
+      $('r-precio-mercado').textContent = fmt(precioSugerido);
     }
   } else {
     $('r-costo-litro').textContent   = 'C$ —';
@@ -90,6 +100,7 @@ function calcular() {
     $('r-costo-botella').textContent = 'C$ —';
     $('r-botella-sub').textContent   = 'Sin embotellar';
     $('r-bloque-envase').style.display = 'none';
+    if ($('r-precio-mercado')) $('r-precio-mercado').textContent = 'C$ —';
   }
 
   // ── Desglose visual ──
@@ -241,6 +252,9 @@ function guardarReceta() {
     levadura_precio:  val('levadura-precio'),
     insumos_extra:    JSON.parse(JSON.stringify(insumosExtra)),
     litros_obtenidos: val('litros-obtenidos'),
+    costo_embotellado_mil: val('costo-embotellado-mil'),
+    costo_envase_und:      val('costo-envase-und'),
+    margen_ganancia:       val('margen-ganancia'),
     costo_total_lote: _calcCostoTotal(),
     costo_por_litro:  _calcCostoPorLitro(),
   };
@@ -298,35 +312,39 @@ function cargarReceta() {
     return;
   }
 
-  // Cargar todo MENOS los precios (mp_costo_total, azucar_precio, levadura_precio, agua_costo, insumos.costoTotal)
+  // Cargar todos los datos (cantidades y precios) para mantener un historial exacto
   _setVal('mp-nombre',         receta.mp_nombre);
   _setVal('mp-cantidad',       receta.mp_cantidad);
   _setVal('mp-unidad',         receta.mp_unidad);
-  // mp-costo-total → NO se carga (precio)
+  _setVal('mp-costo-total',    receta.mp_costo_total);
 
   _setVal('destajo-por-saco',  receta.destajo_por_saco);
   _setVal('destajo-unidades',  receta.destajo_unidades);
 
   _setVal('agua-litros',       receta.agua_litros);
-  // agua-costo → NO se carga
+  _setVal('agua-costo',        receta.agua_costo);
 
   _setVal('azucar-cantidad',   receta.azucar_cantidad);
   _setVal('azucar-unidad',     receta.azucar_unidad);
-  // azucar-precio → NO se carga
+  _setVal('azucar-precio',     receta.azucar_precio);
 
   _setVal('levadura-cantidad', receta.levadura_cantidad);
   _setVal('levadura-unidad',   receta.levadura_unidad);
-  // levadura-precio → NO se carga
+  _setVal('levadura-precio',   receta.levadura_precio);
 
   _setVal('litros-obtenidos',  receta.litros_obtenidos);
 
-  // Insumos extra: cargar nombre/cantidad/unidad pero NO costoTotal
+  _setVal('costo-embotellado-mil', receta.costo_embotellado_mil);
+  _setVal('costo-envase-und',      receta.costo_envase_und);
+  _setVal('margen-ganancia',       receta.margen_ganancia !== undefined ? receta.margen_ganancia : 50);
+
+  // Insumos extra: cargar todo, incluyendo precios (costoTotal)
   insumosExtra = (receta.insumos_extra || []).map((ins, i) => ({
     id:         `ins_${Date.now()}_${i}`,
     nombre:     ins.nombre,
     cantidad:   ins.cantidad,
     unidad:     ins.unidad || 'und',
-    costoTotal: 0,   // ← precio en blanco
+    costoTotal: ins.costoTotal,
   }));
   insumosCounter = insumosExtra.length;
   renderInsumosExtra();

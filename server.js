@@ -620,6 +620,17 @@ app.post('/api/checkout', async (req, res) => {
       });
     }
 
+    // Descontar Stock de E-Commerce Global
+    if (db && items) {
+      for (const item of items) {
+        const prodRef = db.ref(`productos_ecommerce/${item.id}/stock`);
+        await prodRef.transaction((currentStock) => {
+          if (currentStock === null) return currentStock;
+          return Math.max(0, currentStock - item.qty);
+        });
+      }
+    }
+
     // 2. Avisar por Telegram
     if (BOT_TOKEN && ADMIN_ID) {
       let msg = `🔔 *NUEVO PEDIDO WEB*\n\n`;

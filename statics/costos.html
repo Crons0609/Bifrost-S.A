@@ -587,128 +587,118 @@
   <div class="main-grid">
 
     <!-- ════ SIDEBAR IZQUIERDO ════ -->
+    <!-- ════ SIDEBAR IZQUIERDO ════ -->
     <aside class="sidebar">
 
       <!-- Cargar Receta -->
       <div class="card" style="background:linear-gradient(135deg,rgba(212,175,55,0.06) 0%,var(--surface) 100%);border-color:rgba(212,175,55,0.2);">
         <div class="card__header">
           <div class="card__icon">📁</div>
-          <span class="card__title">Receta Guardada</span>
+          <span class="card__title">Cargar Receta Histórica</span>
         </div>
         <div class="form-group">
-          <label class="form-label">Cargar ficha anterior</label>
+          <label class="form-label">Desde Lujo o Simplificado</label>
           <div style="display:flex;gap:0.5rem;">
             <select id="sel-recipe-lujo" class="form-select" style="flex:1;"></select>
             <button class="btn btn--gold" onclick="cargarRecetaLujo()" style="padding:0.4rem 0.8rem;font-size:0.78rem;white-space:nowrap;">Cargar</button>
           </div>
         </div>
-        <p style="font-size:0.7rem;color:var(--text-muted);margin-top:0.3rem;">Restaura todos los parámetros de producción guardados.</p>
       </div>
 
       <!-- Ficha Técnica -->
       <div class="card">
         <div class="card__header">
           <div class="card__icon">📋</div>
-          <span class="card__title">Ficha Técnica</span>
+          <span class="card__title">Ficha Técnica y Lote</span>
         </div>
-
         <div class="form-group">
-          <label class="form-label">Vino / Producto</label>
-          <select class="form-select" id="ficha-select" onchange="loadFicha()">
-            <option value="gran_reserva">Bifrost Gran Reserva Corozo Tinto</option>
-            <option value="blanco_barrica">Blanco Fermentado en Barrica</option>
-            <option value="rosado_corozo">Rosado Corozo Premium</option>
+          <label class="form-label">Nombre del Producto / MP Principal</label>
+          <select class="form-select" id="lote-nombre" onchange="actualizarLote()">
+            <option value="">— Ninguno (No enlazar a tienda) —</option>
+            <option value="4" data-name="Tamarindo (Vortex obsidian)">Tamarindo (Vortex obsidian)</option>
+            <option value="5" data-name="Calala (frost meridian)">Calala (frost meridian)</option>
+            <option value="3" data-name="Piña (bifrost Aurora)">Piña (bifrost Aurora)</option>
+            <option value="2" data-name="Coyolito (Vortex eclipse)">Coyolito (Vortex eclipse)</option>
+            <option value="6" data-name="Mango (Vortex singularity)">Mango (Vortex singularity)</option>
+            <option value="1" data-name="Jamaica (Vortex nebula)">Jamaica (Vortex nebula)</option>
           </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Lote #</label>
+          <input type="text" class="form-input" id="lote-numero">
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Tamaño del lote (kg)</label>
-            <input type="number" class="form-input" id="lote-kg" value="200" oninput="calcular()">
+            <label class="form-label">Litros Totales Obtenidos</label>
+            <input type="number" class="form-input" id="lote-kg" value="208" oninput="calcular()">
           </div>
-          <div class="form-group">
+          <div class="form-group" style="display:none;">
             <label class="form-label">Rendimiento (L/kg)</label>
-            <input type="number" class="form-input" id="rendimiento" value="0.65" step="0.01" oninput="calcular()">
+            <input type="number" class="form-input" id="rendimiento" value="1.0" step="0.01" oninput="calcular()">
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Meses en Barrica</label>
-            <input type="number" class="form-input" id="meses-barrica" value="12" oninput="calcular()">
+            <input type="number" class="form-input" id="meses-barrica" value="0" oninput="calcular()">
           </div>
           <div class="form-group">
             <label class="form-label">% Ángel/mes</label>
-            <input type="number" class="form-input" id="angel-pct" value="0.8" step="0.1" oninput="calcular()">
+            <input type="number" class="form-input" id="angel-pct" value="0" step="0.1" oninput="calcular()">
           </div>
         </div>
       </div>
 
-      <!-- Precios de Insumos MP -->
+      <!-- BASE DE DATOS: Costos Unitarios Estáticos -->
+      <div class="card card--gold-border">
+        <div class="card__header">
+          <div class="card__icon">📔</div>
+          <span class="card__title">Costos Unitarios Estáticos</span>
+          <button onclick="addUnitarioRow()" class="btn btn--outline" style="margin-left:auto;padding:0.2rem 0.5rem;font-size:0.7rem;">+ Añadir</button>
+        </div>
+        <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.8rem;">Define tus precios base (Ej: Agua por L: 5.29 NIO, Clavo por pz: 0.16 NIO).</p>
+        <div class="table-responsive">
+        <table class="insumos-table">
+          <thead>
+            <tr>
+              <th>Ítem</th>
+              <th style="width: 50px;">Unidad</th>
+              <th style="width: 80px;">NIO</th>
+              <th style="width: 30px;"></th>
+            </tr>
+          </thead>
+          <tbody id="lista-unitarios">
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      <!-- MATERIA PRIMA DINÁMICA -->
       <div class="card">
         <div class="card__header">
           <div class="card__icon">🌿</div>
-          <span class="card__title">Materia Prima</span>
+          <span class="card__title">Gastos por Lote (MP)</span>
+          <button onclick="addMPRow()" class="btn btn--outline" style="margin-left:auto;padding:0.2rem 0.5rem;font-size:0.7rem;">+ Añadir</button>
         </div>
         <div class="table-responsive">
         <table class="insumos-table">
           <thead>
             <tr>
               <th>Insumo</th>
-              <th>Unidad</th>
-              <th>Cant.</th>
-              <th>NIO</th>
+              <th style="width: 60px;">Uso</th>
+              <th style="width: 80px;">NIO</th>
+              <th style="width: 30px;"></th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>Corozo M</td>
-              <td class="insumo-unit">Quintal</td>
-              <td><input type="number" class="insumo-price-input" id="q-corozo" value="4.4" step="0.1" oninput="calcular()"></td>
-              <td><input type="number" class="insumo-price-input" id="p-corozo" value="1000" oninput="calcular()"></td>
-            </tr>
-            <tr>
-              <td>Azúcar</td>
-              <td class="insumo-unit">Libra</td>
-              <td><input type="number" class="insumo-price-input" id="q-azucar" value="20" oninput="calcular()"></td>
-              <td><input type="number" class="insumo-price-input" id="p-azucar" value="55" oninput="calcular()"></td>
-            </tr>
-            <tr>
-              <td>Levadura</td>
-              <td class="insumo-unit">Libra</td>
-              <td><input type="number" class="insumo-price-input" id="q-levadura" value="0.5" step="0.1" oninput="calcular()"></td>
-              <td><input type="number" class="insumo-price-input" id="p-levadura" value="60" oninput="calcular()"></td>
-            </tr>
-            <tr>
-              <td>Nutrientes</td>
-              <td class="insumo-unit">Lote</td>
-              <td>—</td>
-              <td><input type="number" class="insumo-price-input" id="p-nutrientes" value="50" oninput="calcular()"></td>
-            </tr>
-            <tr>
-              <td>Agua</td>
-              <td class="insumo-unit">Lote</td>
-              <td>—</td>
-              <td><input type="number" class="insumo-price-input" id="p-agua" value="200" oninput="calcular()"></td>
-            </tr>
-            <tr>
-              <td>Enzimas</td>
-              <td class="insumo-unit">Lote</td>
-              <td>—</td>
-              <td><input type="number" class="insumo-price-input" id="p-enzimas" value="300" oninput="calcular()"></td>
-            </tr>
-            <tr>
-              <td>Sulfitos</td>
-              <td class="insumo-unit">Lote</td>
-              <td>—</td>
-              <td><input type="number" class="insumo-price-input" id="p-sulfitos" value="150" oninput="calcular()"></td>
-            </tr>
+          <tbody id="lista-mp">
           </tbody>
         </table>
         </div>
       </div>
 
-      <!-- Envasado -->
+      <!-- ENVASADO -->
       <div class="card">
         <div class="card__header">
           <div class="card__icon">🍾</div>
@@ -719,44 +709,36 @@
           <thead>
             <tr>
               <th>Artículo</th>
-              <th>Variante</th>
               <th>NIO/u</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td>Botella 750ml</td>
-              <td class="insumo-unit">Burdeos Premium</td>
               <td><input type="number" class="insumo-price-input" id="e-botella" value="25" oninput="calcular()"></td>
             </tr>
             <tr>
               <td>Corcho</td>
-              <td class="insumo-unit">Natural 1ª</td>
               <td><input type="number" class="insumo-price-input" id="e-corcho" value="10" oninput="calcular()"></td>
             </tr>
             <tr>
-              <td>Cápsula</td>
-              <td class="insumo-unit">Lacre Lujo</td>
+              <td>Cápsula / Lacre</td>
               <td><input type="number" class="insumo-price-input" id="e-capsula" value="5" oninput="calcular()"></td>
             </tr>
             <tr>
               <td>Etiqueta Frontal</td>
-              <td class="insumo-unit">Foil Stamping</td>
               <td><input type="number" class="insumo-price-input" id="e-etiq-front" value="12" oninput="calcular()"></td>
             </tr>
             <tr>
               <td>Contraetiqueta</td>
-              <td class="insumo-unit">Digital</td>
               <td><input type="number" class="insumo-price-input" id="e-etiq-back" value="4" oninput="calcular()"></td>
             </tr>
             <tr>
               <td>Collarín/Medallón</td>
-              <td class="insumo-unit">Detalle Lujo</td>
               <td><input type="number" class="insumo-price-input" id="e-medallon" value="8" oninput="calcular()"></td>
             </tr>
             <tr>
               <td>Caja (÷6)</td>
-              <td class="insumo-unit">Madera 6u</td>
               <td><input type="number" class="insumo-price-input" id="e-caja" value="90" oninput="calcular()"></td>
             </tr>
           </tbody>
@@ -764,7 +746,7 @@
         </div>
       </div>
 
-      <!-- MOD -->
+      <!-- MANO DE OBRA DIRECTA -->
       <div class="card">
         <div class="card__header">
           <div class="card__icon">👨‍🔬</div>
@@ -781,57 +763,34 @@
           </thead>
           <tbody>
             <tr>
-              <td>Cosecha/Recepción</td>
+              <td>Cosecha/Recepción P.</td>
               <td><input type="number" class="insumo-price-input" id="m-h-cosecha" value="8" oninput="calcular()"></td>
               <td><input type="number" class="insumo-price-input" id="m-p-cosecha" value="25" oninput="calcular()"></td>
-            </tr>
-            <tr>
-              <td>Bodega/Trasiegos</td>
-              <td><input type="number" class="insumo-price-input" id="m-h-bodega" value="10" oninput="calcular()"></td>
-              <td><input type="number" class="insumo-price-input" id="m-p-bodega" value="25" oninput="calcular()"></td>
-            </tr>
-            <tr>
-              <td>Embotellado</td>
-              <td><input type="number" class="insumo-price-input" id="m-h-embotell" value="4" oninput="calcular()"></td>
-              <td><input type="number" class="insumo-price-input" id="m-p-embotell" value="12.5" step="0.5" oninput="calcular()"></td>
             </tr>
           </tbody>
         </table>
         </div>
-        <div class="highlight-box" style="margin-top:0.8rem;">
-          ⚠️ <strong>Cargas Sociales:</strong> INSS Patronal 19% + INATEC 2% aplicables para presentación ante DGI Nicaragua.
-        </div>
       </div>
 
-      <!-- CIF -->
+      <!-- CIF DINÁMICO -->
       <div class="card">
         <div class="card__header">
           <div class="card__icon">🏛️</div>
           <span class="card__title">Costos Indirectos (CIF)</span>
+          <button onclick="addCIFRow()" class="btn btn--outline" style="margin-left:auto;padding:0.2rem 0.5rem;font-size:0.7rem;">+ Añadir</button>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Valor Barrica Nueva (NIO)</label>
-            <input type="number" class="form-input" id="c-barrica-val" value="18000" oninput="calcular()">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Vida Útil (lotes)</label>
-            <input type="number" class="form-input" id="c-barrica-vida" value="3" oninput="calcular()">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Energía Bodega (NIO/lote)</label>
-            <input type="number" class="form-input" id="c-energia" value="1200" oninput="calcular()">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Análisis Lab (NIO/lote)</label>
-            <input type="number" class="form-input" id="c-lab" value="1200" oninput="calcular()">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Limpieza CIP y Sanitización (NIO/lote)</label>
-          <input type="number" class="form-input" id="c-cip" value="400" oninput="calcular()">
+        <div class="table-responsive">
+        <table class="insumos-table">
+          <thead>
+            <tr>
+              <th>Concepto</th>
+              <th style="width: 90px;">NIO (Total)</th>
+              <th style="width: 30px;"></th>
+            </tr>
+          </thead>
+          <tbody id="lista-cif">
+          </tbody>
+        </table>
         </div>
       </div>
 
@@ -871,20 +830,15 @@
       <div class="card" style="background:linear-gradient(135deg,rgba(212,175,55,0.06) 0%,var(--surface) 100%);border-color:rgba(212,175,55,0.25);">
         <div class="card__header">
           <div class="card__icon">💾</div>
-          <span class="card__title">Guardar como Receta</span>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Nombre de la receta</label>
-          <input type="text" id="receta-lujo-nombre" class="form-input" placeholder="Ej: Gran Reserva Corozo — Lote Mar 2026">
+          <span class="card__title">Guardar Ficha de Producción</span>
         </div>
         <button onclick="guardarRecetaLujo()" class="btn btn--gold" style="width:100%;margin-top:0.3rem;">
           <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
-          Guardar Receta
+          Guardar Proyecto
         </button>
       </div>
 
     </aside>
-
     <!-- ════ CONTENT ════ -->
     <section class="content">
 
@@ -993,67 +947,6 @@
         <div class="highlight-box" id="eq-summary">Calculando...</div>
       </div>
 
-      <!-- Simulador de Escenarios -->
-      <div class="card animate-in">
-        <div class="card__header">
-          <div class="card__icon">🎛️</div>
-          <span class="card__title">Simulador de Escenarios</span>
-          <span class="tag tag--orange" style="margin-left:auto;">Sin guardar</span>
-        </div>
-        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1rem;">
-          Mueve los sliders para simular cambios en precios clave. No modifica los valores reales del lote.
-        </p>
-        <div class="sim-grid">
-          <div class="sim-item">
-            <div class="sim-header">
-              <span class="sim-name">Corozo M (NIO/Quintal)</span>
-              <span class="sim-val" id="sim-corozo-val">1,000</span>
-            </div>
-            <input type="range" class="sim-slider" id="sim-corozo" min="600" max="2000" value="1000" oninput="simular()">
-            <div class="sim-range"><span>600</span><span>2,000</span></div>
-          </div>
-          <div class="sim-item">
-            <div class="sim-header">
-              <span class="sim-name">Barrica Roble Francés (NIO)</span>
-              <span class="sim-val" id="sim-barrica-val">18,000</span>
-            </div>
-            <input type="range" class="sim-slider" id="sim-barrica" min="10000" max="35000" value="18000" step="500" oninput="simular()">
-            <div class="sim-range"><span>10,000</span><span>35,000</span></div>
-          </div>
-          <div class="sim-item">
-            <div class="sim-header">
-              <span class="sim-name">Botella de Vidrio (NIO)</span>
-              <span class="sim-val" id="sim-botella-val">25</span>
-            </div>
-            <input type="range" class="sim-slider" id="sim-botella" min="15" max="80" value="25" oninput="simular()">
-            <div class="sim-range"><span>15</span><span>80</span></div>
-          </div>
-          <div class="sim-item">
-            <div class="sim-header">
-              <span class="sim-name">Margen de Utilidad (%)</span>
-              <span class="sim-val" id="sim-margen-val">55%</span>
-            </div>
-            <input type="range" class="sim-slider" id="sim-margen" min="20" max="85" value="55" oninput="simular()">
-            <div class="sim-range"><span>20%</span><span>85%</span></div>
-          </div>
-        </div>
-
-        <div class="sim-result">
-          <div class="sim-stat sim-stat--neutral">
-            <div class="sim-stat__val" id="sim-pvp-result">0</div>
-            <div class="sim-stat__lbl">PVP Simulado (NIO)</div>
-          </div>
-          <div class="sim-stat">
-            <div class="sim-stat__val" id="sim-delta-abs" style="color:var(--text-muted);">±0</div>
-            <div class="sim-stat__lbl">Δ vs. PVP Real (NIO)</div>
-          </div>
-          <div class="sim-stat">
-            <div class="sim-stat__val" id="sim-delta-pct" style="color:var(--text-muted);">0%</div>
-            <div class="sim-stat__lbl">Δ Porcentual</div>
-          </div>
-        </div>
-      </div>
-
       <!-- Historia de Costos -->
       <div class="card animate-in">
         <div class="card__header">
@@ -1086,51 +979,167 @@
 </div>
 
 
+
 <script>
 // ──────────────────────────────────────────────────
 // HELPERS
 // ──────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
-const num = id => parseFloat($(id).value) || 0;
-const fmt = (n, dec=2) => n.toLocaleString('es-NI', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+const num = id => parseFloat($(id)?.value) || 0;
+const fmt = (n, dec=2) => (n||0).toLocaleString('es-NI', { minimumFractionDigits: dec, maximumFractionDigits: dec });
 
 let pvpReal = 0;
+let unitariosData = [
+  { id: 'u1', nombre: 'Agua', unit: 'L', precio: 5.29 },
+  { id: 'u2', nombre: 'Clavo de olor', unit: 'pieza', precio: 0.16 },
+  { id: 'u3', nombre: 'Canela', unit: 'g', precio: 8 },
+  { id: 'u4', nombre: 'Tamarindo', unit: 'L', precio: 80 },
+  { id: 'u5', nombre: 'Azúcar', unit: 'L', precio: 13.60 },
+  { id: 'u6', nombre: 'Levadura', unit: 'g', precio: 0.35 }
+];
+let mpData = [];
+let cifData = [];
+
+function guardarUnitarios() {
+  localStorage.setItem('bifrost_unitarios_db', JSON.stringify(unitariosData));
+  _lujo_showToast('✅ Base de datos de costos unitarios guardada');
+}
+
+function cargarUnitarios() {
+  try {
+    const saved = localStorage.getItem('bifrost_unitarios_db');
+    if (saved) unitariosData = JSON.parse(saved);
+  } catch(e) {}
+}
+
+// ──────────────────────────────────────────────────
+// RENDERS
+// ──────────────────────────────────────────────────
+function renderUnitarios() {
+  const tbody = $('lista-unitarios');
+  tbody.innerHTML = '';
+  unitariosData.forEach((u, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" class="form-input" style="padding:0.2rem;font-size:0.75rem;" value="${u.nombre}" onchange="updateU(${i},'nombre',this.value)"></td>
+      <td><input type="text" class="form-input" style="padding:0.2rem;font-size:0.75rem;text-align:center;" value="${u.unit}" onchange="updateU(${i},'unit',this.value)"></td>
+      <td><input type="number" class="insumo-price-input" value="${u.precio}" oninput="updateU(${i},'precio',this.value)"></td>
+      <td style="text-align:center;"><button class="btn btn--danger" style="padding:0.1rem 0.3rem;" onclick="removeU(${i})">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  renderMP(); // Refresh MP selects
+}
+
+function updateU(index, field, val) {
+  if (field === 'precio') unitariosData[index].precio = parseFloat(val) || 0;
+  else unitariosData[index][field] = val;
+  calcular();
+}
+
+function addUnitarioRow() {
+  unitariosData.push({ id: 'u'+Date.now(), nombre: 'Nuevo Insumo', unit: 'und', precio: 0 });
+  renderUnitarios();
+}
+function removeU(i) { unitariosData.splice(i,1); renderUnitarios(); calcular(); }
+
+function renderMP() {
+  const tbody = $('lista-mp');
+  tbody.innerHTML = '';
+  mpData.forEach((mp, i) => {
+    const tr = document.createElement('tr');
+    // Generar opciones y precálculo
+    const options = unitariosData.map(u => `<option value="${u.id}" ${u.id===mp.unitId ? 'selected':''}>${u.nombre} (${u.precio}/${u.unit})</option>`).join('');
+    
+    // Si unitId es 'custom', quiere decir que se cargó del Maestro Simplificado y no tiene unidad estricta
+    let customOpt = mp.unitId === 'custom' ? `<option value="custom" selected>${mp.nombreCustom} (Costo Fijo)</option>` : '';
+
+    const refU = unitariosData.find(u => u.id === mp.unitId);
+    let totalLine = 0;
+    if (refU) {
+      totalLine = refU.precio * mp.usado;
+    } else if (mp.unitId === 'custom') {
+      totalLine = mp.usado; // Aquí usado funciona como valor absoluto
+    }
+
+    tr.innerHTML = `
+      <td>
+        <select class="form-select" style="padding:0.2rem;font-size:0.75rem;" onchange="updateMP(${i},'unitId',this.value)">
+          <option value="">-- Seleccionar --</option>
+          ${options}
+          ${customOpt}
+        </select>
+      </td>
+      <td><input type="number" class="insumo-price-input" value="${mp.usado}" oninput="updateMP(${i},'usado',this.value)"></td>
+      <td style="text-align:right;font-family:var(--font-mono);font-size:0.8rem;color:var(--teal);">${fmt(totalLine)}</td>
+      <td style="text-align:center;"><button class="btn btn--danger" style="padding:0.1rem 0.3rem;" onclick="removeMP(${i})">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function updateMP(index, field, val) {
+  if (field === 'usado') mpData[index].usado = parseFloat(val) || 0;
+  else mpData[index][field] = val;
+  renderMP();
+  calcular();
+}
+function addMPRow() { mpData.push({ unitId: '', usado: 1 }); renderMP(); }
+function removeMP(i) { mpData.splice(i,1); renderMP(); calcular(); }
+
+function renderCIF() {
+  const tbody = $('lista-cif');
+  tbody.innerHTML = '';
+  cifData.forEach((cif, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" class="form-input" style="padding:0.2rem;font-size:0.75rem;" value="${cif.concepto}" onchange="updateCIF(${i},'concepto',this.value)"></td>
+      <td><input type="number" class="insumo-price-input" value="${cif.total}" oninput="updateCIF(${i},'total',this.value)"></td>
+      <td style="text-align:center;"><button class="btn btn--danger" style="padding:0.1rem 0.3rem;" onclick="removeCIF(${i})">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+function updateCIF(index, field, val) {
+  if (field === 'total') cifData[index].total = parseFloat(val) || 0;
+  else cifData[index][field] = val;
+  calcular();
+}
+function addCIFRow() { cifData.push({ concepto: 'Nuevo CIF', total: 0 }); renderCIF(); }
+function removeCIF(i) { cifData.splice(i,1); renderCIF(); calcular(); }
 
 // ──────────────────────────────────────────────────
 // CÁLCULO PRINCIPAL
 // ──────────────────────────────────────────────────
 function calcular() {
-  // ─ MATERIA PRIMA ─
-  const mp_corozo = num('q-corozo') * num('p-corozo');
-  const mp_azucar = num('q-azucar') * num('p-azucar');
-  const mp_levadura = num('q-levadura') * num('p-levadura');
-  const mp_otros = num('p-nutrientes') + num('p-agua') + num('p-enzimas') + num('p-sulfitos');
-  const totalMP = mp_corozo + mp_azucar + mp_levadura + mp_otros;
+  // ─ MATERIA PRIMA (DINÁMICA) ─
+  let totalMP = 0;
+  mpData.forEach(mp => {
+    if (mp.unitId === 'custom') {
+      totalMP += mp.usado; 
+    } else {
+      const ref = unitariosData.find(u => u.id === mp.unitId);
+      if (ref) totalMP += (ref.precio * mp.usado);
+    }
+  });
 
   // ─ MANO DE OBRA ─
-  const mod_cosecha = num('m-h-cosecha') * num('m-p-cosecha');
-  const mod_bodega = num('m-h-bodega') * num('m-p-bodega');
-  const mod_embotell = num('m-h-embotell') * num('m-p-embotell');
-  const totalMOD = mod_cosecha + mod_bodega + mod_embotell;
+  const totalMOD = num('m-h-cosecha') * num('m-p-cosecha');
 
-  // ─ CIF ─
-  const cif_barrica = num('c-barrica-val') / Math.max(num('c-barrica-vida'), 1);
-  const cif_energia = num('c-energia');
-  const cif_lab = num('c-lab');
-  const cif_cip = num('c-cip');
-  const totalCIF = cif_barrica + cif_energia + cif_lab + cif_cip;
+  // ─ CIF (DINÁMICO) ─
+  let totalCIF = 0;
+  cifData.forEach(c => totalCIF += c.total);
 
   // ─ CPT ─
   const CPT = totalMP + totalMOD + totalCIF;
 
   // ─ LITROS ─
-  const lote_kg = num('lote-kg');
-  const rendimiento = num('rendimiento');
-  const litroBrutos = lote_kg * rendimiento;
+  const litroBrutos = num('lote-kg'); // Ahora asumimos que Lote KG es directamente L obtenidos como pidió
+  const rendimiento = 1; //num('rendimiento');
   const litrosMermaLias = litroBrutos * 0.05;
   const litrosTrasLias = litroBrutos - litrosMermaLias;
 
-  // Ángel de Evaporación (compuesto)
+  // Ángel de Evaporación
   const meses = num('meses-barrica');
   const angelPctMensual = num('angel-pct') / 100;
   const litrosPostAngel = litrosTrasLias * Math.pow(1 - angelPctMensual, meses);
@@ -1139,7 +1148,7 @@ function calcular() {
   const totalBotellas = Math.floor((litrosNetos / 0.75) * 10) / 10;
 
   // ─ COSTOS POR BOTELLA ─
-  const costoLitro = CPT / litrosNetos;
+  const costoLitro = (litrosNetos > 0) ? (CPT / litrosNetos) : 0;
   const costoVinoBot = costoLitro * 0.75;
   const envasado = num('e-botella') + num('e-corcho') + num('e-capsula') +
                    num('e-etiq-front') + num('e-etiq-back') + num('e-medallon');
@@ -1151,265 +1160,110 @@ function calcular() {
   const pctMargen = num('pct-margen') / 100;
   const pctISC = num('pct-isc') / 100;
   const pctIVA = num('pct-iva') / 100;
-  const tc = num('tc-usd');
+  const tc = num('tc-usd') || 36.5;
 
   const mkting = exWorks * pctMkt;
   const costoCom = exWorks + mkting;
-  const pvpAntesImp = costoCom / (1 - pctMargen);
+  const pvpAntesImp = pctMargen < 1 ? (costoCom / (1 - pctMargen)) : 0;
   const iscVal = pvpAntesImp * pctISC;
   const pvpConISC = pvpAntesImp + iscVal;
   const ivaVal = pvpConISC * pctIVA;
   const pvpFinal = pvpConISC + ivaVal;
   pvpReal = pvpFinal;
   const pvpUSD = pvpFinal / tc;
-  const margenReal = ((pvpFinal - exWorks) / pvpFinal * 100);
+  const margenReal = pvpFinal>0 ? ((pvpFinal - exWorks) / pvpFinal * 100) : 0;
 
   // ─ PUNTO DE EQUILIBRIO ─
   const varUnit = exWorks;
   const contribucionUnit = pvpFinal - varUnit;
-  const breakEven = Math.ceil(CPT / contribucionUnit);
+  const breakEven = contribucionUnit>0 ? Math.ceil(CPT / contribucionUnit) : 0;
   const botellasPuro = Math.floor(totalBotellas) - breakEven;
-  const pctBreakEven = Math.min((breakEven / totalBotellas) * 100, 100);
+  const pctBreakEven = totalBotellas>0 ? Math.min((breakEven / totalBotellas) * 100, 100) : 0;
 
   // ─────── ACTUALIZAR DOM ───────
-  // Bloques CPT
-  $('r-mp').textContent = fmt(totalMP) + ' NIO';
-  $('r-mp-pct').textContent = fmt(totalMP / CPT * 100, 1) + '% del CPT';
-  $('r-mod').textContent = fmt(totalMOD) + ' NIO';
-  $('r-mod-pct').textContent = fmt(totalMOD / CPT * 100, 1) + '% del CPT';
-  $('r-cif').textContent = fmt(totalCIF) + ' NIO';
-  $('r-cif-pct').textContent = fmt(totalCIF / CPT * 100, 1) + '% del CPT';
+  if($('r-mp')) $('r-mp').textContent = fmt(totalMP) + ' NIO';
+  if($('r-mp-pct')&&CPT>0) $('r-mp-pct').textContent = fmt(totalMP / CPT * 100, 1) + '% del CPT';
+  if($('r-mod')) $('r-mod').textContent = fmt(totalMOD) + ' NIO';
+  if($('r-mod-pct')&&CPT>0) $('r-mod-pct').textContent = fmt(totalMOD / CPT * 100, 1) + '% del CPT';
+  if($('r-cif')) $('r-cif').textContent = fmt(totalCIF) + ' NIO';
+  if($('r-cif-pct')&&CPT>0) $('r-cif-pct').textContent = fmt(totalCIF / CPT * 100, 1) + '% del CPT';
 
-  // Breakdown table
-  $('r-litros-brutos').textContent = fmt(litroBrutos, 1) + ' L';
-  $('r-angel-pct-display').textContent = meses;
-  $('r-angel-mpct-display').textContent = num('angel-pct');
-  $('r-litros-angel').textContent = '-' + fmt(litrosPerdidosAngel, 1) + ' L';
-  $('r-litros-lias').textContent = '-' + fmt(litrosMermaLias, 1) + ' L';
-  $('r-litros-netos').textContent = fmt(litrosNetos, 1) + ' L';
-  $('r-botellas').textContent = fmt(totalBotellas, 0) + ' u';
-  $('r-cpt').textContent = fmt(CPT) + ' NIO';
-  $('r-costo-litro').textContent = fmt(costoLitro) + ' NIO/L';
-  $('r-costo-vino').textContent = fmt(costoVinoBot) + ' NIO';
-  $('r-envasado').textContent = fmt(envasado) + ' NIO';
-  $('r-caja-prorr').textContent = fmt(cajaProrr) + ' NIO';
-  $('r-ex-works').textContent = fmt(exWorks) + ' NIO';
-  $('r-mkt').textContent = '+' + fmt(mkting) + ' NIO';
-  $('r-costo-com').textContent = fmt(costoCom) + ' NIO';
-  $('r-margen-label').textContent = num('pct-margen') + '%';
-  $('r-pvp-antes').textContent = fmt(pvpAntesImp) + ' NIO';
-  $('r-isc').textContent = '+' + fmt(iscVal) + ' NIO (' + num('pct-isc') + '%)';
-  $('r-iva-item').textContent = '+' + fmt(ivaVal) + ' NIO (' + num('pct-iva') + '%)';
-  $('r-pvp-final').textContent = fmt(pvpFinal) + ' NIO';
+  if($('r-litros-brutos')) $('r-litros-brutos').textContent = fmt(litroBrutos, 1) + ' L';
+  if($('r-angel-pct-display')) $('r-angel-pct-display').textContent = meses;
+  if($('r-angel-mpct-display')) $('r-angel-mpct-display').textContent = num('angel-pct');
+  if($('r-litros-angel')) $('r-litros-angel').textContent = '-' + fmt(litrosPerdidosAngel, 1) + ' L';
+  if($('r-litros-lias')) $('r-litros-lias').textContent = '-' + fmt(litrosMermaLias, 1) + ' L';
+  if($('r-litros-netos')) $('r-litros-netos').textContent = fmt(litrosNetos, 1) + ' L';
+  if($('r-botellas')) $('r-botellas').textContent = fmt(totalBotellas, 0) + ' u';
+  if($('r-cpt')) $('r-cpt').textContent = fmt(CPT) + ' NIO';
+  if($('r-costo-litro')) $('r-costo-litro').textContent = fmt(costoLitro) + ' NIO/L';
+  if($('r-costo-vino')) $('r-costo-vino').textContent = fmt(costoVinoBot) + ' NIO';
+  if($('r-envasado')) $('r-envasado').textContent = fmt(envasado) + ' NIO';
+  if($('r-caja-prorr')) $('r-caja-prorr').textContent = fmt(cajaProrr) + ' NIO';
+  if($('r-ex-works')) $('r-ex-works').textContent = fmt(exWorks) + ' NIO';
+  if($('r-mkt')) $('r-mkt').textContent = '+' + fmt(mkting) + ' NIO';
+  if($('r-costo-com')) $('r-costo-com').textContent = fmt(costoCom) + ' NIO';
+  if($('r-margen-label')) $('r-margen-label').textContent = num('pct-margen') + '%';
+  if($('r-pvp-antes')) $('r-pvp-antes').textContent = fmt(pvpAntesImp) + ' NIO';
+  if($('r-isc')) $('r-isc').textContent = '+' + fmt(iscVal) + ' NIO (' + num('pct-isc') + '%)';
+  if($('r-iva-item')) $('r-iva-item').textContent = '+' + fmt(ivaVal) + ' NIO (' + num('pct-iva') + '%)';
+  if($('r-pvp-final')) $('r-pvp-final').textContent = fmt(pvpFinal) + ' NIO';
 
-  // Hero
-  $('hero-pvp-nio').textContent = fmt(pvpFinal) + ' NIO';
-  $('hero-pvp-usd').textContent = '≈ USD $' + fmt(pvpUSD);
-  $('hero-ex-works').textContent = fmt(exWorks);
-  $('hero-margen-real').textContent = fmt(margenReal, 1) + '%';
-  $('hero-botellas').textContent = fmt(totalBotellas, 0);
+  if($('hero-pvp-nio')) $('hero-pvp-nio').textContent = fmt(pvpFinal) + ' NIO';
+  if($('hero-pvp-usd')) $('hero-pvp-usd').textContent = '≈ USD $' + fmt(pvpUSD);
+  if($('hero-ex-works')) $('hero-ex-works').textContent = fmt(exWorks);
+  if($('hero-margen-real')) $('hero-margen-real').textContent = fmt(margenReal, 1) + '%';
+  if($('hero-botellas')) $('hero-botellas').textContent = fmt(totalBotellas, 0);
 
-  // Equilibrio
-  $('eq-botellas-min').textContent = breakEven;
-  $('eq-botellas-total').textContent = fmt(totalBotellas, 0);
-  $('eq-botellas-util').textContent = Math.max(botellasPuro, 0);
-  $('eq-bar').style.width = pctBreakEven + '%';
-  $('eq-marker').style.left = pctBreakEven + '%';
-  $('eq-marker-label').textContent = 'Equilibrio: bot. #' + breakEven;
-  $('eq-total-label').textContent = fmt(totalBotellas, 0) + ' total';
-  $('eq-summary').innerHTML = `Necesitas vender <strong>${breakEven} botellas</strong> (${fmt(pctBreakEven, 1)}% del lote) para cubrir el <strong>Costo Total del Lote de ${fmt(CPT)} NIO</strong>. Las ${Math.max(botellasPuro,0)} botellas restantes representan <strong>utilidad pura de ${fmt(Math.max(botellasPuro,0) * contribucionUnit)} NIO</strong>.`;
-
-  // Sincronizar sliders simulador con valores reales
-  syncSliders();
+  if($('eq-botellas-min')) $('eq-botellas-min').textContent = breakEven;
+  if($('eq-botellas-total')) $('eq-botellas-total').textContent = fmt(totalBotellas, 0);
+  if($('eq-botellas-util')) $('eq-botellas-util').textContent = Math.max(botellasPuro, 0);
+  if($('eq-bar')) $('eq-bar').style.width = pctBreakEven + '%';
+  if($('eq-marker')) $('eq-marker').style.left = pctBreakEven + '%';
+  if($('eq-marker-label')) $('eq-marker-label').textContent = 'Equilibrio: bot. #' + breakEven;
+  if($('eq-total-label')) $('eq-total-label').textContent = fmt(totalBotellas, 0) + ' total';
+  
+  if($('eq-summary')) $('eq-summary').innerHTML = `Necesitas vender <strong>${breakEven} botellas</strong> (${fmt(pctBreakEven, 1)}% del lote) para cubrir el <strong>Costo Total del Lote de ${fmt(CPT)} NIO</strong>. Las botellas restantes representan <strong>utilidad pura de ${fmt(Math.max(botellasPuro,0) * contribucionUnit)} NIO</strong>.`;
+  
+  // Re-render MP totals explicitly
+  try { renderMP(); } catch(e){}
 }
 
 // ──────────────────────────────────────────────────
-// SIMULADOR
+// SISTEMA DE RECETAS (HÍBRIDO LUJO Y SIMPLE)
 // ──────────────────────────────────────────────────
-function syncSliders() {
-  const pCorozo = num('p-corozo');
-  const pBarrica = num('c-barrica-val');
-  const pBotella = num('e-botella');
-  const pMargen = num('pct-margen');
-
-  $('sim-corozo').value = pCorozo;
-  $('sim-barrica').value = pBarrica;
-  $('sim-botella').value = pBotella;
-  $('sim-margen').value = pMargen;
-
-  simular();
-}
-
-function simular() {
-  const sCorozo = parseFloat($('sim-corozo').value);
-  const sBarrica = parseFloat($('sim-barrica').value);
-  const sBotella = parseFloat($('sim-botella').value);
-  const sMargen = parseFloat($('sim-margen').value);
-
-  $('sim-corozo-val').textContent = fmt(sCorozo, 0);
-  $('sim-barrica-val').textContent = fmt(sBarrica, 0);
-  $('sim-botella-val').textContent = fmt(sBotella, 0);
-  $('sim-margen-val').textContent = sMargen + '%';
-
-  // Recalcular PVP simulado
-  const lote_kg = num('lote-kg');
-  const rendimiento = num('rendimiento');
-  const meses = num('meses-barrica');
-  const angelPct = num('angel-pct') / 100;
-
-  const litroBrutos = lote_kg * rendimiento;
-  const litrosTrasLias = litroBrutos * 0.95;
-  const litrosNetos = litrosTrasLias * Math.pow(1 - angelPct, meses);
-
-  // MP simulada
-  const simMP = (num('q-corozo') * sCorozo) +
-                (num('q-azucar') * num('p-azucar')) +
-                (num('q-levadura') * num('p-levadura')) +
-                num('p-nutrientes') + num('p-agua') + num('p-enzimas') + num('p-sulfitos');
-
-  // CIF simulada
-  const simCIF = (sBarrica / Math.max(num('c-barrica-vida'), 1)) +
-                  num('c-energia') + num('c-lab') + num('c-cip');
-
-  const simCPT = simMP + num('m-h-cosecha') * num('m-p-cosecha') +
-                  num('m-h-bodega') * num('m-p-bodega') +
-                  num('m-h-embotell') * num('m-p-embotell') + simCIF;
-
-  const simCL = simCPT / litrosNetos;
-  const simVino = simCL * 0.75;
-  const simEnvasado = sBotella + num('e-corcho') + num('e-capsula') +
-                       num('e-etiq-front') + num('e-etiq-back') + num('e-medallon');
-  const simEx = simVino + simEnvasado + (num('e-caja') / 6);
-  const simMkt = simEx * (num('pct-marketing') / 100);
-  const simCostCom = simEx + simMkt;
-  const simPvpAI = simCostCom / (1 - sMargen / 100);
-  const simPvpFinal = simPvpAI * (1 + num('pct-isc') / 100) * (1 + num('pct-iva') / 100);
-
-  const delta = simPvpFinal - pvpReal;
-  const deltaPct = pvpReal > 0 ? (delta / pvpReal * 100) : 0;
-
-  $('sim-pvp-result').textContent = fmt(simPvpFinal);
-  $('sim-delta-abs').textContent = (delta >= 0 ? '+' : '') + fmt(delta);
-  $('sim-delta-pct').textContent = (deltaPct >= 0 ? '+' : '') + fmt(deltaPct, 1) + '%';
-
-  // Color del delta
-  const deltaEl = $('sim-delta-abs');
-  const deltaPctEl = $('sim-delta-pct');
-  const color = delta > 0 ? 'var(--red)' : delta < 0 ? 'var(--green)' : 'var(--text-muted)';
-  deltaEl.style.color = color;
-  deltaPctEl.style.color = color;
-}
-
-// ──────────────────────────────────────────────────
-// FICHA TÉCNICA — Presets
-// ──────────────────────────────────────────────────
-const fichas = {
-  gran_reserva: { rendimiento: 0.65, meses: 12, angel: 0.8, kg: 200 },
-  blanco_barrica: { rendimiento: 0.72, meses: 6, angel: 0.6, kg: 150 },
-  rosado_corozo: { rendimiento: 0.68, meses: 3, angel: 0.5, kg: 100 },
-};
-
-function loadFicha() {
-  const key = $('ficha-select').value;
-  const f = fichas[key];
-  if (!f) return;
-  $('rendimiento').value = f.rendimiento;
-  $('meses-barrica').value = f.meses;
-  $('angel-pct').value = f.angel;
-  $('lote-kg').value = f.kg;
-  calcular();
-}
-
-// ──────────────────────────────────────────────────
-// CHART
-// ──────────────────────────────────────────────────
-function initChart() {
-  const labels = ['May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr'];
-  const costoExworks = [165, 168, 170, 172, 175, 178, 177, 180, 177, 175, 178, 177.6];
-  const pvpSugerido = [590, 600, 608, 614, 622, 632, 628, 640, 628, 622, 632, 626.5];
-
-  const ctx = document.getElementById('cost-chart').getContext('2d');
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'Costo Ex-Works / Botella (NIO)',
-          data: costoExworks,
-          borderColor: '#45A29E',
-          backgroundColor: 'rgba(69,162,158,0.08)',
-          fill: true,
-          tension: 0.4,
-          pointBackgroundColor: '#45A29E',
-          pointRadius: 3,
-        },
-        {
-          label: 'PVP Sugerido (NIO)',
-          data: pvpSugerido,
-          borderColor: '#D4AF37',
-          backgroundColor: 'rgba(212,175,55,0.06)',
-          fill: true,
-          tension: 0.4,
-          pointBackgroundColor: '#D4AF37',
-          pointRadius: 3,
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { labels: { color: '#B8B4AA', font: { family: 'Inter', size: 11 } } },
-        tooltip: {
-          backgroundColor: '#0F0F1A',
-          borderColor: 'rgba(255,255,255,0.08)',
-          borderWidth: 1,
-          titleColor: '#D4AF37',
-          bodyColor: '#B8B4AA',
-          callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString('es-NI')} NIO` }
-        }
-      },
-      scales: {
-        x: { ticks: { color: '#7A7A8C', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
-        y: { ticks: { color: '#7A7A8C', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } }
-      }
-    }
-  });
-}
-
-// ── Bootstrap automático al cargar ──
-document.addEventListener('DOMContentLoaded', () => {
-  calcular();
-  initChart();
-  _lujo_populateSelector();
-  renderHistorialLujo();
-});
-
-// ══════════════════════════════════════════════════
-// SISTEMA DE RECETAS — Maestro de Costos Bifrost
-// ══════════════════════════════════════════════════
-
 const _LUJO_KEY = 'bifrost_cost_recetas_lujo';
+const _SIMPLE_KEY = 'bifrost_cost_historico';
 
-// IDs de todos los campos del formulario a guardar/restaurar
-const _LUJO_FIELDS = [
-  'ficha-select','lote-kg','rendimiento','meses-barrica','angel-pct',
-  'q-corozo','p-corozo','q-azucar','p-azucar','q-levadura','p-levadura',
-  'p-nutrientes','p-agua','p-enzimas','p-sulfitos',
+const _SCALAR_FIELDS = [
+  'lote-nombre','lote-numero','lote-kg','meses-barrica','angel-pct',
   'e-botella','e-corcho','e-capsula','e-etiq-front','e-etiq-back','e-medallon','e-caja',
-  'm-h-cosecha','m-p-cosecha','m-h-bodega','m-p-bodega','m-h-embotell','m-p-embotell',
-  'c-barrica-val','c-barrica-vida','c-energia','c-lab','c-cip',
+  'm-h-cosecha','m-p-cosecha',
   'pct-marketing','pct-margen','pct-isc','pct-iva','tc-usd'
 ];
+
+function generarNuevoLote() {
+  const d = new Date();
+  const dias = ['dom','lun','mar','mie','jue','vie','sab'];
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  return dias[d.getDay()] + dd + mm + yyyy;
+}
+function actualizarLote() {
+  const el = document.getElementById('lote-numero');
+  if(!el.value) { el.value = generarNuevoLote(); }
+}
 
 function _lujo_getRecetas() {
   try { return JSON.parse(localStorage.getItem(_LUJO_KEY) || '[]'); } catch { return []; }
 }
 
+function _simple_getRecetas() {
+  try { return JSON.parse(localStorage.getItem(_SIMPLE_KEY) || '[]'); } catch { return []; }
+}
+
 function _lujo_showToast(msg, ok = true) {
-  // Reutilizar el mecanismo de toast si existe, o crear uno temporal
   const existing = document.getElementById('lujo-toast');
   const t = existing || (() => {
     const el = document.createElement('div');
@@ -1428,24 +1282,25 @@ function _lujo_showToast(msg, ok = true) {
 }
 
 function guardarRecetaLujo() {
-  const nombre = (document.getElementById('receta-lujo-nombre')?.value || '').trim();
+  const selEl = $('lote-nombre');
+  const nombre = selEl.options ? selEl.options[selEl.selectedIndex].getAttribute('data-name') || selEl.value : selEl.value.trim();
+  const mcommerceId = selEl.options ? selEl.value : '';
+
   if (!nombre) {
-    _lujo_showToast('⚠️ Escribe un nombre para la receta', false);
-    document.getElementById('receta-lujo-nombre')?.focus();
+
+    _lujo_showToast('⚠️ Escribe el nombre del lote/producto', false);
     return;
   }
 
-  // Capturar todos los campos
   const campos = {};
-  _LUJO_FIELDS.forEach(id => {
-    const el = document.getElementById(id);
+  _SCALAR_FIELDS.forEach(id => {
+    const el = $(id);
     if (el) campos[id] = el.value;
   });
 
-  // Capturar resultados actuales para el historial
-  const pvp   = document.getElementById('r-pvp-final')?.textContent || '—';
-  const exw   = document.getElementById('r-ex-works')?.textContent  || '—';
-  const bots  = document.getElementById('r-botellas')?.textContent  || '—';
+  const pvp   = $('r-pvp-final')?.textContent || '—';
+  const exw   = $('r-ex-works')?.textContent  || '—';
+  const bots  = $('r-botellas')?.textContent  || '—';
 
   const recetas = _lujo_getRecetas();
   const existIdx = recetas.findIndex(r => r.nombre === nombre);
@@ -1454,6 +1309,9 @@ function guardarRecetaLujo() {
     nombre,
     fecha:  new Date().toISOString().split('T')[0],
     campos,
+    unitarios: JSON.parse(JSON.stringify(unitariosData)),
+    mp: JSON.parse(JSON.stringify(mpData)),
+    cif: JSON.parse(JSON.stringify(cifData)),
     res_pvp: pvp,
     res_exw: exw,
     res_bots: bots,
@@ -1464,69 +1322,141 @@ function guardarRecetaLujo() {
 
   localStorage.setItem(_LUJO_KEY, JSON.stringify(recetas));
 
-  // Sync Firebase (silencioso)
-  try {
-    if (typeof firebase !== 'undefined' && firebase.apps?.length) {
-      firebase.database().ref(`costos_recetas_lujo/${receta.id}`).set(receta).catch(() => {});
-    }
-  } catch(e) {}
 
-  document.getElementById('receta-lujo-nombre').value = '';
+  // PUSH A FIREBASE (Auto-link stock)
+  if (mcommerceId && bots && bots !== '—') {
+    const qty = parseInt(bots) || 0;
+    if (qty > 0) {
+      fetch(`https://bifrost-sa-default-rtdb.firebaseio.com/productos_ecommerce/${mcommerceId}.json`)
+        .then(r => r.json())
+        .then(data => {
+           if (data) {
+             const newStock = Math.max(0, (data.stock || 0) + qty);
+             fetch(`https://bifrost-sa-default-rtdb.firebaseio.com/productos_ecommerce/${mcommerceId}.json`, {
+               method: 'PATCH',
+               body: JSON.stringify({ stock: newStock })
+             });
+             _lujo_showToast(`+${qty} botellas añadidas a la tienda online`);
+           }
+        }).catch(err => console.error("Error updating firebase stock:", err));
+    }
+  }
+
   _lujo_populateSelector();
   renderHistorialLujo();
-  _lujo_showToast(`✅ Receta "${nombre}" guardada`);
+  _lujo_showToast(`✅ Proyecto "${nombre}" guardado exitosamente`);
+}
+
+function _lujo_populateSelector() {
+  const sel = $('sel-recipe-lujo');
+  if (!sel) return;
+  const lujos = _lujo_getRecetas().map(r => `<option value="l_${r.id}">👑 ${r.nombre} (${r.fecha || '?'})</option>`);
+  const simples = _simple_getRecetas().map(s => `<option value="s_${s.id}">📝 ${s.nombre} (Simplificado)</option>`);
+  
+  sel.innerHTML = '<option value="">— Seleccionar —</option>' +
+    '<optgroup label="Proyectos Bifrost">' + lujos.join('') + '</optgroup>' +
+    '<optgroup label="Recetas Simplificadas">' + simples.join('') + '</optgroup>';
 }
 
 function cargarRecetaLujo() {
-  const id = document.getElementById('sel-recipe-lujo')?.value;
-  if (!id) { _lujo_showToast('Selecciona una receta primero', false); return; }
+  const selVal = $('sel-recipe-lujo')?.value;
+  if (!selVal) { _lujo_showToast('Selecciona una receta', false); return; }
 
-  const receta = _lujo_getRecetas().find(r => r.id === id);
-  if (!receta) { _lujo_showToast('Receta no encontrada', false); return; }
+  const isLujo = selVal.startsWith('l_');
+  const idRaw = selVal.substring(2);
 
-  Object.entries(receta.campos || {}).forEach(([fieldId, val]) => {
-    const el = document.getElementById(fieldId);
-    if (el) el.value = val;
-  });
+  if (isLujo) {
+    const receta = _lujo_getRecetas().find(r => r.id === idRaw);
+    if (!receta) return;
 
-  calcular();
-  _lujo_showToast(`📂 Receta "${receta.nombre}" cargada`);
-}
+    Object.entries(receta.campos || {}).forEach(([fieldId, val]) => {
+      if ($(fieldId)) $(fieldId).value = val;
+    });
 
-function _lujo_cargarById(id) {
-  const sel = document.getElementById('sel-recipe-lujo');
-  if (sel) sel.value = id;
-  cargarRecetaLujo();
+    if (receta.unitarios) unitariosData = receta.unitarios;
+    if (receta.mp) mpData = receta.mp;
+    if (receta.cif) cifData = receta.cif;
+    
+    renderUnitarios();
+    renderCIF();
+    calcular();
+    _lujo_showToast(`📂 Proyecto "${receta.nombre}" cargado`);
+  } else {
+    // Importar desde Simplificado
+    const recetaS = _simple_getRecetas().find(r => r.id === idRaw);
+    if (!recetaS) return;
+
+    if ($('lote-nombre')) $('lote-nombre').value = recetaS.nombre;
+    if ($('lote-kg')) $('lote-kg').value = recetaS.litros_obtenidos || 208;
+    
+    mpData = [];
+    cifData = [];
+    
+    // Convertir todo a Custom inputs en Bifrost
+    if (parseFloat(recetaS.mp_costo_total) > 0) {
+      mpData.push({ unitId: 'custom', nombreCustom: `MP: ${recetaS.mp_nombre || 'Fruta Base'}`, usado: parseFloat(recetaS.mp_costo_total) });
+    }
+    if (parseFloat(recetaS.agua_costo) > 0) {
+      mpData.push({ unitId: 'custom', nombreCustom: `Agua Lote`, usado: parseFloat(recetaS.agua_costo) });
+    }
+    if (parseFloat(recetaS.azucar_precio) > 0 && parseFloat(recetaS.azucar_cantidad)>0) {
+      mpData.push({ unitId: 'custom', nombreCustom: `Azúcar Lote`, usado: parseFloat(recetaS.azucar_precio)*parseFloat(recetaS.azucar_cantidad) });
+    }
+    if (parseFloat(recetaS.levadura_precio) > 0 && parseFloat(recetaS.levadura_cantidad)>0) {
+      mpData.push({ unitId: 'custom', nombreCustom: `Levadura Lote`, usado: parseFloat(recetaS.levadura_precio)*parseFloat(recetaS.levadura_cantidad) });
+    }
+    
+    // Insumos Adicionales
+    (recetaS.insumos_extra || []).forEach(ins => {
+      mpData.push({ unitId: 'custom', nombreCustom: ins.nombre || 'Extra', usado: parseFloat(ins.costoTotal) || 0 });
+    });
+
+    if (parseFloat(recetaS.destajo_por_saco) > 0) {
+      cifData.push({ concepto: 'Destajo MP', total: parseFloat(recetaS.destajo_por_saco)*parseFloat(recetaS.destajo_unidades||1) });
+    }
+    
+    renderMP();
+    renderCIF();
+    calcular();
+    _lujo_showToast(`🔄 Importado de Simplificado: "${recetaS.nombre}"`);
+  }
 }
 
 function eliminarRecetaLujo(id) {
   const recetas = _lujo_getRecetas().filter(r => r.id !== id);
   localStorage.setItem(_LUJO_KEY, JSON.stringify(recetas));
-  try {
-    if (typeof firebase !== 'undefined' && firebase.apps?.length) {
-      firebase.database().ref(`costos_recetas_lujo/${id}`).remove().catch(() => {});
+
+  // PUSH A FIREBASE (Auto-link stock)
+  if (mcommerceId && bots && bots !== '—') {
+    const qty = parseInt(bots) || 0;
+    if (qty > 0) {
+      fetch(`https://bifrost-sa-default-rtdb.firebaseio.com/productos_ecommerce/${mcommerceId}.json`)
+        .then(r => r.json())
+        .then(data => {
+           if (data) {
+             const newStock = Math.max(0, (data.stock || 0) + qty);
+             fetch(`https://bifrost-sa-default-rtdb.firebaseio.com/productos_ecommerce/${mcommerceId}.json`, {
+               method: 'PATCH',
+               body: JSON.stringify({ stock: newStock })
+             });
+             _lujo_showToast(`+${qty} botellas añadidas a la tienda online`);
+           }
+        }).catch(err => console.error("Error updating firebase stock:", err));
     }
-  } catch(e) {}
+  }
+
   _lujo_populateSelector();
   renderHistorialLujo();
-  _lujo_showToast('Receta eliminada', false);
-}
-
-function _lujo_populateSelector() {
-  const sel = document.getElementById('sel-recipe-lujo');
-  if (!sel) return;
-  const recetas = [..._lujo_getRecetas()].sort((a,b) => (b.fecha||'').localeCompare(a.fecha||''));
-  sel.innerHTML = '<option value="">— Seleccionar receta —</option>' +
-    recetas.map(r => `<option value="${r.id}">${r.nombre} (${r.fecha || '?'})</option>`).join('');
+  _lujo_showToast('Proyecto eliminado', false);
 }
 
 function renderHistorialLujo() {
-  const wrap = document.getElementById('history-lujo-wrap');
+  const wrap = $('history-lujo-wrap');
   if (!wrap) return;
   const recetas = [..._lujo_getRecetas()].sort((a,b) => (b.fecha||'').localeCompare(a.fecha||''));
 
   if (recetas.length === 0) {
-    wrap.innerHTML = '<p style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:1.5rem 0;">No hay fichas guardadas todavía.</p>';
+    wrap.innerHTML = '<p style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:1.5rem 0;">No hay proyectos Bifrost guardados todavía.</p>';
     return;
   }
 
@@ -1536,9 +1466,7 @@ function renderHistorialLujo() {
       <thead>
         <tr>
           <th style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);padding:0.5rem 0.6rem;text-align:left;border-bottom:1px solid var(--glass-border);">Nombre</th>
-          <th style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);padding:0.5rem 0.6rem;text-align:left;border-bottom:1px solid var(--glass-border);">Fecha</th>
           <th style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);padding:0.5rem 0.6rem;text-align:left;border-bottom:1px solid var(--glass-border);">Botellas</th>
-          <th style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);padding:0.5rem 0.6rem;text-align:left;border-bottom:1px solid var(--glass-border);">Ex-Works</th>
           <th style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);padding:0.5rem 0.6rem;text-align:left;border-bottom:1px solid var(--glass-border);">PVP</th>
           <th style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);padding:0.5rem 0.6rem;text-align:left;border-bottom:1px solid var(--glass-border);">Acciones</th>
         </tr>
@@ -1547,21 +1475,13 @@ function renderHistorialLujo() {
         ${recetas.map(r => `
           <tr>
             <td style="padding:0.6rem 0.6rem;font-size:0.8rem;font-weight:600;color:var(--text);border-bottom:1px solid rgba(255,255,255,0.03);">${r.nombre}</td>
-            <td style="padding:0.6rem 0.6rem;font-size:0.75rem;color:var(--text-muted);border-bottom:1px solid rgba(255,255,255,0.03);white-space:nowrap;">${r.fecha || '—'}</td>
             <td style="padding:0.6rem 0.6rem;font-size:0.78rem;font-family:var(--font-mono);color:var(--teal);border-bottom:1px solid rgba(255,255,255,0.03);">${r.res_bots || '—'}</td>
-            <td style="padding:0.6rem 0.6rem;font-size:0.78rem;font-family:var(--font-mono);color:var(--orange);border-bottom:1px solid rgba(255,255,255,0.03);">${r.res_exw || '—'}</td>
             <td style="padding:0.6rem 0.6rem;font-size:0.78rem;font-family:var(--font-mono);color:var(--gold);border-bottom:1px solid rgba(255,255,255,0.03);">${r.res_pvp || '—'}</td>
             <td style="padding:0.6rem 0.6rem;border-bottom:1px solid rgba(255,255,255,0.03);">
-              <div style="display:flex;gap:0.35rem;flex-wrap:wrap;">
-                <button onclick="_lujo_cargarById('${r.id}')"
-                  style="padding:0.3rem 0.6rem;border-radius:6px;border:1px solid rgba(69,162,158,0.3);background:rgba(69,162,158,0.1);color:var(--teal);font-size:0.72rem;cursor:pointer;font-weight:600;">
-                  📂 Cargar
-                </button>
-                <button onclick="eliminarRecetaLujo('${r.id}')"
-                  style="padding:0.3rem 0.5rem;border-radius:6px;border:1px solid rgba(239,83,80,0.25);background:rgba(239,83,80,0.08);color:var(--red);font-size:0.72rem;cursor:pointer;">
-                  ✕
-                </button>
-              </div>
+              <button onclick="eliminarRecetaLujo('${r.id}')"
+                style="padding:0.3rem 0.5rem;border-radius:6px;border:1px solid rgba(239,83,80,0.25);background:rgba(239,83,80,0.08);color:var(--red);font-size:0.72rem;cursor:pointer;">
+                ✕ Eliminar
+              </button>
             </td>
           </tr>
         `).join('')}
@@ -1570,6 +1490,37 @@ function renderHistorialLujo() {
     </div>
   `;
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  cargarUnitarios();
+  actualizarLote();
+  renderUnitarios();
+  renderMP();
+  renderCIF();
+  calcular();
+
+  // PUSH A FIREBASE (Auto-link stock)
+  if (mcommerceId && bots && bots !== '—') {
+    const qty = parseInt(bots) || 0;
+    if (qty > 0) {
+      fetch(`https://bifrost-sa-default-rtdb.firebaseio.com/productos_ecommerce/${mcommerceId}.json`)
+        .then(r => r.json())
+        .then(data => {
+           if (data) {
+             const newStock = Math.max(0, (data.stock || 0) + qty);
+             fetch(`https://bifrost-sa-default-rtdb.firebaseio.com/productos_ecommerce/${mcommerceId}.json`, {
+               method: 'PATCH',
+               body: JSON.stringify({ stock: newStock })
+             });
+             _lujo_showToast(`+${qty} botellas añadidas a la tienda online`);
+           }
+        }).catch(err => console.error("Error updating firebase stock:", err));
+    }
+  }
+
+  _lujo_populateSelector();
+  renderHistorialLujo();
+});
 </script>
 </body>
 </html>

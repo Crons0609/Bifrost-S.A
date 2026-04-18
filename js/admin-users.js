@@ -11,6 +11,11 @@ async function initUsersPanel() {
   adminsCache = await window.BifrostDB.getAllAdmins();
   renderAdminsTable();
   initUserModal();
+
+  window.addEventListener('admins-updated', async () => {
+    adminsCache = await window.BifrostDB.getAllAdmins();
+    renderAdminsTable();
+  });
 }
 
 /* ── Render Table ────────────────────────────────────────────── */
