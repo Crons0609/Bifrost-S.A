@@ -52,9 +52,11 @@ function renderAdminsTable() {
 
   const currentUser = window.AdminAuth?.getUser() || '';
 
-  if (adminsCache.length === 0) {
+  const validAdmins = adminsCache.filter(a => a && typeof a === 'object' && a.username);
+
+  if (validAdmins.length === 0) {
     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--color-text-muted);">
-      No hay administradores registrados.
+      No hay administradores registrados o válidos.
     </td></tr>`;
     return;
   }
@@ -64,7 +66,7 @@ function renderAdminsTable() {
     admin:      { bg: 'rgba(69,162,158,0.15)',  color: '#45A29E', label: 'Admin' },
   };
 
-  tbody.innerHTML = adminsCache.map(admin => {
+  tbody.innerHTML = validAdmins.map(admin => {
     const rc      = roleColors[admin.role] || roleColors.admin;
     const isSelf    = currentUser && admin.username === currentUser;
     const isRootAdmin = admin.username === 'bifrost@admin'; // El superadmin raíz nunca se puede eliminar
