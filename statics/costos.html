@@ -641,6 +641,14 @@
 
         <div class="form-row">
           <div class="form-group">
+            <label class="form-label">Tamaño Botella</label>
+            <select id="botella-vol" class="form-select" onchange="calcular()">
+              <option value="0.75">750 ml</option>
+              <option value="0.50">500 ml</option>
+              <option value="0.35">350 ml</option>
+            </select>
+          </div>
+          <div class="form-group">
             <label class="form-label">Meses en Barrica</label>
             <input type="number" class="form-input" id="meses-barrica" value="0" oninput="calcular()">
           </div>
@@ -992,10 +1000,11 @@ let pvpReal = 0;
 let unitariosData = [
   { id: 'u1', nombre: 'Agua', unit: 'L', precio: 5.29 },
   { id: 'u2', nombre: 'Clavo de olor', unit: 'pieza', precio: 0.16 },
-  { id: 'u3', nombre: 'Canela', unit: 'g', precio: 8 },
-  { id: 'u4', nombre: 'Tamarindo', unit: 'L', precio: 80 },
-  { id: 'u5', nombre: 'Azúcar', unit: 'L', precio: 13.60 },
-  { id: 'u6', nombre: 'Levadura', unit: 'g', precio: 0.35 }
+  { id: 'u3', nombre: 'Canela', unit: 'g', precio: 0.8818 }, // 400 NIO per L (lb) / 453.59g
+  { id: 'u4', nombre: 'Tamarindo', unit: 'lb', precio: 80 },
+  { id: 'u5', nombre: 'Azúcar', unit: 'lb', precio: 13.60 },
+  { id: 'u6', nombre: 'Levadura', unit: 'g', precio: 0.3539 }, // 40 NIO / 113g
+  { id: 'u7', nombre: 'Leña', unit: 'pieza', precio: 2.5 } // 48 used = 120
 ];
 let mpData = [];
 let cifData = [];
@@ -1070,8 +1079,14 @@ function renderMP() {
           ${customOpt}
         </select>
       </td>
-      <td><input type="number" class="insumo-price-input" value="${mp.usado}" oninput="updateMP(${i},'usado',this.value)"></td>
-      <td style="text-align:right;font-family:var(--font-mono);font-size:0.8rem;color:var(--teal);">${fmt(totalLine)}</td>
+      <td style="position:relative;">
+        <input type="number" class="insumo-price-input" style="padding-right:1.3rem;" value="${mp.usado}" oninput="updateMP(${i},'usado',this.value)">
+        ${refU ? `<span style="position:absolute; right:10px; top:50%; transform:translateY(-50%); font-size:0.65rem; color:var(--text-muted); pointer-events:none;">${refU.unit}</span>` : ''}
+      </td>
+      <td style="text-align:right;">
+        <span style="font-family:var(--font-mono);font-size:0.8rem;color:var(--teal);font-weight:600;">${fmt(totalLine)}</span>
+        ${refU ? `<div style="font-size:0.6rem;color:var(--text-muted);line-height:1.2;margin-top:0.15rem;white-space:nowrap;">${refU.nombre} por ${refU.unit}: ${fmt(refU.precio)} - usado ${mp.usado}${refU.unit}</div>` : ''}
+      </td>
       <td style="text-align:center;"><button class="btn btn--danger" style="padding:0.1rem 0.3rem;" onclick="removeMP(${i})">✕</button></td>
     `;
     tbody.appendChild(tr);
@@ -1145,11 +1160,12 @@ function calcular() {
   const litrosPostAngel = litrosTrasLias * Math.pow(1 - angelPctMensual, meses);
   const litrosPerdidosAngel = litrosTrasLias - litrosPostAngel;
   const litrosNetos = litrosPostAngel;
-  const totalBotellas = Math.floor((litrosNetos / 0.75) * 10) / 10;
+  const botVol = num('botella-vol') || 0.75;
+  const totalBotellas = Math.floor((litrosNetos / botVol) * 10) / 10;
 
   // ─ COSTOS POR BOTELLA ─
   const costoLitro = (litrosNetos > 0) ? (CPT / litrosNetos) : 0;
-  const costoVinoBot = costoLitro * 0.75;
+  const costoVinoBot = costoLitro * botVol;
   const envasado = num('e-botella') + num('e-corcho') + num('e-capsula') +
                    num('e-etiq-front') + num('e-etiq-back') + num('e-medallon');
   const cajaProrr = num('e-caja') / 6;
@@ -1236,7 +1252,7 @@ const _LUJO_KEY = 'bifrost_cost_recetas_lujo';
 const _SIMPLE_KEY = 'bifrost_cost_historico';
 
 const _SCALAR_FIELDS = [
-  'lote-nombre','lote-numero','lote-kg','meses-barrica','angel-pct',
+  'lote-nombre','lote-numero','lote-kg','botella-vol','meses-barrica','angel-pct',
   'e-botella','e-corcho','e-capsula','e-etiq-front','e-etiq-back','e-medallon','e-caja',
   'm-h-cosecha','m-p-cosecha',
   'pct-marketing','pct-margen','pct-isc','pct-iva','tc-usd'
