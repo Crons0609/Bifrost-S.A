@@ -1311,9 +1311,14 @@ function calcular() {
   if($('eq-marker')) $('eq-marker').style.left = pctBreakEven + '%';
   if($('eq-marker-label')) $('eq-marker-label').textContent = 'Equilibrio: bot. #' + breakEven;
   if($('eq-total-label')) $('eq-total-label').textContent = fmt(totalBotellas, 0) + ' total';
-  
-  if($('eq-summary')) $('eq-summary').innerHTML = `Necesitas vender <strong>${breakEven} botellas</strong> (${fmt(pctBreakEven, 1)}% del lote) para cubrir el <strong>Costo Total del Lote de ${fmt(CPT)} NIO</strong>. Las botellas restantes representan <strong>utilidad pura de ${fmt(Math.max(botellasPuro,0) * contribucionUnit)} NIO</strong>.`;
-  
+  if($('eq-summary')) {
+    if (contribucionUnit <= 0 && totalBotellas > 0) {
+      $('eq-summary').innerHTML = `<span style="color:var(--red);">⚠️ <strong>Atención:</strong> Tus porcentajes actuales no generan margen de utilidad.</span> El PVP sugerido es igual al costo variable, por lo tanto <strong>nunca recuperarás el costo del lote completo de ${fmt(CPT)} NIO</strong>. Ajusta el "Margen Utilidad" en el panel derecho.`;
+    } else {
+      $('eq-summary').innerHTML = `Necesitas vender <strong>${breakEven} botellas</strong> (${fmt(pctBreakEven, 1)}% del lote) para cubrir el <strong>Costo Total del Lote de ${fmt(CPT)} NIO</strong>. Las botellas restantes representan <strong>utilidad pura de ${fmt(Math.max(botellasPuro,0) * contribucionUnit)} NIO</strong>.`;
+    }
+  }
+
   // Actualizar tabla MP mostrando totales actualizados en cada fila (sin re-renderizar)
   const tbody = $('lista-mp');
   if (tbody) {
