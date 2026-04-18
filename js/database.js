@@ -361,7 +361,7 @@ class BifrostDB {
   addWine(wine) {
     return new Promise(async (resolve, reject) => {
       wine.id = wine.id || Date.now();
-      if (_fbDb) await _fbDb.ref(`productos_ecommerce/${wine.id}`).set(wine);
+      try { if (_fbDb) await _fbDb.ref(`productos_ecommerce/${wine.id}`).set(wine); } catch(e) { console.warn('FB set error:', e); }
       if (!this.useIndexedDB) {
         const wines = JSON.parse(localStorage.getItem('bifrost_wines') || '[]');
         wines.push(wine);
@@ -379,7 +379,7 @@ class BifrostDB {
 
   updateWine(wine) {
     return new Promise(async (resolve, reject) => {
-      if (_fbDb) await _fbDb.ref(`productos_ecommerce/${wine.id}`).update(wine);
+      try { if (_fbDb) await _fbDb.ref(`productos_ecommerce/${wine.id}`).update(wine); } catch(e) { console.warn('FB update error:', e); }
       if (!this.useIndexedDB) {
         const wines = JSON.parse(localStorage.getItem('bifrost_wines') || '[]');
         const idx = wines.findIndex(w => w.id === wine.id);
@@ -398,7 +398,7 @@ class BifrostDB {
 
   deleteWine(id) {
     return new Promise(async (resolve, reject) => {
-      if (_fbDb) await _fbDb.ref(`productos_ecommerce/${id}`).remove();
+      try { if (_fbDb) await _fbDb.ref(`productos_ecommerce/${id}`).remove(); } catch(e) { console.warn('FB remove error:', e); }
       if (!this.useIndexedDB) {
         let wines = JSON.parse(localStorage.getItem('bifrost_wines') || '[]');
         wines = wines.filter(w => w.id !== Number(id));
@@ -599,6 +599,26 @@ class BifrostDB {
         
         // Notify UI to refresh the table if open
         window.dispatchEvent(new Event('admins-updated'));
+      });
+    });
+  }
+
+  _startWinesSync() {
+    _fbReady.then(() => {
+      if (!_fbDb) return;
+      _fbDb.ref('productos_ecommerce').on('value', (snap) => {
+        if (!snap.exists()) return;
+        const fbWines = Object.values(snap.val());
+        
+        if (this.useIndexedDB) {
+           const tx = this.db.transaction(STORE_NAME, 'readwrite');
+           const store = tx.objectStore(STORE_NAME);
+           fbWines.forEach(w => store.put(w));
+        } else {
+           localStorage.setItem('bifrost_wines', JSON.stringify(fbWines));
+        }
+        
+        window.dispatchEvent(new Event('wines-updated'));
       });
     });
   }
