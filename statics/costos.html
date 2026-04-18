@@ -1126,7 +1126,33 @@ function renderMP() {
 function updateMP(index, field, val) {
   if (field === 'usado') mpData[index].usado = parseFloat(val) || 0;
   else mpData[index][field] = val;
-  renderMP();
+
+  // Actualizar solo la celda de total de esta fila (sin re-renderizar toda la tabla)
+  const tbody = $('lista-mp');
+  if (tbody) {
+    const rows = tbody.querySelectorAll('tr');
+    const row = rows[index];
+    if (row) {
+      const mp = mpData[index];
+      const refU = unitariosData.find(u => u.id === mp.unitId);
+      let totalLine = 0;
+      if (refU) {
+        totalLine = refU.precio * mp.usado;
+      } else if (mp.unitId === 'custom') {
+        totalLine = mp.usado;
+      }
+      // Celda de total es la tercera columna (index 2)
+      const totalCell = row.cells[2];
+      if (totalCell) {
+        totalCell.innerHTML = `
+          <span style="font-family:var(--font-mono);font-size:0.8rem;color:var(--teal);font-weight:600;">${fmt(totalLine)}</span>
+          ${refU ? `<div style="font-size:0.6rem;color:var(--text-muted);line-height:1.2;margin-top:0.15rem;white-space:nowrap;">${refU.nombre}: ${fmt(refU.precio)}/${refU.unit} &middot; usado ${mp.usado}</div>` : ''}
+        `;
+      }
+    }
+  }
+
+  // Solo recalcular totales globales (CPT, etc.)
   calcular();
 }
 function addMPRow() { mpData.push({ unitId: '', usado: 1 }); renderMP(); }
@@ -1271,8 +1297,26 @@ function calcular() {
   
   if($('eq-summary')) $('eq-summary').innerHTML = `Necesitas vender <strong>${breakEven} botellas</strong> (${fmt(pctBreakEven, 1)}% del lote) para cubrir el <strong>Costo Total del Lote de ${fmt(CPT)} NIO</strong>. Las botellas restantes representan <strong>utilidad pura de ${fmt(Math.max(botellasPuro,0) * contribucionUnit)} NIO</strong>.`;
   
-  // Re-render MP totals explicitly
-  try { renderMP(); } catch(e){}
+  // Actualizar tabla MP mostrando totales actualizados en cada fila (sin re-renderizar)
+  const tbody = $('lista-mp');
+  if (tbody) {
+    const rows = tbody.querySelectorAll('tr');
+    mpData.forEach((mp, i) => {
+      const row = rows[i];
+      if (!row) return;
+      const refU = unitariosData.find(u => u.id === mp.unitId);
+      let totalLine = 0;
+      if (refU) totalLine = refU.precio * mp.usado;
+      else if (mp.unitId === 'custom') totalLine = mp.usado;
+      const totalCell = row.cells[2];
+      if (totalCell) {
+        totalCell.innerHTML = `
+          <span style="font-family:var(--font-mono);font-size:0.8rem;color:var(--teal);font-weight:600;">${fmt(totalLine)}</span>
+          ${refU ? `<div style="font-size:0.6rem;color:var(--text-muted);line-height:1.2;margin-top:0.15rem;white-space:nowrap;">${refU.nombre}: ${fmt(refU.precio)}/${refU.unit} &middot; usado ${mp.usado}</div>` : ''}
+        `;
+      }
+    });
+  }
 }
 
 // ──────────────────────────────────────────────────
