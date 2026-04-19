@@ -927,15 +927,8 @@
           <label class="sb-label">
             <span class="sb-label__icon">🍷</span> Producto
           </label>
-          <select class="sb-select" id="lote-nombre" onchange="actualizarLote()">
-            <option value="">— Sin enlazar a tienda —</option>
-            <option value="4" data-name="Tamarindo (Vortex obsidian)">🍫 Tamarindo (Vortex Obsidian)</option>
-            <option value="5" data-name="Calala (frost meridian)">🌺 Calala (Frost Meridian)</option>
-            <option value="3" data-name="Piña (bifrost Aurora)">🍍 Piña (Bifrost Aurora)</option>
-            <option value="2" data-name="Coyolito (Vortex eclipse)">🌑 Coyolito (Vortex Eclipse)</option>
-            <option value="6" data-name="Mango (Vortex singularity)">🥭 Mango (Vortex Singularity)</option>
-            <option value="1" data-name="Jamaica (Vortex nebula)">🌸 Jamaica (Vortex Nebula)</option>
-          </select>
+          <input type="text" class="sb-input" id="lote-nombre" list="ecommerce-wines-list" placeholder="Escribe o selecciona producto..." oninput="actualizarLote()">
+          <datalist id="ecommerce-wines-list"></datalist>
         </div>
 
         <!-- Lote # -->
@@ -1774,8 +1767,7 @@ function _lujo_showToast(msg, ok = true) {
 
 function guardarRecetaLujo() {
   const selEl = $('lote-nombre');
-  const nombre = selEl.options ? selEl.options[selEl.selectedIndex].getAttribute('data-name') || selEl.value : selEl.value.trim();
-  const mcommerceId = selEl.options ? selEl.value : '';
+  const nombre = selEl.value.trim();
 
   if (!nombre) {
     _lujo_showToast('⚠️ Escribe el nombre del lote/producto', false);
@@ -1821,7 +1813,7 @@ function guardarRecetaLujo() {
   if (bots && bots !== '—') {
     const parsedBots = parseInt(bots.replace(/[^\d.-]/g, '')) || 0;
     const loteNum = campos['lote-numero'] || '';
-    _registrarLoteProduccion({ nombre, mcommerceId, parsedBots, loteNum, pvp, exw, recetaId: receta.id });
+    _registrarLoteProduccion({ nombre, parsedBots, loteNum, pvp, exw, recetaId: receta.id });
   }
 
   _lujo_populateSelector();
@@ -1889,9 +1881,51 @@ function _getLotesProduccion() {
   try { return JSON.parse(localStorage.getItem(_LOTES_PROD_KEY) || '[]'); } catch { return []; }
 }
 
-function _registrarLoteProduccion({ nombre, mcommerceId, parsedBots, loteNum, pvp, exw, recetaId }) {
+// Auto-resuelve el ID de tienda creando uno si no existe.
+async function _findOrCreateEcommerceProduct(nombre, pvp) {
+  try {
+    const res = await fetch(`${_FB_BASE}/productos_ecommerce.json`);
+    const data = res.ok ? (await res.json() || {}) : {};
+    const wines = Object.values(data).filter(Boolean);
+    const existing = wines.find(w => (w.name || '').trim().toLowerCase() === nombre.trim().toLowerCase());
+    
+    if (existing) {
+      return existing.id;
+    } else {
+      const newId = Date.now();
+      const numPvp = parseFloat(pvp.replace(/[^\d.-]/g, '')) || 0;
+      const newWine = {
+        id: newId,
+        name: nombre,
+        vintage: new Date().getFullYear(),
+        category: 'Producción',
+        price: numPvp,
+        stock: 0,
+        discount: 0,
+        imageUrl: '',
+        emoji: '🍾',
+        description: `Producción automática de lote.`,
+        featured: false,
+        createdAt: new Date().toISOString()
+      };
+      await fetch(`${_FB_BASE}/productos_ecommerce/${newId}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newWine)
+      });
+      return newId;
+    }
+  } catch(e) {
+    console.error(e);
+    return null;
+  }
+}
+
+async function _registrarLoteProduccion({ nombre, parsedBots, loteNum, pvp, exw, recetaId }) {
   const lotes = _getLotesProduccion();
   const today = new Date().toISOString().split('T')[0];
+  
+  const mcommerceId = await _findOrCreateEcommerceProduct(nombre, pvp);
 
   if (loteNum) {
     const existing = lotes.find(l => l.loteNumero === loteNum);
@@ -1899,6 +1933,8 @@ function _registrarLoteProduccion({ nombre, mcommerceId, parsedBots, loteNum, pv
       // Mismo número de lote → corrección (delta)
       const delta = parsedBots - (existing.totalBotellas || 0);
       existing.totalBotellas = parsedBots;
+      existing.nombre = nombre;
+      existing.mcommerceId = mcommerceId;
       existing.pvp  = pvp;
       existing.exw  = exw;
       existing.fecha = today;
@@ -1940,7 +1976,7 @@ function _registrarLoteProduccion({ nombre, mcommerceId, parsedBots, loteNum, pv
 
   localStorage.setItem(_LOTES_PROD_KEY, JSON.stringify(lotes));
 
-  // Sync lotes + receta_cpt a Firebase bajo /lotes_produccion
+  // Sync lotes a Firebase bajo /lotes_produccion
   const fbLotes = Object.fromEntries(lotes.map(l => [l.id, l]));
   fetch(`${_FB_BASE}/lotes_produccion.json`, {
     method: 'PUT',
@@ -2114,6 +2150,25 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderHistorialLujo();
   // Sincronizar recetas desde Firebase (en background, no bloquea UI)
   _fb_loadRecetasFromFirebase();
+
+  // Populate datalist de productos
+  try {
+    const res = await fetch(`${_FB_BASE}/productos_ecommerce.json`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data) {
+        const datalist = $('ecommerce-wines-list');
+        if (datalist) {
+          datalist.innerHTML = '';
+          Object.values(data).filter(Boolean).forEach(w => {
+            const opt = document.createElement('option');
+            opt.value = w.name;
+            datalist.appendChild(opt);
+          });
+        }
+      }
+    }
+  } catch(e) {}
 
   // Update historial badge when selector changes
   const sel = document.getElementById('sel-recipe-lujo');

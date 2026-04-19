@@ -22,6 +22,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   initSearchFilter();
   initMobileMenu();
   updateStatCards();
+
+  // ── Escuchar sincronización automática desde Firebase ──────────
+  // database.js dispara 'wines-updated' cada vez que Firebase Realtime DB
+  // actualiza productos_ecommerce (ej: cuando costos.html registra un lote).
+  window.addEventListener('wines-updated', async () => {
+    try {
+      winesCache = await window.BifrostDB.getAllWines();
+      renderInventoryTable();
+      renderDiscountTable();
+      updateStatCards();
+      _updateNavWineCount();
+    } catch (err) {
+      console.warn('wines-updated reload error:', err);
+    }
+  });
 });
 
 /* ── Load Data ───────────────────────────────────────────────── */
@@ -34,10 +49,17 @@ async function loadData() {
     renderInventoryTable();
     renderDiscountTable();
     syncFlashSaleUI();
+    _updateNavWineCount();
   } catch (err) {
     console.error('Dashboard load error:', err);
     showToast('Failed to load data', 'error');
   }
+}
+
+/* ── Nav Wine Badge ──────────────────────────────────────────── */
+function _updateNavWineCount() {
+  const badge = document.getElementById('nav-wine-count');
+  if (badge) badge.textContent = winesCache.length || 0;
 }
 
 /* ── Navigation ──────────────────────────────────────────────── */
@@ -557,6 +579,7 @@ async function saveWine(form, modal) {
     renderInventoryTable();
     renderDiscountTable();
     updateStatCards();
+    _updateNavWineCount();
     closeModal(modal);
   } catch (err) {
     console.error('Save wine error:', err);
@@ -580,6 +603,7 @@ async function deleteWine(id) {
     renderInventoryTable();
     renderDiscountTable();
     updateStatCards();
+    _updateNavWineCount();
     showToast(`${wine.name} removed from collection`, 'info');
   } catch (err) {
     console.error('Delete error:', err);
