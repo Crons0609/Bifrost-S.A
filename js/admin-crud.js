@@ -46,6 +46,9 @@ async function loadData() {
       window.BifrostDB.getAllWines(),
       window.BifrostDB.getSettings(),
     ]);
+    
+    await _autoSyncDeProduccionAInventario();
+    
     renderInventoryTable();
     renderDiscountTable();
     syncFlashSaleUI();
@@ -60,6 +63,97 @@ async function loadData() {
 function _updateNavWineCount() {
   const badge = document.getElementById('nav-wine-count');
   if (badge) badge.textContent = winesCache.length || 0;
+}
+
+/* ── Auto-Sincronización Producción -> Inventario ──────────────── */
+async function _autoSyncDeProduccionAInventario() {
+  try {
+    const base = 'https://bifrost-sa-default-rtdb.firebaseio.com';
+    const [lotesRes, salesRes] = await Promise.all([
+      fetch(`${base}/lotes_produccion.json`),
+      fetch(`${base}/ventas.json`)
+    ]);
+    
+    let lotesData = {};
+    let salesData = {};
+    if (lotesRes.ok) lotesData = await lotesRes.json() || {};
+    if (salesRes.ok) salesData = await salesRes.json() || {};
+    
+    const localSales = JSON.parse(localStorage.getItem('bifrost_sales') || '[]');
+    let sales = Object.values(salesData).filter(Boolean);
+    localSales.forEach(ls => {
+      if (!sales.find(s => s.id === ls.id)) sales.push(ls);
+    });
+
+    const lotes = Object.values(lotesData).filter(Boolean);
+    if (lotes.length === 0) return;
+
+    let changed = false;
+    const prodMap = {};
+
+    for (const lote of lotes) {
+      if (!lote.nombre) continue;
+      const lNombre = lote.nombre.trim();
+      
+      const vendidas = sales
+        .filter(s => {
+          const sNombre = (s.wineName || s.product || '').toLowerCase();
+          if (!sNombre) return false;
+          const lWords = lNombre.toLowerCase().split(/[\s()]+/).filter(w => w.length > 3);
+          return lWords.some(w => sNombre.includes(w));
+        })
+        .reduce((sum, s) => sum + (parseInt(s.quantity) || 0), 0);
+      
+      const total = lote.totalBotellas || 0;
+      const restantes = Math.max(0, total - vendidas);
+      
+      const unformattedPvp = (lote.pvp || '0').replace(/[^\d.-]/g, '');
+      const parsedPvp = parseFloat(unformattedPvp) || 0;
+
+      if (!prodMap[lNombre]) {
+        prodMap[lNombre] = { name: lNombre, stock: restantes, price: parsedPvp };
+      } else {
+        prodMap[lNombre].stock += restantes;
+        if (prodMap[lNombre].price === 0 && parsedPvp > 0) prodMap[lNombre].price = parsedPvp;
+      }
+    }
+
+    for (const pName in prodMap) {
+      const pData = prodMap[pName];
+      const existMatch = winesCache.find(w => w.name.toLowerCase() === pName.toLowerCase());
+      
+      if (!existMatch) {
+         const mcommerceId = Date.now().toString() + Math.random().toString().substring(2,6);
+         const newWine = {
+            id: mcommerceId, 
+            name: pName, 
+            vintage: new Date().getFullYear(),
+            category: 'Producción', 
+            price: pData.price, 
+            stock: pData.stock,
+            discount: 0, 
+            description: 'Lote importado automáticamente del Historial de Producción.',
+            imageUrl: '', 
+            emoji: '🍷', 
+            region: '', 
+            alcohol: '', 
+            pairing: '',
+            featured: false, 
+            tastingNotes: []
+         };
+         await window.BifrostDB.addWine(newWine);
+         winesCache.push(newWine);
+         changed = true;
+      }
+    }
+
+    if (changed) {
+      if (typeof showToast === 'function') showToast('📦 Fichas históricas importadas automáticamente a Inventario', 'success');
+      console.log('Automated import of production batches into inventory completed.');
+    }
+  } catch(e) {
+    console.warn("Auto sync produccion -> inventario error:", e);
+  }
 }
 
 /* ── Navigation ──────────────────────────────────────────────── */

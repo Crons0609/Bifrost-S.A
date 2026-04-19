@@ -1,25 +1,28 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Maestro de Costos — Bifrost S.A ERP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
   <style>
     :root {
       --gold: #D4AF37;
       --gold-light: #F0D060;
-      --gold-dim: rgba(212,175,55,0.15);
+      --gold-dim: rgba(212, 175, 55, 0.15);
       --teal: #45A29E;
       --bg: #08080F;
       --surface: #0F0F1A;
       --surface2: #161625;
-      --glass: rgba(255,255,255,0.04);
-      --glass-border: rgba(255,255,255,0.08);
+      --glass: rgba(255, 255, 255, 0.04);
+      --glass-border: rgba(255, 255, 255, 0.08);
       --text: #F0EDE8;
       --text-muted: #7A7A8C;
       --text-secondary: #B8B4AA;
@@ -35,7 +38,13 @@
       --r-xl: 24px;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       font-family: var(--font-body);
@@ -51,8 +60,8 @@
       position: fixed;
       inset: 0;
       background:
-        radial-gradient(ellipse at 15% 20%, rgba(212,175,55,0.06) 0%, transparent 50%),
-        radial-gradient(ellipse at 85% 80%, rgba(69,162,158,0.05) 0%, transparent 50%);
+        radial-gradient(ellipse at 15% 20%, rgba(212, 175, 55, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 80%, rgba(69, 162, 158, 0.05) 0%, transparent 50%);
       pointer-events: none;
       z-index: 0;
     }
@@ -70,7 +79,9 @@
       gap: 2rem;
     }
 
-    #auth-gate.hidden { display: none; }
+    #auth-gate.hidden {
+      display: none;
+    }
 
     .auth-card {
       background: var(--glass);
@@ -118,7 +129,7 @@
       padding: 0.9rem 1.2rem;
       border-radius: var(--r-md);
       border: 1px solid var(--glass-border);
-      background: rgba(0,0,0,0.4);
+      background: rgba(0, 0, 0, 0.4);
       color: var(--text);
       font-family: var(--font-body);
       font-size: 0.95rem;
@@ -126,7 +137,9 @@
       transition: border-color 0.2s;
     }
 
-    .auth-input:focus { border-color: var(--gold); }
+    .auth-input:focus {
+      border-color: var(--gold);
+    }
 
     .auth-error {
       color: var(--red);
@@ -156,7 +169,10 @@
       color: #000;
     }
 
-    .btn--gold:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(212,175,55,0.4); }
+    .btn--gold:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+    }
 
     .btn--outline {
       background: transparent;
@@ -164,18 +180,26 @@
       color: var(--text-secondary);
     }
 
-    .btn--outline:hover { border-color: var(--gold); color: var(--gold); }
-
-    .btn--danger {
-      background: rgba(239,83,80,0.15);
-      color: var(--red);
-      border: 1px solid rgba(239,83,80,0.3);
+    .btn--outline:hover {
+      border-color: var(--gold);
+      color: var(--gold);
     }
 
-    .btn--full { width: 100%; }
+    .btn--danger {
+      background: rgba(239, 83, 80, 0.15);
+      color: var(--red);
+      border: 1px solid rgba(239, 83, 80, 0.3);
+    }
+
+    .btn--full {
+      width: 100%;
+    }
 
     /* ── Main Layout ── */
-    #app { position: relative; z-index: 1; }
+    #app {
+      position: relative;
+      z-index: 1;
+    }
 
     .topbar {
       display: flex;
@@ -183,7 +207,7 @@
       justify-content: space-between;
       padding: 1rem 2rem;
       border-bottom: 1px solid var(--glass-border);
-      background: rgba(8,8,15,0.8);
+      background: rgba(8, 8, 15, 0.8);
       backdrop-filter: blur(10px);
       position: sticky;
       top: 0;
@@ -213,9 +237,15 @@
       color: var(--gold);
     }
 
-    .topbar__subtitle { font-size: 0.75rem; color: var(--text-muted); }
+    .topbar__subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
 
-    .topbar__actions { display: flex; gap: 0.75rem; }
+    .topbar__actions {
+      display: flex;
+      gap: 0.75rem;
+    }
 
     .main-grid {
       display: grid;
@@ -251,7 +281,9 @@
       padding: 1.2rem;
     }
 
-    .card--gold-border { border-color: rgba(212,175,55,0.3); }
+    .card--gold-border {
+      border-color: rgba(212, 175, 55, 0.3);
+    }
 
     .card__header {
       display: flex;
@@ -283,8 +315,19 @@
     }
 
     /* ── Form Controls ── */
-    .form-group { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.8rem; }
-    .form-label { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; letter-spacing: 0.05em; }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .form-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
 
     /* ═══════════════════════════════════════════════════════
        SIDEBAR REDESIGN — Sistema de Bloques
@@ -296,14 +339,18 @@
       overflow: hidden;
       transition: border-color 0.2s;
     }
-    .sb-block:hover { border-color: rgba(255,255,255,0.1); }
+
+    .sb-block:hover {
+      border-color: rgba(255, 255, 255, 0.1);
+    }
 
     .sb-block--accent {
-      background: linear-gradient(135deg, rgba(212,175,55,0.07) 0%, var(--glass) 100%);
-      border-color: rgba(212,175,55,0.25);
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.07) 0%, var(--glass) 100%);
+      border-color: rgba(212, 175, 55, 0.25);
     }
+
     .sb-block--gold {
-      border-color: rgba(212,175,55,0.3);
+      border-color: rgba(212, 175, 55, 0.3);
     }
 
     .sb-block__head {
@@ -313,15 +360,25 @@
       padding: 0.75rem 1rem;
       border-bottom: 1px solid var(--glass-border);
     }
-    .sb-block--collapsible .sb-block__head { cursor: default; }
-    .sb-accordion-trigger { cursor: pointer; user-select: none; }
-    .sb-accordion-trigger:hover { background: rgba(255,255,255,0.03); }
+
+    .sb-block--collapsible .sb-block__head {
+      cursor: default;
+    }
+
+    .sb-accordion-trigger {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .sb-accordion-trigger:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
 
     .sb-block__icon {
       font-size: 1rem;
       width: 28px;
       height: 28px;
-      background: rgba(212,175,55,0.12);
+      background: rgba(212, 175, 55, 0.12);
       border-radius: 8px;
       display: flex;
       align-items: center;
@@ -341,8 +398,8 @@
     .sb-block__badge {
       font-size: 0.65rem;
       color: var(--gold);
-      background: rgba(212,175,55,0.1);
-      border: 1px solid rgba(212,175,55,0.2);
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.2);
       padding: 0.15rem 0.5rem;
       border-radius: 20px;
       white-space: nowrap;
@@ -354,7 +411,10 @@
       transition: transform 0.25s ease;
       margin-left: auto;
     }
-    .sb-block--collapsible.open .sb-accordion-arrow { transform: rotate(180deg); }
+
+    .sb-block--collapsible.open .sb-accordion-arrow {
+      transform: rotate(180deg);
+    }
 
     /* Accordion body */
     .sb-accordion-body {
@@ -363,13 +423,15 @@
       max-height: 0;
       transition: max-height 0.3s ease, padding 0.2s;
     }
+
     .sb-block--collapsible.open .sb-accordion-body {
       max-height: 800px;
       padding: 0.85rem 1rem;
     }
+
     /* Non-collapsible blocks (ficha and historial) always show body */
     .sb-block:not(.sb-block--collapsible) .sb-accordion-body,
-    .sb-block:not(.sb-block--collapsible) > *:not(.sb-block__head) {
+    .sb-block:not(.sb-block--collapsible)>*:not(.sb-block__head) {
       padding: 0.85rem 1rem;
     }
 
@@ -380,7 +442,11 @@
       align-items: center;
       padding: 0.85rem 1rem;
     }
-    .sb-load-row .sb-select { flex: 1; min-width: 0; }
+
+    .sb-load-row .sb-select {
+      flex: 1;
+      min-width: 0;
+    }
 
     /* Fields */
     .sb-field {
@@ -389,7 +455,10 @@
       gap: 0.3rem;
       margin-bottom: 0.65rem;
     }
-    .sb-field:last-child { margin-bottom: 0; }
+
+    .sb-field:last-child {
+      margin-bottom: 0;
+    }
 
     .sb-label {
       font-size: 0.72rem;
@@ -400,14 +469,18 @@
       align-items: center;
       gap: 0.3rem;
     }
-    .sb-label__icon { font-size: 0.82rem; }
+
+    .sb-label__icon {
+      font-size: 0.82rem;
+    }
 
     /* Inputs */
-    .sb-input, .sb-select {
+    .sb-input,
+    .sb-select {
       padding: 0.5rem 0.75rem;
       border-radius: 8px;
       border: 1px solid var(--glass-border);
-      background: rgba(0,0,0,0.3);
+      background: rgba(0, 0, 0, 0.3);
       color: var(--text);
       font-family: var(--font-body);
       font-size: 0.85rem;
@@ -415,11 +488,16 @@
       transition: border-color 0.2s, background 0.2s;
       width: 100%;
     }
-    .sb-input:focus, .sb-select:focus {
+
+    .sb-input:focus,
+    .sb-select:focus {
       border-color: var(--gold);
-      background: rgba(0,0,0,0.45);
+      background: rgba(0, 0, 0, 0.45);
     }
-    .sb-select option { background: var(--surface); }
+
+    .sb-select option {
+      background: var(--surface);
+    }
 
     /* Suffix inputs (number + unit label) */
     .sb-input-suffix {
@@ -428,10 +506,14 @@
       border: 1px solid var(--glass-border);
       border-radius: 8px;
       overflow: hidden;
-      background: rgba(0,0,0,0.3);
+      background: rgba(0, 0, 0, 0.3);
       transition: border-color 0.2s;
     }
-    .sb-input-suffix:focus-within { border-color: var(--gold); }
+
+    .sb-input-suffix:focus-within {
+      border-color: var(--gold);
+    }
+
     .sb-input-suffix .sb-input {
       border: none;
       border-radius: 0;
@@ -440,12 +522,16 @@
       flex: 1;
       min-width: 0;
     }
-    .sb-input-suffix .sb-input:focus { border: none; }
+
+    .sb-input-suffix .sb-input:focus {
+      border: none;
+    }
+
     .sb-suffix {
       padding: 0.5rem 0.65rem;
       font-size: 0.68rem;
       color: var(--gold);
-      background: rgba(212,175,55,0.06);
+      background: rgba(212, 175, 55, 0.06);
       border-left: 1px solid var(--glass-border);
       white-space: nowrap;
       font-weight: 600;
@@ -458,10 +544,17 @@
       gap: 0.6rem;
       margin-bottom: 0.65rem;
     }
-    .sb-grid-2:last-child { margin-bottom: 0; }
+
+    .sb-grid-2:last-child {
+      margin-bottom: 0;
+    }
 
     /* Table inside accordion */
-    .sb-table { width: 100%; border-collapse: collapse; }
+    .sb-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
     .sb-table th {
       font-size: 0.65rem;
       letter-spacing: 0.08em;
@@ -471,12 +564,14 @@
       text-align: left;
       border-bottom: 1px solid var(--glass-border);
     }
+
     .sb-table td {
       padding: 0.3rem 0.4rem;
       font-size: 0.8rem;
-      border-bottom: 1px solid rgba(255,255,255,0.03);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
       color: var(--text-secondary);
     }
+
     .sb-hint {
       font-size: 0.72rem;
       color: var(--text-muted);
@@ -485,20 +580,33 @@
     }
 
     /* Envasado: label + input rows */
-    .sb-envasado-grid { display: flex; flex-direction: column; gap: 0.45rem; }
+    .sb-envasado-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
     .sb-env-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 0.75rem;
     }
-    .sb-env-item > span {
+
+    .sb-env-item>span {
       font-size: 0.78rem;
       color: var(--text-secondary);
       flex: 1;
     }
-    .sb-env-item .sb-input-suffix { width: 110px; flex-shrink: 0; }
-    .sb-env-item .sb-input-suffix .sb-input { width: 55px; }
+
+    .sb-env-item .sb-input-suffix {
+      width: 110px;
+      flex-shrink: 0;
+    }
+
+    .sb-env-item .sb-input-suffix .sb-input {
+      width: 55px;
+    }
 
     /* MOD row */
     .sb-mod-row {
@@ -507,33 +615,41 @@
       gap: 0.5rem;
       flex-wrap: wrap;
     }
+
     .sb-mod-label {
       font-size: 0.78rem;
       color: var(--text-secondary);
       flex: 1;
       min-width: 100px;
     }
+
     .sb-mod-sep {
       font-size: 0.9rem;
       color: var(--text-muted);
       font-weight: 700;
     }
-    .sb-mod-row .sb-input-suffix { width: 100px; }
+
+    .sb-mod-row .sb-input-suffix {
+      width: 100px;
+    }
 
     /* "Guardar base de datos" mini button */
     .sb-save-db-btn {
       width: 100%;
       margin-top: 0.6rem;
       padding: 0.4rem 0.75rem;
-      background: rgba(212,175,55,0.07);
-      border: 1px solid rgba(212,175,55,0.2);
+      background: rgba(212, 175, 55, 0.07);
+      border: 1px solid rgba(212, 175, 55, 0.2);
       color: var(--gold);
       border-radius: 8px;
       font-size: 0.75rem;
       cursor: pointer;
       transition: background 0.2s;
     }
-    .sb-save-db-btn:hover { background: rgba(212,175,55,0.14); }
+
+    .sb-save-db-btn:hover {
+      background: rgba(212, 175, 55, 0.14);
+    }
 
     /* Sticky save button at bottom of sidebar */
     .sb-save-sticky {
@@ -543,6 +659,7 @@
       background: linear-gradient(to top, var(--bg) 80%, transparent);
       margin-top: 0.25rem;
     }
+
     .sb-btn-save {
       width: 100%;
       padding: 0.75rem 1rem;
@@ -558,25 +675,38 @@
       justify-content: center;
       gap: 0.5rem;
       letter-spacing: 0.04em;
-      box-shadow: 0 4px 20px rgba(212,175,55,0.3);
+      box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
       transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
     }
+
     .sb-btn-save:hover {
       transform: translateY(-1px);
-      box-shadow: 0 6px 28px rgba(212,175,55,0.45);
+      box-shadow: 0 6px 28px rgba(212, 175, 55, 0.45);
       filter: brightness(1.08);
     }
-    .sb-btn-save:active { transform: translateY(0); }
+
+    .sb-btn-save:active {
+      transform: translateY(0);
+    }
 
     /* btn size variants */
-    .btn--sm { padding: 0.4rem 0.75rem !important; font-size: 0.78rem !important; white-space: nowrap; }
-    .btn--xs { padding: 0.2rem 0.45rem !important; font-size: 0.68rem !important; }
+    .btn--sm {
+      padding: 0.4rem 0.75rem !important;
+      font-size: 0.78rem !important;
+      white-space: nowrap;
+    }
 
-    .form-input, .form-select {
+    .btn--xs {
+      padding: 0.2rem 0.45rem !important;
+      font-size: 0.68rem !important;
+    }
+
+    .form-input,
+    .form-select {
       padding: 0.6rem 0.85rem;
       border-radius: var(--r-sm);
       border: 1px solid var(--glass-border);
-      background: rgba(0,0,0,0.35);
+      background: rgba(0, 0, 0, 0.35);
       color: var(--text);
       font-family: var(--font-body);
       font-size: 0.88rem;
@@ -584,8 +714,14 @@
       transition: border-color 0.2s;
     }
 
-    .form-input:focus, .form-select:focus { border-color: var(--gold); }
-    .form-select option { background: var(--surface); }
+    .form-input:focus,
+    .form-select:focus {
+      border-color: var(--gold);
+    }
+
+    .form-select option {
+      background: var(--surface);
+    }
 
     .form-row {
       display: grid;
@@ -594,7 +730,10 @@
     }
 
     /* ── Inputs Table ── */
-    .insumos-table { width: 100%; border-collapse: collapse; }
+    .insumos-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
 
     .insumos-table th {
       font-size: 0.7rem;
@@ -609,17 +748,19 @@
     .insumos-table td {
       padding: 0.4rem 0.5rem;
       font-size: 0.82rem;
-      border-bottom: 1px solid rgba(255,255,255,0.03);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
     }
 
-    .insumos-table td:last-child { text-align: right; }
+    .insumos-table td:last-child {
+      text-align: right;
+    }
 
     .insumo-price-input {
       width: 80px;
       padding: 0.3rem 0.5rem;
       border-radius: var(--r-sm);
       border: 1px solid var(--glass-border);
-      background: rgba(0,0,0,0.4);
+      background: rgba(0, 0, 0, 0.4);
       color: var(--gold);
       font-family: var(--font-mono);
       font-size: 0.82rem;
@@ -627,7 +768,9 @@
       outline: none;
     }
 
-    .insumo-price-input:focus { border-color: var(--gold); }
+    .insumo-price-input:focus {
+      border-color: var(--gold);
+    }
 
     .insumo-unit {
       color: var(--text-muted);
@@ -649,21 +792,54 @@
       border-left: 3px solid transparent;
     }
 
-    .cost-block--mp { border-color: var(--teal); }
-    .cost-block--mod { border-color: #9C27B0; }
-    .cost-block--cif { border-color: var(--orange); }
+    .cost-block--mp {
+      border-color: var(--teal);
+    }
 
-    .cost-block__label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.4rem; }
-    .cost-block__value { font-family: var(--font-mono); font-size: 1.4rem; font-weight: 700; }
-    .cost-block__sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem; }
-    .cost-block--mp .cost-block__value { color: var(--teal); }
-    .cost-block--mod .cost-block__value { color: #CE93D8; }
-    .cost-block--cif .cost-block__value { color: var(--orange); }
+    .cost-block--mod {
+      border-color: #9C27B0;
+    }
+
+    .cost-block--cif {
+      border-color: var(--orange);
+    }
+
+    .cost-block__label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .cost-block__value {
+      font-family: var(--font-mono);
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .cost-block__sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .cost-block--mp .cost-block__value {
+      color: var(--teal);
+    }
+
+    .cost-block--mod .cost-block__value {
+      color: #CE93D8;
+    }
+
+    .cost-block--cif .cost-block__value {
+      color: var(--orange);
+    }
 
     /* ── PVP Hero ── */
     .pvp-hero {
-      background: linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(69,162,158,0.05) 100%);
-      border: 1px solid rgba(212,175,55,0.25);
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.08) 0%, rgba(69, 162, 158, 0.05) 100%);
+      border: 1px solid rgba(212, 175, 55, 0.25);
       border-radius: var(--r-xl);
       padding: 1.5rem;
       display: grid;
@@ -672,19 +848,60 @@
       align-items: center;
     }
 
-    .pvp-hero__label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-muted); }
-    .pvp-hero__main { font-family: var(--font-heading); font-size: 3.2rem; font-weight: 900; color: var(--gold); line-height: 1; }
-    .pvp-hero__secondary { font-family: var(--font-mono); font-size: 1.1rem; color: var(--teal); margin-top: 0.3rem; }
-    .pvp-hero__desc { font-size: 0.78rem; color: var(--text-muted); max-width: 280px; margin-top: 0.4rem; }
+    .pvp-hero__label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+    }
 
-    .pvp-badge { text-align: right; }
-    .pvp-badge__bottles { font-family: var(--font-mono); font-size: 2.5rem; font-weight: 700; color: var(--gold); }
-    .pvp-badge__label { font-size: 0.72rem; color: var(--text-muted); }
+    .pvp-hero__main {
+      font-family: var(--font-heading);
+      font-size: 3.2rem;
+      font-weight: 900;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .pvp-hero__secondary {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      color: var(--teal);
+      margin-top: 0.3rem;
+    }
+
+    .pvp-hero__desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      max-width: 280px;
+      margin-top: 0.4rem;
+    }
+
+    .pvp-badge {
+      text-align: right;
+    }
+
+    .pvp-badge__bottles {
+      font-family: var(--font-mono);
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .pvp-badge__label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
 
     /* ── Cascade Breakdown Table ── */
-    .breakdown-table { width: 100%; border-collapse: collapse; }
+    .breakdown-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
 
-    .breakdown-table tr:not(:last-child) td { border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .breakdown-table tr:not(:last-child) td {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
 
     .breakdown-table td {
       padding: 0.55rem 0.6rem;
@@ -697,9 +914,20 @@
       font-size: 0.82rem;
     }
 
-    .breakdown-table .total-row { background: rgba(212,175,55,0.07); }
-    .breakdown-table .total-row td { color: var(--gold); font-weight: 700; }
-    .breakdown-table .subtotal-row td { color: var(--text-secondary); font-style: italic; }
+    .breakdown-table .total-row {
+      background: rgba(212, 175, 55, 0.07);
+    }
+
+    .breakdown-table .total-row td {
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .breakdown-table .subtotal-row td {
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+
     .breakdown-table .section-header td {
       font-size: 0.7rem;
       text-transform: uppercase;
@@ -709,7 +937,9 @@
       font-weight: 600;
     }
 
-    .breakdown-table .angel-row td { color: #FF9800; }
+    .breakdown-table .angel-row td {
+      color: #FF9800;
+    }
 
     /* ── Equilibrio Visual ── */
     .equilibrio-bar {
@@ -738,13 +968,35 @@
     }
 
     /* ── Simulator ── */
-    .sim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
 
-    .sim-item { padding: 0.8rem; background: var(--surface2); border-radius: var(--r-md); }
+    .sim-item {
+      padding: 0.8rem;
+      background: var(--surface2);
+      border-radius: var(--r-md);
+    }
 
-    .sim-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem; }
-    .sim-name { font-size: 0.8rem; font-weight: 600; }
-    .sim-val { font-family: var(--font-mono); font-size: 0.85rem; color: var(--gold); }
+    .sim-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.5rem;
+    }
+
+    .sim-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .sim-val {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--gold);
+    }
 
     .sim-slider {
       width: 100%;
@@ -752,7 +1004,12 @@
       cursor: pointer;
     }
 
-    .sim-range { display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--text-muted); }
+    .sim-range {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
 
     .sim-result {
       background: var(--surface2);
@@ -765,36 +1022,94 @@
       margin-top: 1rem;
     }
 
-    .sim-stat { text-align: center; }
-    .sim-stat__val { font-family: var(--font-mono); font-size: 1.2rem; font-weight: 700; }
-    .sim-stat__lbl { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem; }
-    .sim-stat--up .sim-stat__val { color: var(--red); }
-    .sim-stat--down .sim-stat__val { color: var(--green); }
-    .sim-stat--neutral .sim-stat__val { color: var(--gold); }
+    .sim-stat {
+      text-align: center;
+    }
+
+    .sim-stat__val {
+      font-family: var(--font-mono);
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .sim-stat__lbl {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .sim-stat--up .sim-stat__val {
+      color: var(--red);
+    }
+
+    .sim-stat--down .sim-stat__val {
+      color: var(--green);
+    }
+
+    .sim-stat--neutral .sim-stat__val {
+      color: var(--gold);
+    }
 
     /* ── Chart ── */
-    .chart-wrap { position: relative; height: 200px; }
+    .chart-wrap {
+      position: relative;
+      height: 200px;
+    }
 
     /* ── Responsive ── */
     @media (max-width: 1024px) {
-      .main-grid { grid-template-columns: 1fr; }
-      .sidebar { border-right: none; border-bottom: 1px solid var(--glass-border); }
-      .cascade-grid { grid-template-columns: 1fr 1fr; }
-      .sim-grid { grid-template-columns: 1fr; }
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--glass-border);
+      }
+
+      .cascade-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .sim-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 640px) {
-      .topbar { padding: 0.8rem 1rem; }
-      .cascade-grid { grid-template-columns: 1fr; }
-      .pvp-hero { grid-template-columns: 1fr; }
-      .pvp-badge { text-align: left; }
+      .topbar {
+        padding: 0.8rem 1rem;
+      }
+
+      .cascade-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .pvp-hero {
+        grid-template-columns: 1fr;
+      }
+
+      .pvp-badge {
+        text-align: left;
+      }
     }
 
     /* ── Print ── */
     @media print {
-      #auth-gate, .topbar__actions { display: none !important; }
-      body { background: #fff; color: #000; }
-      .card { border: 1px solid #ccc; }
+
+      #auth-gate,
+      .topbar__actions {
+        display: none !important;
+      }
+
+      body {
+        background: #fff;
+        color: #000;
+      }
+
+      .card {
+        border: 1px solid #ccc;
+      }
     }
 
     /* ── Utilities ── */
@@ -806,15 +1121,38 @@
       font-weight: 600;
     }
 
-    .tag--gold { background: var(--gold-dim); color: var(--gold); }
-    .tag--green { background: rgba(76,175,80,0.15); color: var(--green); }
-    .tag--orange { background: rgba(255,152,0,0.15); color: var(--orange); }
+    .tag--gold {
+      background: var(--gold-dim);
+      color: var(--gold);
+    }
 
-    .divider { height: 1px; background: var(--glass-border); margin: 0.5rem 0; }
+    .tag--green {
+      background: rgba(76, 175, 80, 0.15);
+      color: var(--green);
+    }
 
-    .text-muted { color: var(--text-muted); }
-    .text-gold { color: var(--gold); }
-    .text-mono { font-family: var(--font-mono); }
+    .tag--orange {
+      background: rgba(255, 152, 0, 0.15);
+      color: var(--orange);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--glass-border);
+      margin: 0.5rem 0;
+    }
+
+    .text-muted {
+      color: var(--text-muted);
+    }
+
+    .text-gold {
+      color: var(--gold);
+    }
+
+    .text-mono {
+      font-family: var(--font-mono);
+    }
 
     .section-label {
       font-size: 0.7rem;
@@ -825,7 +1163,7 @@
     }
 
     .highlight-box {
-      background: rgba(212,175,55,0.06);
+      background: rgba(212, 175, 55, 0.06);
       border-left: 3px solid var(--gold);
       border-radius: 0 var(--r-sm) var(--r-sm) 0;
       padding: 0.6rem 0.8rem;
@@ -835,11 +1173,26 @@
       line-height: 1.5;
     }
 
-    .highlight-box strong { color: var(--gold); }
+    .highlight-box strong {
+      color: var(--gold);
+    }
 
     /* ── Animations ── */
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-    .animate-in { animation: fadeIn 0.4s ease both; }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .animate-in {
+      animation: fadeIn 0.4s ease both;
+    }
 
     .table-responsive {
       width: 100%;
@@ -851,7 +1204,7 @@
   <!-- Auth Guard: require admin session -->
   <script>
     // Apply saved theme immediately before anything renders (prevents flash)
-    (function() {
+    (function () {
       const t = localStorage.getItem('bifrost_theme') || 'dark';
       document.documentElement.setAttribute('data-theme', t);
     })();
@@ -859,7 +1212,7 @@
   <script src="../js/admin-auth.js"></script>
   <script>
     // Protect this page: redirect to login if not authenticated
-    (function() {
+    (function () {
       const key = 'bifrost_admin_session';
       if (localStorage.getItem(key) !== 'authenticated') {
         window.location.replace('admin-login.html');
@@ -868,613 +1221,712 @@
   </script>
   <script src="../js/theme.js" defer></script>
 </head>
+
 <body>
 
-<!-- ════════════════════════════════════════════════════════
+  <!-- ════════════════════════════════════════════════════════
      APLICACIÓN PRINCIPAL
 ════════════════════════════════════════════════════════ -->
-<div id="app">
+  <div id="app">
 
-  <!-- Topbar -->
-  <header class="topbar">
-    <div class="topbar__brand">
-      <div class="topbar__logo">🍷</div>
-      <div>
-        <div class="topbar__title">Maestro de Costos Bifrost</div>
-        <div class="topbar__subtitle">Sistema ERP Contable · Bodega de Lujo</div>
-      </div>
-    </div>
-    <div class="topbar__actions">
-      <button class="theme-toggle-btn" data-theme-toggle aria-label="Cambiar tema" style="font-family:var(--font-body);">
-        <span class="theme-icon"></span>
-        <span class="theme-label" style="font-size:0.72rem;">Modo Claro</span>
-      </button>
-      <button class="btn btn--outline" onclick="window.print()">🖨️ Exportar PDF</button>
-      <a href="admin-dashboard.html" class="btn btn--outline">← Dashboard</a>
-    </div>
-  </header>
-
-  <div class="main-grid">
-
-    <!-- ════ SIDEBAR IZQUIERDO ════ -->
-    <aside class="sidebar">
-
-      <!-- ── CARGA / HISTORIAL ────────────────────────────── -->
-      <div class="sb-block sb-block--accent">
-        <div class="sb-block__head">
-          <span class="sb-block__icon">📁</span>
-          <span class="sb-block__title">Historial</span>
-          <span class="sb-block__badge" id="sb-receta-badge">Cargar receta</span>
-        </div>
-        <div class="sb-load-row">
-          <select id="sel-recipe-lujo" class="sb-select"></select>
-          <button class="btn btn--gold btn--sm" onclick="cargarRecetaLujo()">
-            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-            Cargar
-          </button>
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar__brand">
+        <div class="topbar__logo">🍷</div>
+        <div>
+          <div class="topbar__title">Maestro de Costos Bifrost</div>
+          <div class="topbar__subtitle">Sistema ERP Contable · Bodega de Lujo</div>
         </div>
       </div>
+      <div class="topbar__actions">
+        <button class="theme-toggle-btn" data-theme-toggle aria-label="Cambiar tema"
+          style="font-family:var(--font-body);">
+          <span class="theme-icon"></span>
+          <span class="theme-label" style="font-size:0.72rem;">Modo Claro</span>
+        </button>
+        <button class="btn btn--outline" onclick="window.print()">🖨️ Exportar PDF</button>
+        <a href="admin-dashboard.html" class="btn btn--outline">← Dashboard</a>
+      </div>
+    </header>
 
-      <!-- ── FICHA TÉCNICA ─────────────────────────────────── -->
-      <div class="sb-block">
-        <div class="sb-block__head">
-          <span class="sb-block__icon">🍶</span>
-          <span class="sb-block__title">Ficha del Lote</span>
-        </div>
+    <div class="main-grid">
 
-        <!-- Producto -->
-        <div class="sb-field">
-          <label class="sb-label">
-            <span class="sb-label__icon">🍷</span> Producto
-          </label>
-          <input type="text" class="sb-input" id="lote-nombre" list="ecommerce-wines-list" placeholder="Escribe o selecciona producto..." oninput="actualizarLote()">
-          <datalist id="ecommerce-wines-list"></datalist>
-        </div>
+      <!-- ════ SIDEBAR IZQUIERDO ════ -->
+      <aside class="sidebar">
 
-        <!-- Lote # -->
-        <div class="sb-field">
-          <label class="sb-label">
-            <span class="sb-label__icon">🏷️</span> N° de Lote
-          </label>
-          <input type="text" class="sb-input" id="lote-numero" placeholder="ej: vie18042026">
-        </div>
-
-        <!-- Litros -->
-        <div class="sb-field">
-          <label class="sb-label">
-            <span class="sb-label__icon">🫙</span> Litros Totales Obtenidos
-          </label>
-          <div class="sb-input-suffix">
-            <input type="number" class="sb-input" id="lote-kg" value="208" oninput="calcular()">
-            <span class="sb-suffix">L</span>
+        <!-- ── CARGA / HISTORIAL ────────────────────────────── -->
+        <div class="sb-block sb-block--accent">
+          <div class="sb-block__head">
+            <span class="sb-block__icon">📁</span>
+            <span class="sb-block__title">Historial</span>
+            <span class="sb-block__badge" id="sb-receta-badge">Cargar receta</span>
+          </div>
+          <div class="sb-load-row">
+            <select id="sel-recipe-lujo" class="sb-select"></select>
+            <button class="btn btn--gold btn--sm" onclick="cargarRecetaLujo()">
+              <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+              Cargar
+            </button>
           </div>
         </div>
 
-        <!-- inputs ocultos -->
-        <input type="hidden" id="rendimiento" value="1.0">
+        <!-- ── FICHA TÉCNICA ─────────────────────────────────── -->
+        <div class="sb-block">
+          <div class="sb-block__head">
+            <span class="sb-block__icon">🍶</span>
+            <span class="sb-block__title">Ficha del Lote</span>
+          </div>
 
-        <!-- Botella + Barrica (2 cols) -->
-        <div class="sb-grid-2">
+          <!-- Producto -->
           <div class="sb-field">
             <label class="sb-label">
-              <span class="sb-label__icon">🍾</span> Botella
+              <span class="sb-label__icon">🍷</span> Producto
             </label>
-            <select id="botella-vol" class="sb-select" onchange="calcular()">
-              <option value="0.75">750 ml</option>
-              <option value="0.50">500 ml</option>
-              <option value="0.35">350 ml</option>
-            </select>
+            <input type="hidden" id="lote-nombre" value="">
+            <div id="producto-container" style="display:flex; gap:0.5rem; align-items:center;">
+              <select class="sb-select" id="lote-nombre-sel" onchange="handleProductSelect()">
+                <option value="">— Sin enlazar a tienda —</option>
+                <option value="4" data-name="Tamarindo (Vortex obsidian)">🍫 Tamarindo (Vortex Obsidian)</option>
+                <option value="5" data-name="Calala (frost meridian)">🌺 Calala (Frost Meridian)</option>
+                <option value="3" data-name="Piña (bifrost Aurora)">🍍 Piña (Bifrost Aurora)</option>
+                <option value="2" data-name="Coyolito (Vortex eclipse)">🌑 Coyolito (Vortex Eclipse)</option>
+                <option value="6" data-name="Mango (Vortex singularity)">🥭 Mango (Vortex Singularity)</option>
+                <option value="1" data-name="Jamaica (Vortex nebula)">🌸 Jamaica (Vortex Nebula)</option>
+                <option id="opt-new-prod" value="_NEW_" style="color:var(--gold); font-weight:600;">➕ Crear nuevo producto...</option>
+              </select>
+              <div id="new-product-wrap" style="display:none; flex:1; position:relative;">
+                <input type="text" class="sb-input" id="lote-nombre-input" placeholder="Nombre del nuevo producto..." style="padding-right:2rem;" oninput="updateLoteNombreInput()">
+                <button class="btn btn--danger btn--xs" style="position:absolute; right:5px; top:50%; transform:translateY(-50%); padding:0.1rem 0.35rem!important;" onclick="cancelNewProduct()" title="Cancelar">✕</button>
+              </div>
+            </div>
           </div>
+
+          <!-- Lote # -->
           <div class="sb-field">
             <label class="sb-label">
-              <span class="sb-label__icon">🛢️</span> Barrica
+              <span class="sb-label__icon">🏷️</span> N° de Lote
             </label>
-            <div class="sb-input-suffix">
-              <input type="number" class="sb-input" id="meses-barrica" value="0" oninput="calcular()">
-              <span class="sb-suffix">mes</span>
-            </div>
+            <input type="text" class="sb-input" id="lote-numero" placeholder="ej: vie18042026">
           </div>
-        </div>
 
-        <!-- Mermas (2 cols) -->
-        <div class="sb-grid-2">
+          <!-- Litros -->
           <div class="sb-field">
             <label class="sb-label">
-              <span class="sb-label__icon">👼</span> Ángel/mes
+              <span class="sb-label__icon">🫙</span> Litros Totales Obtenidos
             </label>
             <div class="sb-input-suffix">
-              <input type="number" class="sb-input" id="angel-pct" value="0" step="0.1" oninput="calcular()">
-              <span class="sb-suffix">%</span>
+              <input type="number" class="sb-input" id="lote-kg" value="208" oninput="calcular()">
+              <span class="sb-suffix">L</span>
             </div>
           </div>
-          <div class="sb-field">
-            <label class="sb-label">
-              <span class="sb-label__icon">💧</span> Merma Lías
-            </label>
-            <div class="sb-input-suffix">
-              <input type="number" class="sb-input" id="merma-lias" value="5" step="0.1" oninput="calcular()">
-              <span class="sb-suffix">%</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- ── COSTOS UNITARIOS ──────────────────────────────── -->
-      <div class="sb-block sb-block--collapsible" id="acc-unitarios">
-        <div class="sb-block__head sb-accordion-trigger" onclick="toggleAccordion('acc-unitarios')">
-          <span class="sb-block__icon">📔</span>
-          <span class="sb-block__title">Base de Costos Unitarios</span>
-          <span class="sb-accordion-arrow">▾</span>
-          <button class="btn btn--xs btn--outline" onclick="event.stopPropagation();addUnitarioRow()">+ Add</button>
-        </div>
-        <div class="sb-accordion-body">
-          <p class="sb-hint">Precio base por unidad de cada insumo.</p>
-          <div class="table-responsive">
-            <table class="sb-table">
-              <thead>
-                <tr><th>Ítem</th><th>Und.</th><th>NIO</th><th></th></tr>
-              </thead>
-              <tbody id="lista-unitarios"></tbody>
-            </table>
-          </div>
-          <button class="sb-save-db-btn" onclick="guardarUnitarios()">💾 Guardar base de datos</button>
-        </div>
-      </div>
+          <!-- inputs ocultos -->
+          <input type="hidden" id="rendimiento" value="1.0">
 
-      <!-- ── MATERIA PRIMA ─────────────────────────────────── -->
-      <div class="sb-block sb-block--collapsible open" id="acc-mp">
-        <div class="sb-block__head sb-accordion-trigger" onclick="toggleAccordion('acc-mp')">
-          <span class="sb-block__icon">🌿</span>
-          <span class="sb-block__title">Gastos por Lote (MP)</span>
-          <span class="sb-accordion-arrow">▾</span>
-          <button class="btn btn--xs btn--outline" onclick="event.stopPropagation();addMPRow()">+ Add</button>
-        </div>
-        <div class="sb-accordion-body">
-          <div class="table-responsive">
-            <table class="sb-table">
-              <thead>
-                <tr><th>Insumo</th><th>Uso</th><th>NIO</th><th></th></tr>
-              </thead>
-              <tbody id="lista-mp"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── ENVASADO ─────────────────────────────────────── -->
-      <div class="sb-block sb-block--collapsible" id="acc-envasado">
-        <div class="sb-block__head sb-accordion-trigger" onclick="toggleAccordion('acc-envasado')">
-          <span class="sb-block__icon">🍾</span>
-          <span class="sb-block__title">Envasado / Botella</span>
-          <span class="sb-accordion-arrow">▾</span>
-        </div>
-        <div class="sb-accordion-body">
-          <div class="sb-envasado-grid">
-            <div class="sb-env-item">
-              <span>Botella 750ml</span>
-              <div class="sb-input-suffix">
-                <input type="number" class="sb-input" id="e-botella" value="25" oninput="calcular()">
-                <span class="sb-suffix">NIO</span>
-              </div>
-            </div>
-            <div class="sb-env-item">
-              <span>Corcho</span>
-              <div class="sb-input-suffix">
-                <input type="number" class="sb-input" id="e-corcho" value="10" oninput="calcular()">
-                <span class="sb-suffix">NIO</span>
-              </div>
-            </div>
-            <div class="sb-env-item">
-              <span>Cápsula / Lacre</span>
-              <div class="sb-input-suffix">
-                <input type="number" class="sb-input" id="e-capsula" value="5" oninput="calcular()">
-                <span class="sb-suffix">NIO</span>
-              </div>
-            </div>
-            <div class="sb-env-item">
-              <span>Etiqueta Frontal</span>
-              <div class="sb-input-suffix">
-                <input type="number" class="sb-input" id="e-etiq-front" value="12" oninput="calcular()">
-                <span class="sb-suffix">NIO</span>
-              </div>
-            </div>
-            <div class="sb-env-item">
-              <span>Contraetiqueta</span>
-              <div class="sb-input-suffix">
-                <input type="number" class="sb-input" id="e-etiq-back" value="4" oninput="calcular()">
-                <span class="sb-suffix">NIO</span>
-              </div>
-            </div>
-            <div class="sb-env-item">
-              <span>Collarín / Medallón</span>
-              <div class="sb-input-suffix">
-                <input type="number" class="sb-input" id="e-medallon" value="8" oninput="calcular()">
-                <span class="sb-suffix">NIO</span>
-              </div>
-            </div>
-            <div class="sb-env-item">
-              <span>Caja (÷6)</span>
-              <div class="sb-input-suffix">
-                <input type="number" class="sb-input" id="e-caja" value="90" oninput="calcular()">
-                <span class="sb-suffix">NIO</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── MANO DE OBRA ──────────────────────────────────── -->
-      <div class="sb-block sb-block--collapsible" id="acc-mod">
-        <div class="sb-block__head sb-accordion-trigger" onclick="toggleAccordion('acc-mod')">
-          <span class="sb-block__icon">👷</span>
-          <span class="sb-block__title">Mano de Obra (MOD)</span>
-          <span class="sb-accordion-arrow">▾</span>
-        </div>
-        <div class="sb-accordion-body">
-          <div class="sb-mod-row">
-            <span class="sb-mod-label">Cosecha / Recepción</span>
-            <div class="sb-input-suffix">
-              <input type="number" class="sb-input" id="m-h-cosecha" value="8" oninput="calcular()">
-              <span class="sb-suffix">h</span>
-            </div>
-            <span class="sb-mod-sep">×</span>
-            <div class="sb-input-suffix">
-              <input type="number" class="sb-input" id="m-p-cosecha" value="25" oninput="calcular()">
-              <span class="sb-suffix">NIO/h</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── CIF ──────────────────────────────────────────── -->
-      <div class="sb-block sb-block--collapsible" id="acc-cif">
-        <div class="sb-block__head sb-accordion-trigger" onclick="toggleAccordion('acc-cif')">
-          <span class="sb-block__icon">🏛️</span>
-          <span class="sb-block__title">Costos Indirectos (CIF)</span>
-          <span class="sb-accordion-arrow">▾</span>
-          <button class="btn btn--xs btn--outline" onclick="event.stopPropagation();addCIFRow()">+ Add</button>
-        </div>
-        <div class="sb-accordion-body">
-          <div class="table-responsive">
-            <table class="sb-table">
-              <thead>
-                <tr><th>Concepto</th><th>NIO</th><th></th></tr>
-              </thead>
-              <tbody id="lista-cif"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── MÁRGENES E IMPUESTOS ─────────────────────────── -->
-      <div class="sb-block sb-block--gold sb-block--collapsible" id="acc-margenes">
-        <div class="sb-block__head sb-accordion-trigger" onclick="toggleAccordion('acc-margenes')">
-          <span class="sb-block__icon">📊</span>
-          <span class="sb-block__title">Márgenes e Impuestos</span>
-          <span class="sb-accordion-arrow">▾</span>
-        </div>
-        <div class="sb-accordion-body">
+          <!-- Botella + Barrica (2 cols) -->
           <div class="sb-grid-2">
             <div class="sb-field">
-              <label class="sb-label">Marketing</label>
+              <label class="sb-label">
+                <span class="sb-label__icon">🍾</span> Botella
+              </label>
+              <select id="botella-vol" class="sb-select" onchange="calcular()">
+                <option value="0.75">750 ml</option>
+                <option value="0.50">500 ml</option>
+                <option value="0.35">350 ml</option>
+              </select>
+            </div>
+            <div class="sb-field">
+              <label class="sb-label">
+                <span class="sb-label__icon">🛢️</span> Barrica
+              </label>
               <div class="sb-input-suffix">
-                <input type="number" class="sb-input" id="pct-marketing" value="15" oninput="calcular()">
+                <input type="number" class="sb-input" id="meses-barrica" value="0" oninput="calcular()">
+                <span class="sb-suffix">mes</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mermas (2 cols) -->
+          <div class="sb-grid-2">
+            <div class="sb-field">
+              <label class="sb-label">
+                <span class="sb-label__icon">👼</span> Ángel/mes
+              </label>
+              <div class="sb-input-suffix">
+                <input type="number" class="sb-input" id="angel-pct" value="0" step="0.1" oninput="calcular()">
                 <span class="sb-suffix">%</span>
               </div>
             </div>
             <div class="sb-field">
-              <label class="sb-label">Margen Utilidad</label>
+              <label class="sb-label">
+                <span class="sb-label__icon">💧</span> Merma Lías
+              </label>
               <div class="sb-input-suffix">
-                <input type="number" class="sb-input" id="pct-margen" value="55" oninput="calcular()">
-                <span class="sb-suffix">%</span>
-              </div>
-            </div>
-            <div class="sb-field">
-              <label class="sb-label">ISC Vino NIC</label>
-              <div class="sb-input-suffix">
-                <input type="number" class="sb-input" id="pct-isc" value="20" oninput="calcular()">
-                <span class="sb-suffix">%</span>
-              </div>
-            </div>
-            <div class="sb-field">
-              <label class="sb-label">IVA</label>
-              <div class="sb-input-suffix">
-                <input type="number" class="sb-input" id="pct-iva" value="15" oninput="calcular()">
+                <input type="number" class="sb-input" id="merma-lias" value="5" step="0.1" oninput="calcular()">
                 <span class="sb-suffix">%</span>
               </div>
             </div>
           </div>
-          <div class="sb-field" style="margin-top:0.5rem;">
-            <label class="sb-label">Tipo de Cambio NIO → USD</label>
-            <div class="sb-input-suffix">
-              <input type="number" class="sb-input" id="tc-usd" value="36.5" step="0.1" oninput="calcular()">
-              <span class="sb-suffix">C$/USD</span>
+        </div>
+
+        <!-- ── COSTOS UNITARIOS ──────────────────────────────── -->
+        <div class="sb-block sb-block--collapsible" id="acc-unitarios">
+          <div class="sb-block__head sb-accordion-trigger" onclick="toggleAccordion('acc-unitarios')">
+            <span class="sb-block__icon">📔</span>
+            <span class="sb-block__title">Base de Costos Unitarios</span>
+            <span class="sb-accordion-arrow">▾</span>
+            <button class="btn btn--xs btn--outline" onclick="event.stopPropagation();addUnitarioRow()">+ Add</button>
+          </div>
+          <div class="sb-accordion-body">
+            <p class="sb-hint">Precio base por unidad de cada insumo.</p>
+            <div class="table-responsive">
+              <table class="sb-table">
+                <thead>
+                  <tr>
+                    <th>Ítem</th>
+                    <th>Und.</th>
+                    <th>NIO</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="lista-unitarios"></tbody>
+              </table>
+            </div>
+            <button class="sb-save-db-btn" onclick="guardarUnitarios()">💾 Guardar base de datos</button>
+          </div>
+        </div>
+
+        <!-- ── MATERIA PRIMA ─────────────────────────────────── -->
+        <div class="sb-block sb-block--collapsible open" id="acc-mp">
+          <div class="sb-block__head sb-accordion-trigger" onclick="toggleAccordion('acc-mp')">
+            <span class="sb-block__icon">🌿</span>
+            <span class="sb-block__title">Gastos por Lote (MP)</span>
+            <span class="sb-accordion-arrow">▾</span>
+            <button class="btn btn--xs btn--outline" onclick="event.stopPropagation();addMPRow()">+ Add</button>
+          </div>
+          <div class="sb-accordion-body">
+            <div class="table-responsive">
+              <table class="sb-table">
+                <thead>
+                  <tr>
+                    <th>Insumo</th>
+                    <th>Uso</th>
+                    <th>NIO</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="lista-mp"></tbody>
+              </table>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- ── GUARDAR (sticky) ─────────────────────────────── -->
-      <div class="sb-save-sticky">
-        <button onclick="guardarRecetaLujo()" class="sb-btn-save">
-          <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
-          </svg>
-          Guardar Ficha de Producción
-        </button>
-      </div>
-
-    </aside>
-    <!-- ════ CONTENT ════ -->
-    <section class="content">
-
-      <!-- Bloques de Costos -->
-      <div class="card animate-in">
-        <div class="card__header">
-          <div class="card__icon">⚗️</div>
-          <span class="card__title">Costo de Producción Total del Lote (CPT)</span>
-        </div>
-        <div class="cascade-grid">
-          <div class="cost-block cost-block--mp">
-            <div class="cost-block__label">Materia Prima (MP)</div>
-            <div class="cost-block__value" id="r-mp">0</div>
-            <div class="cost-block__sub" id="r-mp-pct">0% del CPT</div>
+        <!-- ── ENVASADO ─────────────────────────────────────── -->
+        <div class="sb-block sb-block--collapsible" id="acc-envasado">
+          <div class="sb-block__head sb-accordion-trigger" onclick="toggleAccordion('acc-envasado')">
+            <span class="sb-block__icon">🍾</span>
+            <span class="sb-block__title">Envasado / Botella</span>
+            <span class="sb-accordion-arrow">▾</span>
           </div>
-          <div class="cost-block cost-block--mod">
-            <div class="cost-block__label">Mano de Obra (MOD)</div>
-            <div class="cost-block__value" id="r-mod">0</div>
-            <div class="cost-block__sub" id="r-mod-pct">0% del CPT</div>
-          </div>
-          <div class="cost-block cost-block--cif">
-            <div class="cost-block__label">Costos Indirectos (CIF)</div>
-            <div class="cost-block__value" id="r-cif">0</div>
-            <div class="cost-block__sub" id="r-cif-pct">0% del CPT</div>
-          </div>
-        </div>
-
-        <!-- Tabla de desglose -->
-        <div class="table-responsive">
-        <table class="breakdown-table">
-          <tbody>
-            <tr class="section-header"><td colspan="2">Volumen y Litros</td></tr>
-            <tr><td>Litros brutos de mosto</td><td id="r-litros-brutos">0 L</td></tr>
-            <tr class="angel-row"><td>👼 Merma evaporativa Ángel (<span id="r-angel-pct-display">0</span> meses × <span id="r-angel-mpct-display">0</span>%/mes)</td><td id="r-litros-angel">-0 L</td></tr>
-            <tr><td>Merma fermentación y lías (-<span id="merma-lias-display">5</span>%)</td><td id="r-litros-lias">-0 L</td></tr>
-            <tr class="total-row"><td>✅ Litros Netos para Embotellado</td><td id="r-litros-netos">0 L</td></tr>
-            <tr class="total-row"><td>🍾 Botellas de <span id="botella-vol-display">750</span>ml producidas</td><td id="r-botellas">0 u</td></tr>
-
-            <tr class="section-header"><td colspan="2">Cascada de Costos por Botella</td></tr>
-            <tr><td>Costo Producción Total del Lote (CPT)</td><td id="r-cpt">0 NIO</td></tr>
-            <tr><td>Costo por Litro (=CPT ÷ Litros Netos)</td><td id="r-costo-litro">0 NIO/L</td></tr>
-            <tr><td>Costo de vino en botella (× 0.75 L)</td><td id="r-costo-vino">0 NIO</td></tr>
-            <tr><td>Costo envasado completo</td><td id="r-envasado">0 NIO</td></tr>
-            <tr><td>Caja de embalaje prorrateada (÷6)</td><td id="r-caja-prorr">0 NIO</td></tr>
-            <tr class="total-row subtotal-row"><td>📦 Costo Ex-Works / Bodega</td><td id="r-ex-works">0 NIO</td></tr>
-
-            <tr class="section-header"><td colspan="2">Precio de Venta (PVP)</td></tr>
-            <tr><td>+ Gastos Mkt / Comercialización</td><td id="r-mkt">0 NIO</td></tr>
-            <tr><td>= Costo Comercializado</td><td id="r-costo-com">0 NIO</td></tr>
-            <tr><td>Margen de Utilidad Bruta Deseada</td><td id="r-margen-label">55%</td></tr>
-            <tr><td>PVP antes de impuestos</td><td id="r-pvp-antes">0 NIO</td></tr>
-            <tr><td>+ ISC Impuesto Selectivo Consumo</td><td id="r-isc">0 NIO</td></tr>
-            <tr><td>+ IVA</td><td id="r-iva-item">0 NIO</td></tr>
-            <tr class="total-row subtotal-row" style="color:var(--gold);">
-              <td>💰 Costo Total de Botella (Sin Margen/Impuestos)</td>
-              <td id="r-costo-total-sin-pvp">0 NIO</td>
-            </tr>
-            <tr class="total-row" style="background:rgba(212,175,55,0.08);">
-              <td>🏆 PVP Sugerido al Público</td>
-              <td id="r-pvp-final">0 NIO</td>
-            </tr>
-          </tbody>
-        </table>
-        </div>
-      </div>
-
-      <!-- PVP Hero -->
-      <div class="pvp-hero animate-in">
-        <div>
-          <div class="pvp-hero__label">Precio de Venta al Público (PVP) Sugerido</div>
-          <div class="pvp-hero__main" id="hero-pvp-nio">0 NIO</div>
-          <div class="pvp-hero__secondary" id="hero-pvp-usd">≈ USD $0.00</div>
-          <div class="pvp-hero__desc">
-            Costo Ex-Works: <span class="text-mono text-gold" id="hero-ex-works">0</span> NIO ·
-            Margen efectivo: <span class="text-mono text-gold" id="hero-margen-real">0%</span>
+          <div class="sb-accordion-body">
+            <div class="sb-envasado-grid">
+              <div class="sb-env-item">
+                <span>Botella 750ml</span>
+                <div class="sb-input-suffix">
+                  <input type="number" class="sb-input" id="e-botella" value="25" oninput="calcular()">
+                  <span class="sb-suffix">NIO</span>
+                </div>
+              </div>
+              <div class="sb-env-item">
+                <span>Corcho</span>
+                <div class="sb-input-suffix">
+                  <input type="number" class="sb-input" id="e-corcho" value="10" oninput="calcular()">
+                  <span class="sb-suffix">NIO</span>
+                </div>
+              </div>
+              <div class="sb-env-item">
+                <span>Cápsula / Lacre</span>
+                <div class="sb-input-suffix">
+                  <input type="number" class="sb-input" id="e-capsula" value="5" oninput="calcular()">
+                  <span class="sb-suffix">NIO</span>
+                </div>
+              </div>
+              <div class="sb-env-item">
+                <span>Etiqueta Frontal</span>
+                <div class="sb-input-suffix">
+                  <input type="number" class="sb-input" id="e-etiq-front" value="12" oninput="calcular()">
+                  <span class="sb-suffix">NIO</span>
+                </div>
+              </div>
+              <div class="sb-env-item">
+                <span>Contraetiqueta</span>
+                <div class="sb-input-suffix">
+                  <input type="number" class="sb-input" id="e-etiq-back" value="4" oninput="calcular()">
+                  <span class="sb-suffix">NIO</span>
+                </div>
+              </div>
+              <div class="sb-env-item">
+                <span>Collarín / Medallón</span>
+                <div class="sb-input-suffix">
+                  <input type="number" class="sb-input" id="e-medallon" value="8" oninput="calcular()">
+                  <span class="sb-suffix">NIO</span>
+                </div>
+              </div>
+              <div class="sb-env-item">
+                <span>Caja (÷6)</span>
+                <div class="sb-input-suffix">
+                  <input type="number" class="sb-input" id="e-caja" value="90" oninput="calcular()">
+                  <span class="sb-suffix">NIO</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="pvp-badge">
-          <div class="pvp-badge__bottles" id="hero-botellas">0</div>
-          <div class="pvp-badge__label">Botellas del lote</div>
-        </div>
-      </div>
 
-      <!-- Punto de Equilibrio -->
-      <div class="card animate-in">
-        <div class="card__header">
-          <div class="card__icon">⚖️</div>
-          <span class="card__title">Punto de Equilibrio del Lote</span>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem;">
-          <div style="text-align:center;">
-            <div style="font-family:var(--font-mono); font-size:2rem; font-weight:700; color:var(--red);" id="eq-botellas-min">0</div>
-            <div style="font-size:0.72rem; color:var(--text-muted);">botellas para cubrir costos</div>
+        <!-- ── MANO DE OBRA ──────────────────────────────────── -->
+        <div class="sb-block sb-block--collapsible" id="acc-mod">
+          <div class="sb-block__head sb-accordion-trigger" onclick="toggleAccordion('acc-mod')">
+            <span class="sb-block__icon">👷</span>
+            <span class="sb-block__title">Mano de Obra (MOD)</span>
+            <span class="sb-accordion-arrow">▾</span>
           </div>
-          <div style="text-align:center;">
-            <div style="font-family:var(--font-mono); font-size:2rem; font-weight:700; color:var(--gold);" id="eq-botellas-total">0</div>
-            <div style="font-size:0.72rem; color:var(--text-muted);">botellas producidas</div>
-          </div>
-          <div style="text-align:center;">
-            <div style="font-family:var(--font-mono); font-size:2rem; font-weight:700; color:var(--green);" id="eq-botellas-util">0</div>
-            <div style="font-size:0.72rem; color:var(--text-muted);">botellas de utilidad pura</div>
+          <div class="sb-accordion-body">
+            <div class="sb-mod-row">
+              <span class="sb-mod-label">Cosecha / Recepción</span>
+              <div class="sb-input-suffix">
+                <input type="number" class="sb-input" id="m-h-cosecha" value="8" oninput="calcular()">
+                <span class="sb-suffix">h</span>
+              </div>
+              <span class="sb-mod-sep">×</span>
+              <div class="sb-input-suffix">
+                <input type="number" class="sb-input" id="m-p-cosecha" value="25" oninput="calcular()">
+                <span class="sb-suffix">NIO/h</span>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="equilibrio-bar">
-          <div class="equilibrio-bar__fill" id="eq-bar" style="width:0%"></div>
-          <div class="equilibrio-bar__marker" id="eq-marker" style="left:0%"></div>
-        </div>
-        <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:var(--text-muted); margin-top:0.3rem;">
-          <span>0 botellas</span>
-          <span id="eq-marker-label">Punto de equilibrio</span>
-          <span id="eq-total-label">0 total</span>
-        </div>
-        <div class="highlight-box" id="eq-summary">Calculando...</div>
-      </div>
 
-      <!-- Historia de Costos -->
-      <div class="card animate-in">
-        <div class="card__header">
-          <div class="card__icon">📈</div>
-          <span class="card__title">Histórico de Costos — Últimos 12 Meses</span>
-          <span class="tag tag--gold" style="margin-left:auto;">Ilustrativo</span>
+        <!-- ── CIF ──────────────────────────────────────────── -->
+        <div class="sb-block sb-block--collapsible" id="acc-cif">
+          <div class="sb-block__head sb-accordion-trigger" onclick="toggleAccordion('acc-cif')">
+            <span class="sb-block__icon">🏛️</span>
+            <span class="sb-block__title">Costos Indirectos (CIF)</span>
+            <span class="sb-accordion-arrow">▾</span>
+            <button class="btn btn--xs btn--outline" onclick="event.stopPropagation();addCIFRow()">+ Add</button>
+          </div>
+          <div class="sb-accordion-body">
+            <div class="table-responsive">
+              <table class="sb-table">
+                <thead>
+                  <tr>
+                    <th>Concepto</th>
+                    <th>NIO</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="lista-cif"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
-        <div class="chart-wrap">
-          <canvas id="cost-chart"></canvas>
-        </div>
-        <p style="font-size:0.72rem; color:var(--text-muted); margin-top:0.7rem;">
-          * Los valores serán históricos reales una vez que sincronices cada lote de producción con Firebase.
-        </p>
-      </div>
 
-      <!-- Historial de Recetas -->
-      <div class="card animate-in">
-        <div class="card__header">
-          <div class="card__icon">📚</div>
-          <span class="card__title">Historial de Fichas de Producción</span>
-          <button onclick="renderHistorialLujo()" style="margin-left:auto;background:none;border:1px solid var(--glass-border);border-radius:var(--r-sm);color:var(--text-muted);padding:0.2rem 0.5rem;cursor:pointer;font-size:0.75rem;">↺</button>
+        <!-- ── MÁRGENES E IMPUESTOS ─────────────────────────── -->
+        <div class="sb-block sb-block--gold sb-block--collapsible" id="acc-margenes">
+          <div class="sb-block__head sb-accordion-trigger" onclick="toggleAccordion('acc-margenes')">
+            <span class="sb-block__icon">📊</span>
+            <span class="sb-block__title">Márgenes e Impuestos</span>
+            <span class="sb-accordion-arrow">▾</span>
+          </div>
+          <div class="sb-accordion-body">
+            <div class="sb-grid-2">
+              <div class="sb-field">
+                <label class="sb-label">Marketing</label>
+                <div class="sb-input-suffix">
+                  <input type="number" class="sb-input" id="pct-marketing" value="15" oninput="calcular()">
+                  <span class="sb-suffix">%</span>
+                </div>
+              </div>
+              <div class="sb-field">
+                <label class="sb-label">Margen Utilidad</label>
+                <div class="sb-input-suffix">
+                  <input type="number" class="sb-input" id="pct-margen" value="55" oninput="calcular()">
+                  <span class="sb-suffix">%</span>
+                </div>
+              </div>
+              <div class="sb-field">
+                <label class="sb-label">ISC Vino NIC</label>
+                <div class="sb-input-suffix">
+                  <input type="number" class="sb-input" id="pct-isc" value="20" oninput="calcular()">
+                  <span class="sb-suffix">%</span>
+                </div>
+              </div>
+              <div class="sb-field">
+                <label class="sb-label">IVA</label>
+                <div class="sb-input-suffix">
+                  <input type="number" class="sb-input" id="pct-iva" value="15" oninput="calcular()">
+                  <span class="sb-suffix">%</span>
+                </div>
+              </div>
+            </div>
+            <div class="sb-field" style="margin-top:0.5rem;">
+              <label class="sb-label">Tipo de Cambio NIO → USD</label>
+              <div class="sb-input-suffix">
+                <input type="number" class="sb-input" id="tc-usd" value="36.5" step="0.1" oninput="calcular()">
+                <span class="sb-suffix">C$/USD</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div id="history-lujo-wrap">
-          <p style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:1.5rem 0;">No hay fichas guardadas todavía.</p>
-        </div>
-      </div>
 
-    </section>
+        <!-- ── GUARDAR (sticky) ─────────────────────────────── -->
+        <div class="sb-save-sticky">
+          <button onclick="guardarRecetaLujo()" class="sb-btn-save">
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+            </svg>
+            Guardar Ficha de Producción
+          </button>
+        </div>
+
+      </aside>
+      <!-- ════ CONTENT ════ -->
+      <section class="content">
+
+        <!-- Bloques de Costos -->
+        <div class="card animate-in">
+          <div class="card__header">
+            <div class="card__icon">⚗️</div>
+            <span class="card__title">Costo de Producción Total del Lote (CPT)</span>
+          </div>
+          <div class="cascade-grid">
+            <div class="cost-block cost-block--mp">
+              <div class="cost-block__label">Materia Prima (MP)</div>
+              <div class="cost-block__value" id="r-mp">0</div>
+              <div class="cost-block__sub" id="r-mp-pct">0% del CPT</div>
+            </div>
+            <div class="cost-block cost-block--mod">
+              <div class="cost-block__label">Mano de Obra (MOD)</div>
+              <div class="cost-block__value" id="r-mod">0</div>
+              <div class="cost-block__sub" id="r-mod-pct">0% del CPT</div>
+            </div>
+            <div class="cost-block cost-block--cif">
+              <div class="cost-block__label">Costos Indirectos (CIF)</div>
+              <div class="cost-block__value" id="r-cif">0</div>
+              <div class="cost-block__sub" id="r-cif-pct">0% del CPT</div>
+            </div>
+          </div>
+
+          <!-- Tabla de desglose -->
+          <div class="table-responsive">
+            <table class="breakdown-table">
+              <tbody>
+                <tr class="section-header">
+                  <td colspan="2">Volumen y Litros</td>
+                </tr>
+                <tr>
+                  <td>Litros brutos de mosto</td>
+                  <td id="r-litros-brutos">0 L</td>
+                </tr>
+                <tr class="angel-row">
+                  <td>👼 Merma evaporativa Ángel (<span id="r-angel-pct-display">0</span> meses × <span
+                      id="r-angel-mpct-display">0</span>%/mes)</td>
+                  <td id="r-litros-angel">-0 L</td>
+                </tr>
+                <tr>
+                  <td>Merma fermentación y lías (-<span id="merma-lias-display">5</span>%)</td>
+                  <td id="r-litros-lias">-0 L</td>
+                </tr>
+                <tr class="total-row">
+                  <td>✅ Litros Netos para Embotellado</td>
+                  <td id="r-litros-netos">0 L</td>
+                </tr>
+                <tr class="total-row">
+                  <td>🍾 Botellas de <span id="botella-vol-display">750</span>ml producidas</td>
+                  <td id="r-botellas">0 u</td>
+                </tr>
+
+                <tr class="section-header">
+                  <td colspan="2">Cascada de Costos por Botella</td>
+                </tr>
+                <tr>
+                  <td>Costo Producción Total del Lote (CPT)</td>
+                  <td id="r-cpt">0 NIO</td>
+                </tr>
+                <tr>
+                  <td>Costo por Litro (=CPT ÷ Litros Netos)</td>
+                  <td id="r-costo-litro">0 NIO/L</td>
+                </tr>
+                <tr>
+                  <td>Costo de vino en botella (× 0.75 L)</td>
+                  <td id="r-costo-vino">0 NIO</td>
+                </tr>
+                <tr>
+                  <td>Costo envasado completo</td>
+                  <td id="r-envasado">0 NIO</td>
+                </tr>
+                <tr>
+                  <td>Caja de embalaje prorrateada (÷6)</td>
+                  <td id="r-caja-prorr">0 NIO</td>
+                </tr>
+                <tr class="total-row subtotal-row">
+                  <td>📦 Costo Ex-Works / Bodega</td>
+                  <td id="r-ex-works">0 NIO</td>
+                </tr>
+
+                <tr class="section-header">
+                  <td colspan="2">Precio de Venta (PVP)</td>
+                </tr>
+                <tr>
+                  <td>+ Gastos Mkt / Comercialización</td>
+                  <td id="r-mkt">0 NIO</td>
+                </tr>
+                <tr>
+                  <td>= Costo Comercializado</td>
+                  <td id="r-costo-com">0 NIO</td>
+                </tr>
+                <tr>
+                  <td>Margen de Utilidad Bruta Deseada</td>
+                  <td id="r-margen-label">55%</td>
+                </tr>
+                <tr>
+                  <td>PVP antes de impuestos</td>
+                  <td id="r-pvp-antes">0 NIO</td>
+                </tr>
+                <tr>
+                  <td>+ ISC Impuesto Selectivo Consumo</td>
+                  <td id="r-isc">0 NIO</td>
+                </tr>
+                <tr>
+                  <td>+ IVA</td>
+                  <td id="r-iva-item">0 NIO</td>
+                </tr>
+                <tr class="total-row subtotal-row" style="color:var(--gold);">
+                  <td>💰 Costo Total de Botella (Sin Margen/Impuestos)</td>
+                  <td id="r-costo-total-sin-pvp">0 NIO</td>
+                </tr>
+                <tr class="total-row" style="background:rgba(212,175,55,0.08);">
+                  <td>🏆 PVP Sugerido al Público</td>
+                  <td id="r-pvp-final">0 NIO</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- PVP Hero -->
+        <div class="pvp-hero animate-in">
+          <div>
+            <div class="pvp-hero__label">Precio de Venta al Público (PVP) Sugerido</div>
+            <div class="pvp-hero__main" id="hero-pvp-nio">0 NIO</div>
+            <div class="pvp-hero__secondary" id="hero-pvp-usd">≈ USD $0.00</div>
+            <div class="pvp-hero__desc">
+              Costo Ex-Works: <span class="text-mono text-gold" id="hero-ex-works">0</span> NIO ·
+              Margen efectivo: <span class="text-mono text-gold" id="hero-margen-real">0%</span>
+            </div>
+          </div>
+          <div class="pvp-badge">
+            <div class="pvp-badge__bottles" id="hero-botellas">0</div>
+            <div class="pvp-badge__label">Botellas del lote</div>
+          </div>
+        </div>
+
+        <!-- Punto de Equilibrio -->
+        <div class="card animate-in">
+          <div class="card__header">
+            <div class="card__icon">⚖️</div>
+            <span class="card__title">Punto de Equilibrio del Lote</span>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+            <div style="text-align:center;">
+              <div style="font-family:var(--font-mono); font-size:2rem; font-weight:700; color:var(--red);"
+                id="eq-botellas-min">0</div>
+              <div style="font-size:0.72rem; color:var(--text-muted);">botellas para cubrir costos</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-family:var(--font-mono); font-size:2rem; font-weight:700; color:var(--gold);"
+                id="eq-botellas-total">0</div>
+              <div style="font-size:0.72rem; color:var(--text-muted);">botellas producidas</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-family:var(--font-mono); font-size:2rem; font-weight:700; color:var(--green);"
+                id="eq-botellas-util">0</div>
+              <div style="font-size:0.72rem; color:var(--text-muted);">botellas de utilidad pura</div>
+            </div>
+          </div>
+          <div class="equilibrio-bar">
+            <div class="equilibrio-bar__fill" id="eq-bar" style="width:0%"></div>
+            <div class="equilibrio-bar__marker" id="eq-marker" style="left:0%"></div>
+          </div>
+          <div
+            style="display:flex; justify-content:space-between; font-size:0.72rem; color:var(--text-muted); margin-top:0.3rem;">
+            <span>0 botellas</span>
+            <span id="eq-marker-label">Punto de equilibrio</span>
+            <span id="eq-total-label">0 total</span>
+          </div>
+          <div class="highlight-box" id="eq-summary">Calculando...</div>
+        </div>
+
+        <!-- Historia de Costos -->
+        <div class="card animate-in">
+          <div class="card__header">
+            <div class="card__icon">📈</div>
+            <span class="card__title">Histórico de Costos — Últimos 12 Meses</span>
+            <span class="tag tag--gold" style="margin-left:auto;">Ilustrativo</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="cost-chart"></canvas>
+          </div>
+          <p style="font-size:0.72rem; color:var(--text-muted); margin-top:0.7rem;">
+            * Los valores serán históricos reales una vez que sincronices cada lote de producción con Firebase.
+          </p>
+        </div>
+
+        <!-- Historial de Recetas -->
+        <div class="card animate-in">
+          <div class="card__header">
+            <div class="card__icon">📚</div>
+            <span class="card__title">Historial de Fichas de Producción</span>
+            <button onclick="renderHistorialLujo()"
+              style="margin-left:auto;background:none;border:1px solid var(--glass-border);border-radius:var(--r-sm);color:var(--text-muted);padding:0.2rem 0.5rem;cursor:pointer;font-size:0.75rem;">↺</button>
+          </div>
+          <div id="history-lujo-wrap">
+            <p style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:1.5rem 0;">No hay fichas
+              guardadas todavía.</p>
+          </div>
+        </div>
+
+      </section>
+    </div>
   </div>
-</div>
 
 
 
-<script>
-// ──────────────────────────────────────────────────
-// HELPERS
-// ──────────────────────────────────────────────────
-const $ = id => document.getElementById(id);
-const num = id => parseFloat($(id)?.value) || 0;
-const fmt = (n, dec=2) => (n||0).toLocaleString('es-NI', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  <script>
+    // ──────────────────────────────────────────────────
+    // HELPERS
+    // ──────────────────────────────────────────────────
+    const $ = id => document.getElementById(id);
+    const num = id => parseFloat($(id)?.value) || 0;
+    const fmt = (n, dec = 2) => (n || 0).toLocaleString('es-NI', { minimumFractionDigits: dec, maximumFractionDigits: dec });
 
-let pvpReal = 0;
-let unitariosData = [
-  { id: 'u1', nombre: 'Agua', unit: 'L', precio: 5.29 },
-  { id: 'u2', nombre: 'Clavo de olor', unit: 'pieza', precio: 0.16 },
-  { id: 'u3', nombre: 'Canela', unit: 'g', precio: 0.8818 }, // 400 NIO per L (lb) / 453.59g
-  { id: 'u4', nombre: 'Tamarindo', unit: 'lb', precio: 80 },
-  { id: 'u5', nombre: 'Azúcar', unit: 'lb', precio: 13.60 },
-  { id: 'u6', nombre: 'Levadura', unit: 'g', precio: 0.3539 }, // 40 NIO / 113g
-  { id: 'u7', nombre: 'Leña', unit: 'pieza', precio: 2.5 } // 48 used = 120
-];
-let mpData = [];
-let cifData = [];
+    let pvpReal = 0;
+    let unitariosData = [
+      { id: 'u1', nombre: 'Agua', unit: 'L', precio: 5.29 },
+      { id: 'u2', nombre: 'Clavo de olor', unit: 'pieza', precio: 0.16 },
+      { id: 'u3', nombre: 'Canela', unit: 'g', precio: 0.8818 }, // 400 NIO per L (lb) / 453.59g
+      { id: 'u4', nombre: 'Tamarindo', unit: 'lb', precio: 80 },
+      { id: 'u5', nombre: 'Azúcar', unit: 'lb', precio: 13.60 },
+      { id: 'u6', nombre: 'Levadura', unit: 'g', precio: 0.3539 }, // 40 NIO / 113g
+      { id: 'u7', nombre: 'Leña', unit: 'pieza', precio: 2.5 } // 48 used = 120
+    ];
+    let mpData = [];
+    let cifData = [];
 
-function guardarUnitarios() {
-  localStorage.setItem('bifrost_unitarios_db', JSON.stringify(unitariosData));
-  _lujo_showToast('✅ Base de datos de costos unitarios guardada');
-}
+    function guardarUnitarios() {
+      localStorage.setItem('bifrost_unitarios_db', JSON.stringify(unitariosData));
+      _lujo_showToast('✅ Base de datos de costos unitarios guardada');
+    }
 
-function cargarUnitarios() {
-  try {
-    const saved = localStorage.getItem('bifrost_unitarios_db');
-    if (saved) unitariosData = JSON.parse(saved);
-  } catch(e) {}
-}
+    function cargarUnitarios() {
+      try {
+        const saved = localStorage.getItem('bifrost_unitarios_db');
+        if (saved) unitariosData = JSON.parse(saved);
+      } catch (e) { }
+    }
 
-// ──────────────────────────────────────────────────
-// RENDERS
-// ──────────────────────────────────────────────────
-function renderUnitarios() {
-  const tbody = $('lista-unitarios');
-  tbody.innerHTML = '';
-  unitariosData.forEach((u, i) => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
+    // ──────────────────────────────────────────────────
+    // RENDERS
+    // ──────────────────────────────────────────────────
+    function renderUnitarios() {
+      const tbody = $('lista-unitarios');
+      tbody.innerHTML = '';
+      unitariosData.forEach((u, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
       <td><input type="text" class="form-input" style="padding:0.2rem;font-size:0.75rem;" value="${u.nombre}" onchange="updateU(${i},'nombre',this.value)"></td>
       <td><input type="text" class="form-input" style="padding:0.2rem;font-size:0.75rem;text-align:center;" value="${u.unit}" onchange="updateU(${i},'unit',this.value)"></td>
       <td><input type="number" class="insumo-price-input" value="${u.precio}" oninput="updateU(${i},'precio',this.value)"></td>
       <td style="text-align:center;"><button class="btn btn--danger" style="padding:0.1rem 0.3rem;" onclick="removeU(${i})">✕</button></td>
     `;
-    tbody.appendChild(tr);
-  });
-  renderMP(); // Refresh MP selects
-}
-
-function updateU(index, field, val) {
-  if (field === 'precio') unitariosData[index].precio = parseFloat(val) || 0;
-  else unitariosData[index][field] = val;
-  calcular();
-}
-
-function addUnitarioRow() {
-  unitariosData.push({ id: 'u'+Date.now(), nombre: 'Nuevo Insumo', unit: 'und', precio: 0 });
-  renderUnitarios();
-}
-function removeU(i) { unitariosData.splice(i,1); renderUnitarios(); calcular(); }
-
-function renderMP(skipSync = false) {
-  const tbody = $('lista-mp');
-  if(!tbody) return;
-  tbody.innerHTML = '';
-
-  if (!skipSync) {
-    // Auto-sync mpData with unitariosData so names appear automatically
-    const newMpData = [];
-    unitariosData.forEach(u => {
-       let existing = mpData.find(mp => mp.unitId === u.id);
-       if (existing) {
-           newMpData.push(existing);
-       } else {
-           newMpData.push({ unitId: u.id, usado: 0 }); 
-       }
-    });
-    mpData.forEach(mp => {
-       if (!unitariosData.find(u => u.id === mp.unitId)) {
-          newMpData.push(mp);
-       }
-    });
-    mpData = newMpData;
-  }
-
-  mpData.forEach((mp, i) => {
-    const tr = document.createElement('tr');
-    // Generar opciones y precálculo
-    const options = unitariosData.map(u => `<option value="${u.id}" ${u.id===mp.unitId ? 'selected':''}>${u.nombre} (${u.precio}/${u.unit})</option>`).join('');
-    
-    // Si unitId es 'custom', quiere decir que se cargó del Maestro Simplificado y no tiene unidad estricta
-    let customOpt = mp.unitId === 'custom' ? `<option value="custom" selected>${mp.nombreCustom} (Costo Fijo)</option>` : '';
-
-    const refU = unitariosData.find(u => u.id === mp.unitId);
-    let totalLine = 0;
-    if (refU) {
-      totalLine = refU.precio * mp.usado;
-    } else if (mp.unitId === 'custom') {
-      totalLine = mp.usado; // Aquí usado funciona como valor absoluto
+        tbody.appendChild(tr);
+      });
+      renderMP(); // Refresh MP selects
     }
 
-    let nameDisplay = '';
-    let btnDisplay = '';
-    
-    if (mp.unitId === 'custom' || !refU) {
-      nameDisplay = `
+    function updateU(index, field, val) {
+      if (field === 'precio') unitariosData[index].precio = parseFloat(val) || 0;
+      else unitariosData[index][field] = val;
+      calcular();
+    }
+
+    function addUnitarioRow() {
+      unitariosData.push({ id: 'u' + Date.now(), nombre: 'Nuevo Insumo', unit: 'und', precio: 0 });
+      renderUnitarios();
+    }
+    function removeU(i) { unitariosData.splice(i, 1); renderUnitarios(); calcular(); }
+
+    function renderMP(skipSync = false) {
+      const tbody = $('lista-mp');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      if (!skipSync) {
+        // Auto-sync mpData with unitariosData so names appear automatically
+        const newMpData = [];
+        unitariosData.forEach(u => {
+          let existing = mpData.find(mp => mp.unitId === u.id);
+          if (existing) {
+            newMpData.push(existing);
+          } else {
+            newMpData.push({ unitId: u.id, usado: 0 });
+          }
+        });
+        mpData.forEach(mp => {
+          if (!unitariosData.find(u => u.id === mp.unitId)) {
+            newMpData.push(mp);
+          }
+        });
+        mpData = newMpData;
+      }
+
+      mpData.forEach((mp, i) => {
+        const tr = document.createElement('tr');
+        // Generar opciones y precálculo
+        const options = unitariosData.map(u => `<option value="${u.id}" ${u.id === mp.unitId ? 'selected' : ''}>${u.nombre} (${u.precio}/${u.unit})</option>`).join('');
+
+        // Si unitId es 'custom', quiere decir que se cargó del Maestro Simplificado y no tiene unidad estricta
+        let customOpt = mp.unitId === 'custom' ? `<option value="custom" selected>${mp.nombreCustom} (Costo Fijo)</option>` : '';
+
+        const refU = unitariosData.find(u => u.id === mp.unitId);
+        let totalLine = 0;
+        if (refU) {
+          totalLine = refU.precio * mp.usado;
+        } else if (mp.unitId === 'custom') {
+          totalLine = mp.usado; // Aquí usado funciona como valor absoluto
+        }
+
+        let nameDisplay = '';
+        let btnDisplay = '';
+
+        if (mp.unitId === 'custom' || !refU) {
+          nameDisplay = `
         <select class="form-select" style="padding:0.2rem;font-size:0.75rem;" onchange="updateMP(${i},'unitId',this.value)">
           <option value="">-- Seleccionar --</option>
           ${options}
           ${customOpt}
         </select>
       `;
-      btnDisplay = `<button class="btn btn--danger" style="padding:0.1rem 0.3rem;" onclick="removeMP(${i})">✕</button>`;
-    } else {
-      nameDisplay = `<div style="padding:0.2rem;font-size:0.8rem;font-weight:600;color:var(--text);">${refU.nombre}</div>`;
-      btnDisplay = ``;
-    }
+          btnDisplay = `<button class="btn btn--danger" style="padding:0.1rem 0.3rem;" onclick="removeMP(${i})">✕</button>`;
+        } else {
+          nameDisplay = `<div style="padding:0.2rem;font-size:0.8rem;font-weight:600;color:var(--text);">${refU.nombre}</div>`;
+          btnDisplay = ``;
+        }
 
-    tr.innerHTML = `
+        tr.innerHTML = `
       <td>${nameDisplay}</td>
       <td style="position:relative;">
         <input type="number" class="insumo-price-input" style="padding-right:1.3rem;" value="${mp.usado}" oninput="updateMP(${i},'usado',this.value)">
@@ -1486,629 +1938,699 @@ function renderMP(skipSync = false) {
       </td>
       <td style="text-align:center;">${btnDisplay}</td>
     `;
-    tbody.appendChild(tr);
-  });
-}
+        tbody.appendChild(tr);
+      });
+    }
 
-function updateMP(index, field, val) {
-  if (field === 'usado') mpData[index].usado = parseFloat(val) || 0;
-  else mpData[index][field] = val;
+    function updateMP(index, field, val) {
+      if (field === 'usado') mpData[index].usado = parseFloat(val) || 0;
+      else mpData[index][field] = val;
 
-  // Actualizar solo la celda de total de esta fila (sin re-renderizar toda la tabla)
-  const tbody = $('lista-mp');
-  if (tbody) {
-    const rows = tbody.querySelectorAll('tr');
-    const row = rows[index];
-    if (row) {
-      const mp = mpData[index];
-      const refU = unitariosData.find(u => u.id === mp.unitId);
-      let totalLine = 0;
-      if (refU) {
-        totalLine = refU.precio * mp.usado;
-      } else if (mp.unitId === 'custom') {
-        totalLine = mp.usado;
-      }
-      // Celda de total es la tercera columna (index 2)
-      const totalCell = row.cells[2];
-      if (totalCell) {
-        totalCell.innerHTML = `
+      // Actualizar solo la celda de total de esta fila (sin re-renderizar toda la tabla)
+      const tbody = $('lista-mp');
+      if (tbody) {
+        const rows = tbody.querySelectorAll('tr');
+        const row = rows[index];
+        if (row) {
+          const mp = mpData[index];
+          const refU = unitariosData.find(u => u.id === mp.unitId);
+          let totalLine = 0;
+          if (refU) {
+            totalLine = refU.precio * mp.usado;
+          } else if (mp.unitId === 'custom') {
+            totalLine = mp.usado;
+          }
+          // Celda de total es la tercera columna (index 2)
+          const totalCell = row.cells[2];
+          if (totalCell) {
+            totalCell.innerHTML = `
           <span style="font-family:var(--font-mono);font-size:0.8rem;color:var(--teal);font-weight:600;">${fmt(totalLine)}</span>
           ${refU ? `<div style="font-size:0.6rem;color:var(--text-muted);line-height:1.2;margin-top:0.15rem;white-space:nowrap;">${refU.nombre}: ${fmt(refU.precio)}/${refU.unit} &middot; usado ${mp.usado}</div>` : ''}
         `;
+          }
+        }
       }
+
+      // Solo recalcular totales globales (CPT, etc.)
+      calcular();
     }
-  }
+    function addMPRow() { mpData.push({ unitId: '', usado: 1 }); renderMP(); }
+    function removeMP(i) { mpData.splice(i, 1); renderMP(); calcular(); }
 
-  // Solo recalcular totales globales (CPT, etc.)
-  calcular();
-}
-function addMPRow() { mpData.push({ unitId: '', usado: 1 }); renderMP(); }
-function removeMP(i) { mpData.splice(i,1); renderMP(); calcular(); }
-
-function renderCIF() {
-  const tbody = $('lista-cif');
-  tbody.innerHTML = '';
-  cifData.forEach((cif, i) => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
+    function renderCIF() {
+      const tbody = $('lista-cif');
+      tbody.innerHTML = '';
+      cifData.forEach((cif, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
       <td><input type="text" class="form-input" style="padding:0.2rem;font-size:0.75rem;" value="${cif.concepto}" onchange="updateCIF(${i},'concepto',this.value)"></td>
       <td><input type="number" class="insumo-price-input" value="${cif.total}" oninput="updateCIF(${i},'total',this.value)"></td>
       <td style="text-align:center;"><button class="btn btn--danger" style="padding:0.1rem 0.3rem;" onclick="removeCIF(${i})">✕</button></td>
     `;
-    tbody.appendChild(tr);
-  });
-}
-function updateCIF(index, field, val) {
-  if (field === 'total') cifData[index].total = parseFloat(val) || 0;
-  else cifData[index][field] = val;
-  calcular();
-}
-function addCIFRow() { cifData.push({ concepto: 'Nuevo CIF', total: 0 }); renderCIF(); }
-function removeCIF(i) { cifData.splice(i,1); renderCIF(); calcular(); }
-
-// ──────────────────────────────────────────────────
-// CÁLCULO PRINCIPAL
-// ──────────────────────────────────────────────────
-function calcular() {
-  // ─ MATERIA PRIMA (DINÁMICA) ─
-  let totalMP = 0;
-  mpData.forEach(mp => {
-    if (mp.unitId === 'custom') {
-      totalMP += mp.usado; 
-    } else {
-      const ref = unitariosData.find(u => u.id === mp.unitId);
-      if (ref) totalMP += (ref.precio * mp.usado);
+        tbody.appendChild(tr);
+      });
     }
-  });
-
-  // ─ MANO DE OBRA ─
-  const totalMOD = num('m-h-cosecha') * num('m-p-cosecha');
-
-  // ─ CIF (DINÁMICO) ─
-  let totalCIF = 0;
-  cifData.forEach(c => totalCIF += c.total);
-
-  // ─ CPT ─
-  const CPT = totalMP + totalMOD + totalCIF;
-
-  // ─ LITROS ─
-  const litroBrutos = num('lote-kg'); // Ahora asumimos que Lote KG es directamente L obtenidos como pidió
-  const rendimiento = 1; //num('rendimiento');
-  const pctLias = num('merma-lias') / 100;
-  const litrosMermaLias = litroBrutos * pctLias;
-  const litrosTrasLias = litroBrutos - litrosMermaLias;
-
-  // Ángel de Evaporación
-  const meses = num('meses-barrica');
-  const angelPctMensual = num('angel-pct') / 100;
-  const litrosPostAngel = litrosTrasLias * Math.pow(1 - angelPctMensual, meses);
-  const litrosPerdidosAngel = litrosTrasLias - litrosPostAngel;
-  const litrosNetos = litrosPostAngel;
-  const botVol = parseFloat($('botella-vol')?.value || 0.75);
-
-  // Guard: si no hay litros, mostrar ceros y salir
-  if (litrosNetos <= 0 || CPT === 0) {
-    const zeroFields = ['r-litros-brutos','r-litros-angel','r-litros-lias','r-litros-netos',
-      'r-botellas','r-cpt','r-costo-litro','r-costo-vino','r-envasado','r-caja-prorr',
-      'r-ex-works','r-mkt','r-costo-com','r-pvp-antes','r-isc','r-iva-item',
-      'r-costo-total-sin-pvp','r-pvp-final','r-pvp-usd','eq-botellas-min',
-      'eq-botellas-total','eq-botellas-util'];
-    zeroFields.forEach(id => { if($(id)) $(id).textContent = '0'; });
-    if($('r-litros-brutos')) $('r-litros-brutos').textContent = fmt(litroBrutos, 1) + ' L';
-    if($('r-cpt')) $('r-cpt').textContent = fmt(CPT) + ' NIO';
-    if($('eq-summary') && litrosNetos <= 0 && litroBrutos > 0)
-      $('eq-summary').innerHTML = '<span style="color:var(--orange);">⚠️ Con los datos actuales no quedan litros netos para embotellar. Revisa los porcentajes de merma.</span>';
-    return;
-  }
-
-  const totalBotellas = Math.floor((litrosNetos / botVol) * 10) / 10;
-
-  // ─ COSTOS POR BOTELLA ─
-  const costoLitro = (litrosNetos > 0) ? (CPT / litrosNetos) : 0;
-  const costoVinoBot = costoLitro * botVol;
-  const envasado = num('e-botella') + num('e-corcho') + num('e-capsula') +
-                   num('e-etiq-front') + num('e-etiq-back') + num('e-medallon');
-  const cajaProrr = num('e-caja') / 6;
-  const exWorks = costoVinoBot + envasado + cajaProrr;
-
-  // ─ PVP ─
-  const pctMkt = num('pct-marketing') / 100;
-  const pctMargen = num('pct-margen') / 100;
-  const pctISC = num('pct-isc') / 100;
-  const pctIVA = num('pct-iva') / 100;
-  const tc = num('tc-usd') || 36.5;
-
-  const mkting = exWorks * pctMkt;
-  const costoCom = exWorks + mkting;
-  const pvpAntesImp = pctMargen < 1 ? (costoCom / (1 - pctMargen)) : 0;
-  const iscVal = pvpAntesImp * pctISC;
-  const pvpConISC = pvpAntesImp + iscVal;
-  const ivaVal = pvpConISC * pctIVA;
-  const pvpFinal = pvpConISC + ivaVal;
-  pvpReal = pvpFinal;
-  const pvpUSD = pvpFinal / tc;
-  const margenReal = pvpFinal>0 ? ((pvpFinal - exWorks) / pvpFinal * 100) : 0;
-
-  // ─ PUNTO DE EQUILIBRIO ─
-  const varUnit = exWorks;
-  const contribucionUnit = pvpFinal - varUnit;
-  const breakEven = contribucionUnit>0 ? Math.ceil(CPT / contribucionUnit) : 0;
-  const botellasPuro = Math.floor(totalBotellas) - breakEven;
-  const pctBreakEven = totalBotellas>0 ? Math.min((breakEven / totalBotellas) * 100, 100) : 0;
-
-  // ─────── ACTUALIZAR DOM ───────
-  if($('r-mp')) $('r-mp').textContent = fmt(totalMP) + ' NIO';
-  if($('r-mp-pct')&&CPT>0) $('r-mp-pct').textContent = fmt(totalMP / CPT * 100, 1) + '% del CPT';
-  if($('r-mod')) $('r-mod').textContent = fmt(totalMOD) + ' NIO';
-  if($('r-mod-pct')&&CPT>0) $('r-mod-pct').textContent = fmt(totalMOD / CPT * 100, 1) + '% del CPT';
-  if($('r-cif')) $('r-cif').textContent = fmt(totalCIF) + ' NIO';
-  if($('r-cif-pct')&&CPT>0) $('r-cif-pct').textContent = fmt(totalCIF / CPT * 100, 1) + '% del CPT';
-
-  if($('r-litros-brutos')) $('r-litros-brutos').textContent = fmt(litroBrutos, 1) + ' L';
-  if($('r-angel-pct-display')) $('r-angel-pct-display').textContent = meses;
-  if($('r-angel-mpct-display')) $('r-angel-mpct-display').textContent = num('angel-pct');
-  if($('merma-lias-display')) $('merma-lias-display').textContent = num('merma-lias');
-  if($('botella-vol-display')) $('botella-vol-display').textContent = (botVol * 1000);
-  
-  if($('r-litros-angel')) $('r-litros-angel').textContent = '-' + fmt(litrosPerdidosAngel, 1) + ' L';
-  if($('r-litros-lias')) $('r-litros-lias').textContent = '-' + fmt(litrosMermaLias, 1) + ' L';
-  if($('r-litros-netos')) $('r-litros-netos').textContent = fmt(litrosNetos, 1) + ' L';
-  if($('r-botellas')) $('r-botellas').textContent = fmt(totalBotellas, 0) + ' u';
-  if($('r-cpt')) $('r-cpt').textContent = fmt(CPT) + ' NIO';
-  if($('r-costo-litro')) $('r-costo-litro').textContent = fmt(costoLitro) + ' NIO/L';
-  if($('r-costo-vino')) $('r-costo-vino').textContent = fmt(costoVinoBot) + ' NIO';
-  if($('r-envasado')) $('r-envasado').textContent = fmt(envasado) + ' NIO';
-  if($('r-caja-prorr')) $('r-caja-prorr').textContent = fmt(cajaProrr) + ' NIO';
-  if($('r-ex-works')) $('r-ex-works').textContent = fmt(exWorks) + ' NIO';
-  if($('r-mkt')) $('r-mkt').textContent = '+' + fmt(mkting) + ' NIO';
-  if($('r-costo-com')) $('r-costo-com').textContent = fmt(costoCom) + ' NIO';
-  if($('r-margen-label')) $('r-margen-label').textContent = num('pct-margen') + '%';
-  if($('r-pvp-antes')) $('r-pvp-antes').textContent = fmt(pvpAntesImp) + ' NIO';
-  if($('r-isc')) $('r-isc').textContent = '+' + fmt(iscVal) + ' NIO (' + num('pct-isc') + '%)';
-  if($('r-iva-item')) $('r-iva-item').textContent = '+' + fmt(ivaVal) + ' NIO (' + num('pct-iva') + '%)';
-  
-  if($('r-costo-total-sin-pvp')) $('r-costo-total-sin-pvp').textContent = fmt(costoCom) + ' NIO';
-  if($('r-pvp-final')) $('r-pvp-final').textContent = fmt(pvpFinal) + ' NIO';
-
-  if($('hero-pvp-nio')) $('hero-pvp-nio').textContent = fmt(pvpFinal) + ' NIO';
-  if($('hero-pvp-usd')) $('hero-pvp-usd').textContent = '≈ USD $' + fmt(pvpUSD);
-  if($('hero-ex-works')) $('hero-ex-works').textContent = fmt(exWorks);
-  if($('hero-margen-real')) $('hero-margen-real').textContent = fmt(margenReal, 1) + '%';
-  if($('hero-botellas')) $('hero-botellas').textContent = fmt(totalBotellas, 0);
-
-  if($('eq-botellas-min')) $('eq-botellas-min').textContent = breakEven;
-  if($('eq-botellas-total')) $('eq-botellas-total').textContent = fmt(totalBotellas, 0);
-  if($('eq-botellas-util')) $('eq-botellas-util').textContent = Math.max(botellasPuro, 0);
-  if($('eq-bar')) $('eq-bar').style.width = pctBreakEven + '%';
-  if($('eq-marker')) $('eq-marker').style.left = pctBreakEven + '%';
-  if($('eq-marker-label')) $('eq-marker-label').textContent = 'Equilibrio: bot. #' + breakEven;
-  if($('eq-total-label')) $('eq-total-label').textContent = fmt(totalBotellas, 0) + ' total';
-  if($('eq-summary')) {
-    if (contribucionUnit <= 0 && totalBotellas > 0) {
-      $('eq-summary').innerHTML = `<span style="color:var(--red);">⚠️ <strong>Atención:</strong> Tus porcentajes actuales no generan margen de utilidad.</span> El PVP sugerido es igual al costo variable, por lo tanto <strong>nunca recuperarás el costo del lote completo de ${fmt(CPT)} NIO</strong>. Ajusta el "Margen Utilidad" en el panel derecho.`;
-    } else {
-      $('eq-summary').innerHTML = `Necesitas vender <strong>${breakEven} botellas</strong> (${fmt(pctBreakEven, 1)}% del lote) para cubrir el <strong>Costo Total del Lote de ${fmt(CPT)} NIO</strong>. Las botellas restantes representan <strong>utilidad pura de ${fmt(Math.max(botellasPuro,0) * contribucionUnit)} NIO</strong>.`;
+    function updateCIF(index, field, val) {
+      if (field === 'total') cifData[index].total = parseFloat(val) || 0;
+      else cifData[index][field] = val;
+      calcular();
     }
-  }
+    function addCIFRow() { cifData.push({ concepto: 'Nuevo CIF', total: 0 }); renderCIF(); }
+    function removeCIF(i) { cifData.splice(i, 1); renderCIF(); calcular(); }
 
-  // Actualizar tabla MP mostrando totales actualizados en cada fila (sin re-renderizar)
-  const tbody = $('lista-mp');
-  if (tbody) {
-    const rows = tbody.querySelectorAll('tr');
-    mpData.forEach((mp, i) => {
-      const row = rows[i];
-      if (!row) return;
-      const refU = unitariosData.find(u => u.id === mp.unitId);
-      let totalLine = 0;
-      if (refU) totalLine = refU.precio * mp.usado;
-      else if (mp.unitId === 'custom') totalLine = mp.usado;
-      const totalCell = row.cells[2];
-      if (totalCell) {
-        totalCell.innerHTML = `
+    // ──────────────────────────────────────────────────
+    // CÁLCULO PRINCIPAL
+    // ──────────────────────────────────────────────────
+    function calcular() {
+      // ─ MATERIA PRIMA (DINÁMICA) ─
+      let totalMP = 0;
+      mpData.forEach(mp => {
+        if (mp.unitId === 'custom') {
+          totalMP += mp.usado;
+        } else {
+          const ref = unitariosData.find(u => u.id === mp.unitId);
+          if (ref) totalMP += (ref.precio * mp.usado);
+        }
+      });
+
+      // ─ MANO DE OBRA ─
+      const totalMOD = num('m-h-cosecha') * num('m-p-cosecha');
+
+      // ─ CIF (DINÁMICO) ─
+      let totalCIF = 0;
+      cifData.forEach(c => totalCIF += c.total);
+
+      // ─ CPT ─
+      const CPT = totalMP + totalMOD + totalCIF;
+
+      // ─ LITROS ─
+      const litroBrutos = num('lote-kg'); // Ahora asumimos que Lote KG es directamente L obtenidos como pidió
+      const rendimiento = 1; //num('rendimiento');
+      const pctLias = num('merma-lias') / 100;
+      const litrosMermaLias = litroBrutos * pctLias;
+      const litrosTrasLias = litroBrutos - litrosMermaLias;
+
+      // Ángel de Evaporación
+      const meses = num('meses-barrica');
+      const angelPctMensual = num('angel-pct') / 100;
+      const litrosPostAngel = litrosTrasLias * Math.pow(1 - angelPctMensual, meses);
+      const litrosPerdidosAngel = litrosTrasLias - litrosPostAngel;
+      const litrosNetos = litrosPostAngel;
+      const botVol = parseFloat($('botella-vol')?.value || 0.75);
+
+      // Guard: si no hay litros, mostrar ceros y salir
+      if (litrosNetos <= 0 || CPT === 0) {
+        const zeroFields = ['r-litros-brutos', 'r-litros-angel', 'r-litros-lias', 'r-litros-netos',
+          'r-botellas', 'r-cpt', 'r-costo-litro', 'r-costo-vino', 'r-envasado', 'r-caja-prorr',
+          'r-ex-works', 'r-mkt', 'r-costo-com', 'r-pvp-antes', 'r-isc', 'r-iva-item',
+          'r-costo-total-sin-pvp', 'r-pvp-final', 'r-pvp-usd', 'eq-botellas-min',
+          'eq-botellas-total', 'eq-botellas-util'];
+        zeroFields.forEach(id => { if ($(id)) $(id).textContent = '0'; });
+        if ($('r-litros-brutos')) $('r-litros-brutos').textContent = fmt(litroBrutos, 1) + ' L';
+        if ($('r-cpt')) $('r-cpt').textContent = fmt(CPT) + ' NIO';
+        if ($('eq-summary') && litrosNetos <= 0 && litroBrutos > 0)
+          $('eq-summary').innerHTML = '<span style="color:var(--orange);">⚠️ Con los datos actuales no quedan litros netos para embotellar. Revisa los porcentajes de merma.</span>';
+        return;
+      }
+
+      const totalBotellas = Math.floor((litrosNetos / botVol) * 10) / 10;
+
+      // ─ COSTOS POR BOTELLA ─
+      const costoLitro = (litrosNetos > 0) ? (CPT / litrosNetos) : 0;
+      const costoVinoBot = costoLitro * botVol;
+      const envasado = num('e-botella') + num('e-corcho') + num('e-capsula') +
+        num('e-etiq-front') + num('e-etiq-back') + num('e-medallon');
+      const cajaProrr = num('e-caja') / 6;
+      const exWorks = costoVinoBot + envasado + cajaProrr;
+
+      // ─ PVP ─
+      const pctMkt = num('pct-marketing') / 100;
+      const pctMargen = num('pct-margen') / 100;
+      const pctISC = num('pct-isc') / 100;
+      const pctIVA = num('pct-iva') / 100;
+      const tc = num('tc-usd') || 36.5;
+
+      const mkting = exWorks * pctMkt;
+      const costoCom = exWorks + mkting;
+      const pvpAntesImp = pctMargen < 1 ? (costoCom / (1 - pctMargen)) : 0;
+      const iscVal = pvpAntesImp * pctISC;
+      const pvpConISC = pvpAntesImp + iscVal;
+      const ivaVal = pvpConISC * pctIVA;
+      const pvpFinal = pvpConISC + ivaVal;
+      pvpReal = pvpFinal;
+      const pvpUSD = pvpFinal / tc;
+      const margenReal = pvpFinal > 0 ? ((pvpFinal - exWorks) / pvpFinal * 100) : 0;
+
+      // ─ PUNTO DE EQUILIBRIO ─
+      const varUnit = exWorks;
+      const contribucionUnit = pvpFinal - varUnit;
+      const breakEven = contribucionUnit > 0 ? Math.ceil(CPT / contribucionUnit) : 0;
+      const botellasPuro = Math.floor(totalBotellas) - breakEven;
+      const pctBreakEven = totalBotellas > 0 ? Math.min((breakEven / totalBotellas) * 100, 100) : 0;
+
+      // ─────── ACTUALIZAR DOM ───────
+      if ($('r-mp')) $('r-mp').textContent = fmt(totalMP) + ' NIO';
+      if ($('r-mp-pct') && CPT > 0) $('r-mp-pct').textContent = fmt(totalMP / CPT * 100, 1) + '% del CPT';
+      if ($('r-mod')) $('r-mod').textContent = fmt(totalMOD) + ' NIO';
+      if ($('r-mod-pct') && CPT > 0) $('r-mod-pct').textContent = fmt(totalMOD / CPT * 100, 1) + '% del CPT';
+      if ($('r-cif')) $('r-cif').textContent = fmt(totalCIF) + ' NIO';
+      if ($('r-cif-pct') && CPT > 0) $('r-cif-pct').textContent = fmt(totalCIF / CPT * 100, 1) + '% del CPT';
+
+      if ($('r-litros-brutos')) $('r-litros-brutos').textContent = fmt(litroBrutos, 1) + ' L';
+      if ($('r-angel-pct-display')) $('r-angel-pct-display').textContent = meses;
+      if ($('r-angel-mpct-display')) $('r-angel-mpct-display').textContent = num('angel-pct');
+      if ($('merma-lias-display')) $('merma-lias-display').textContent = num('merma-lias');
+      if ($('botella-vol-display')) $('botella-vol-display').textContent = (botVol * 1000);
+
+      if ($('r-litros-angel')) $('r-litros-angel').textContent = '-' + fmt(litrosPerdidosAngel, 1) + ' L';
+      if ($('r-litros-lias')) $('r-litros-lias').textContent = '-' + fmt(litrosMermaLias, 1) + ' L';
+      if ($('r-litros-netos')) $('r-litros-netos').textContent = fmt(litrosNetos, 1) + ' L';
+      if ($('r-botellas')) $('r-botellas').textContent = fmt(totalBotellas, 0) + ' u';
+      if ($('r-cpt')) $('r-cpt').textContent = fmt(CPT) + ' NIO';
+      if ($('r-costo-litro')) $('r-costo-litro').textContent = fmt(costoLitro) + ' NIO/L';
+      if ($('r-costo-vino')) $('r-costo-vino').textContent = fmt(costoVinoBot) + ' NIO';
+      if ($('r-envasado')) $('r-envasado').textContent = fmt(envasado) + ' NIO';
+      if ($('r-caja-prorr')) $('r-caja-prorr').textContent = fmt(cajaProrr) + ' NIO';
+      if ($('r-ex-works')) $('r-ex-works').textContent = fmt(exWorks) + ' NIO';
+      if ($('r-mkt')) $('r-mkt').textContent = '+' + fmt(mkting) + ' NIO';
+      if ($('r-costo-com')) $('r-costo-com').textContent = fmt(costoCom) + ' NIO';
+      if ($('r-margen-label')) $('r-margen-label').textContent = num('pct-margen') + '%';
+      if ($('r-pvp-antes')) $('r-pvp-antes').textContent = fmt(pvpAntesImp) + ' NIO';
+      if ($('r-isc')) $('r-isc').textContent = '+' + fmt(iscVal) + ' NIO (' + num('pct-isc') + '%)';
+      if ($('r-iva-item')) $('r-iva-item').textContent = '+' + fmt(ivaVal) + ' NIO (' + num('pct-iva') + '%)';
+
+      if ($('r-costo-total-sin-pvp')) $('r-costo-total-sin-pvp').textContent = fmt(costoCom) + ' NIO';
+      if ($('r-pvp-final')) $('r-pvp-final').textContent = fmt(pvpFinal) + ' NIO';
+
+      if ($('hero-pvp-nio')) $('hero-pvp-nio').textContent = fmt(pvpFinal) + ' NIO';
+      if ($('hero-pvp-usd')) $('hero-pvp-usd').textContent = '≈ USD $' + fmt(pvpUSD);
+      if ($('hero-ex-works')) $('hero-ex-works').textContent = fmt(exWorks);
+      if ($('hero-margen-real')) $('hero-margen-real').textContent = fmt(margenReal, 1) + '%';
+      if ($('hero-botellas')) $('hero-botellas').textContent = fmt(totalBotellas, 0);
+
+      if ($('eq-botellas-min')) $('eq-botellas-min').textContent = breakEven;
+      if ($('eq-botellas-total')) $('eq-botellas-total').textContent = fmt(totalBotellas, 0);
+      if ($('eq-botellas-util')) $('eq-botellas-util').textContent = Math.max(botellasPuro, 0);
+      if ($('eq-bar')) $('eq-bar').style.width = pctBreakEven + '%';
+      if ($('eq-marker')) $('eq-marker').style.left = pctBreakEven + '%';
+      if ($('eq-marker-label')) $('eq-marker-label').textContent = 'Equilibrio: bot. #' + breakEven;
+      if ($('eq-total-label')) $('eq-total-label').textContent = fmt(totalBotellas, 0) + ' total';
+      if ($('eq-summary')) {
+        if (contribucionUnit <= 0 && totalBotellas > 0) {
+          $('eq-summary').innerHTML = `<span style="color:var(--red);">⚠️ <strong>Atención:</strong> Tus porcentajes actuales no generan margen de utilidad.</span> El PVP sugerido es igual al costo variable, por lo tanto <strong>nunca recuperarás el costo del lote completo de ${fmt(CPT)} NIO</strong>. Ajusta el "Margen Utilidad" en el panel derecho.`;
+        } else {
+          $('eq-summary').innerHTML = `Necesitas vender <strong>${breakEven} botellas</strong> (${fmt(pctBreakEven, 1)}% del lote) para cubrir el <strong>Costo Total del Lote de ${fmt(CPT)} NIO</strong>. Las botellas restantes representan <strong>utilidad pura de ${fmt(Math.max(botellasPuro, 0) * contribucionUnit)} NIO</strong>.`;
+        }
+      }
+
+      // Actualizar tabla MP mostrando totales actualizados en cada fila (sin re-renderizar)
+      const tbody = $('lista-mp');
+      if (tbody) {
+        const rows = tbody.querySelectorAll('tr');
+        mpData.forEach((mp, i) => {
+          const row = rows[i];
+          if (!row) return;
+          const refU = unitariosData.find(u => u.id === mp.unitId);
+          let totalLine = 0;
+          if (refU) totalLine = refU.precio * mp.usado;
+          else if (mp.unitId === 'custom') totalLine = mp.usado;
+          const totalCell = row.cells[2];
+          if (totalCell) {
+            totalCell.innerHTML = `
           <span style="font-family:var(--font-mono);font-size:0.8rem;color:var(--teal);font-weight:600;">${fmt(totalLine)}</span>
           ${refU ? `<div style="font-size:0.6rem;color:var(--text-muted);line-height:1.2;margin-top:0.15rem;white-space:nowrap;">${refU.nombre}: ${fmt(refU.precio)}/${refU.unit} &middot; usado ${mp.usado}</div>` : ''}
         `;
-      }
-    });
-  }
-}
-
-// ──────────────────────────────────────────────────
-// SISTEMA DE RECETAS (HÍBRIDO LUJO Y SIMPLE)
-// ──────────────────────────────────────────────────
-const _LUJO_KEY = 'bifrost_cost_recetas_lujo';
-const _SIMPLE_KEY = 'bifrost_cost_historico';
-
-const _SCALAR_FIELDS = [
-  'lote-nombre','lote-numero','lote-kg','rendimiento','botella-vol','meses-barrica','angel-pct','merma-lias',
-  'e-botella','e-corcho','e-capsula','e-etiq-front','e-etiq-back','e-medallon','e-caja',
-  'm-h-cosecha','m-p-cosecha',
-  'pct-marketing','pct-margen','pct-isc','pct-iva','tc-usd'
-];
-
-function generarNuevoLote() {
-  const d = new Date();
-  const dias = ['dom','lun','mar','mie','jue','vie','sab'];
-  const dd = String(d.getDate()).padStart(2, '0');
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const yyyy = d.getFullYear();
-  return dias[d.getDay()] + dd + mm + yyyy;
-}
-function actualizarLote() {
-  const el = document.getElementById('lote-numero');
-  if(!el.value) { el.value = generarNuevoLote(); }
-}
-
-function _lujo_getRecetas() {
-  try { return JSON.parse(localStorage.getItem(_LUJO_KEY) || '[]'); } catch { return []; }
-}
-
-function _simple_getRecetas() {
-  try { return JSON.parse(localStorage.getItem(_SIMPLE_KEY) || '[]'); } catch { return []; }
-}
-
-function _lujo_showToast(msg, ok = true) {
-  const existing = document.getElementById('lujo-toast');
-  const t = existing || (() => {
-    const el = document.createElement('div');
-    el.id = 'lujo-toast';
-    el.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;padding:0.65rem 1.1rem;border-radius:10px;font-size:0.82rem;font-weight:600;opacity:0;transition:opacity 0.25s ease;pointer-events:none;max-width:320px;';
-    document.body.appendChild(el);
-    return el;
-  })();
-  t.textContent = msg;
-  t.style.background = ok ? 'rgba(76,175,80,0.18)' : 'rgba(239,83,80,0.18)';
-  t.style.border     = ok ? '1px solid rgba(76,175,80,0.35)' : '1px solid rgba(239,83,80,0.35)';
-  t.style.color      = ok ? '#81C784' : '#EF9A9A';
-  t.style.opacity    = '1';
-  clearTimeout(t._t);
-  t._t = setTimeout(() => { t.style.opacity = '0'; }, 3000);
-}
-
-function guardarRecetaLujo() {
-  const selEl = $('lote-nombre');
-  const nombre = selEl.value.trim();
-
-  if (!nombre) {
-    _lujo_showToast('⚠️ Escribe el nombre del lote/producto', false);
-    return;
-  }
-
-  const campos = {};
-  _SCALAR_FIELDS.forEach(id => {
-    const el = $(id);
-    if (el) campos[id] = el.value;
-  });
-
-  const pvp   = $('r-pvp-final')?.textContent || '—';
-  const exw   = $('r-ex-works')?.textContent  || '—';
-  const bots  = $('r-botellas')?.textContent  || '—';
-  const cpt   = $('r-cpt')?.textContent        || '—';
-
-  const recetas = _lujo_getRecetas();
-  const existIdx = recetas.findIndex(r => r.nombre === nombre);
-  const receta = {
-    id:     existIdx !== -1 ? recetas[existIdx].id : `lujo_${Date.now()}`,
-    nombre,
-    fecha:  new Date().toISOString().split('T')[0],
-    campos,
-    unitarios: JSON.parse(JSON.stringify(unitariosData)),
-    mp: JSON.parse(JSON.stringify(mpData)),
-    cif: JSON.parse(JSON.stringify(cifData)),
-    res_pvp:  pvp,
-    res_exw:  exw,
-    res_bots: bots,
-    res_cpt:  cpt,
-  };
-
-  if (existIdx !== -1) { recetas[existIdx] = receta; }
-  else { recetas.push(receta); }
-
-  localStorage.setItem(_LUJO_KEY, JSON.stringify(recetas));
-
-  // ─ Sincronizar receta a Firebase ─
-  _fb_syncRecetaToFirebase(receta);
-
-  // ── Registro de Lote de Producción (con lógica de lote-numero) ──
-  if (bots && bots !== '—') {
-    const parsedBots = parseInt(bots.replace(/[^\d.-]/g, '')) || 0;
-    const loteNum = campos['lote-numero'] || '';
-    _registrarLoteProduccion({ nombre, parsedBots, loteNum, pvp, exw, recetaId: receta.id });
-  }
-
-  _lujo_populateSelector();
-  renderHistorialLujo();
-  _lujo_showToast(`✅ Proyecto "${nombre}" guardado exitosamente`);
-}
-
-// ─────────────────────────────────────────────────────────────
-// FIREBASE SYNC — Recetas Históricas + Fichas de Producción
-// ─────────────────────────────────────────────────────────────
-const _FB_BASE = 'https://bifrost-sa-default-rtdb.firebaseio.com';
-
-// Guarda/actualiza una receta en Firebase bajo /recetas_lujo/{id}
-function _fb_syncRecetaToFirebase(receta) {
-  fetch(`${_FB_BASE}/recetas_lujo/${receta.id}.json`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(receta)
-  }).catch(err => console.warn('Firebase sync receta failed:', err));
-}
-
-// Elimina una receta de Firebase
-function _fb_deleteRecetaFromFirebase(id) {
-  fetch(`${_FB_BASE}/recetas_lujo/${id}.json`, {
-    method: 'DELETE'
-  }).catch(() => {});
-}
-
-// Descarga todas las recetas desde Firebase y las fusiona con localStorage
-async function _fb_loadRecetasFromFirebase() {
-  try {
-    const res = await fetch(`${_FB_BASE}/recetas_lujo.json`);
-    if (!res.ok) return;
-    const data = await res.json();
-    if (!data) return;
-
-    const fbRecetas = Object.values(data).filter(Boolean);
-    const local = _lujo_getRecetas();
-
-    // Merge: Firebase tiene prioridad sobre local (es la fuente de verdad)
-    const merged = [...local];
-    fbRecetas.forEach(fr => {
-      const idx = merged.findIndex(l => l.id === fr.id);
-      if (idx !== -1) {
-        // Firebase gana si es más reciente
-        if ((fr.fecha || '') >= (merged[idx].fecha || '')) merged[idx] = fr;
-      } else {
-        merged.push(fr);
-      }
-    });
-
-    localStorage.setItem(_LUJO_KEY, JSON.stringify(merged));
-    _lujo_populateSelector();
-    renderHistorialLujo();
-  } catch (e) { /* offline — usar localStorage */ }
-}
-
-// ─────────────────────────────────────────────────────────────
-// HELPER: Registro inteligente de Lote de Producción
-// Mismo lote-numero → ajuste delta | Nuevo lote → suma total
-// ─────────────────────────────────────────────────────────────
-const _LOTES_PROD_KEY = 'bifrost_lotes_produccion';
-
-function _getLotesProduccion() {
-  try { return JSON.parse(localStorage.getItem(_LOTES_PROD_KEY) || '[]'); } catch { return []; }
-}
-
-// Auto-resuelve el ID de tienda creando uno si no existe.
-async function _findOrCreateEcommerceProduct(nombre, pvp) {
-  try {
-    const res = await fetch(`${_FB_BASE}/productos_ecommerce.json`);
-    const data = res.ok ? (await res.json() || {}) : {};
-    const wines = Object.values(data).filter(Boolean);
-    const existing = wines.find(w => (w.name || '').trim().toLowerCase() === nombre.trim().toLowerCase());
-    
-    if (existing) {
-      return existing.id;
-    } else {
-      const newId = Date.now();
-      const numPvp = parseFloat(pvp.replace(/[^\d.-]/g, '')) || 0;
-      const newWine = {
-        id: newId,
-        name: nombre,
-        vintage: new Date().getFullYear(),
-        category: 'Producción',
-        price: numPvp,
-        stock: 0,
-        discount: 0,
-        imageUrl: '',
-        emoji: '🍾',
-        description: `Producción automática de lote.`,
-        featured: false,
-        createdAt: new Date().toISOString()
-      };
-      await fetch(`${_FB_BASE}/productos_ecommerce/${newId}.json`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newWine)
-      });
-      return newId;
-    }
-  } catch(e) {
-    console.error(e);
-    return null;
-  }
-}
-
-async function _registrarLoteProduccion({ nombre, parsedBots, loteNum, pvp, exw, recetaId }) {
-  const lotes = _getLotesProduccion();
-  const today = new Date().toISOString().split('T')[0];
-  
-  const mcommerceId = await _findOrCreateEcommerceProduct(nombre, pvp);
-
-  if (loteNum) {
-    const existing = lotes.find(l => l.loteNumero === loteNum);
-    if (existing) {
-      // Mismo número de lote → corrección (delta)
-      const delta = parsedBots - (existing.totalBotellas || 0);
-      existing.totalBotellas = parsedBots;
-      existing.nombre = nombre;
-      existing.mcommerceId = mcommerceId;
-      existing.pvp  = pvp;
-      existing.exw  = exw;
-      existing.fecha = today;
-      existing.recetaId = recetaId;
-      if (mcommerceId && delta !== 0) {
-        _pushDeltaStockToFirebase(mcommerceId, delta);
-        if (delta !== 0) _lujo_showToast(`📦 Lote #${loteNum} ajustado: ${delta > 0 ? '+' : ''}${delta} bot.`, delta >= 0);
-      }
-    } else {
-      // Número de lote diferente → nuevo lote, suma completa
-      lotes.push({
-        id: `lote_${Date.now()}`,
-        loteNumero: loteNum,
-        fecha: today,
-        nombre,
-        mcommerceId,
-        totalBotellas: parsedBots,
-        pvp,
-        exw,
-        recetaId
-      });
-      if (mcommerceId && parsedBots > 0) _pushDeltaStockToFirebase(mcommerceId, parsedBots);
-    }
-  } else {
-    // Sin número de lote → registrar como nuevo lote genérico
-    lotes.push({
-      id: `lote_${Date.now()}`,
-      loteNumero: `auto_${Date.now()}`,
-      fecha: today,
-      nombre,
-      mcommerceId,
-      totalBotellas: parsedBots,
-      pvp,
-      exw,
-      recetaId
-    });
-    if (mcommerceId && parsedBots > 0) _pushDeltaStockToFirebase(mcommerceId, parsedBots);
-  }
-
-  localStorage.setItem(_LOTES_PROD_KEY, JSON.stringify(lotes));
-
-  // Sync lotes a Firebase bajo /lotes_produccion
-  const fbLotes = Object.fromEntries(lotes.map(l => [l.id, l]));
-  fetch(`${_FB_BASE}/lotes_produccion.json`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(fbLotes)
-  }).catch(() => {});
-}
-
-// HELPER: Aplica un delta (positivo o negativo) al stock en Firebase
-function _pushDeltaStockToFirebase(mcommerceId, delta) {
-  if (!mcommerceId || delta === 0) return;
-  fetch(`${_FB_BASE}/productos_ecommerce/${mcommerceId}.json`)
-    .then(r => r.json())
-    .then(data => {
-      if (data) {
-        const newStock = Math.max(0, (data.stock || 0) + delta);
-        fetch(`${_FB_BASE}/productos_ecommerce/${mcommerceId}.json`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ stock: newStock })
+          }
         });
       }
-    }).catch(err => console.warn('Error actualizando stock Firebase:', err));
-}
+    }
 
-function _lujo_populateSelector() {
-  const sel = $('sel-recipe-lujo');
-  if (!sel) return;
-  const lujos = _lujo_getRecetas().map(r => `<option value="l_${r.id}">👑 ${r.nombre} (${r.fecha || '?'})</option>`);
-  const simples = _simple_getRecetas().map(s => `<option value="s_${s.id}">📝 ${s.nombre} (Simplificado)</option>`);
-  
-  sel.innerHTML = '<option value="">— Seleccionar —</option>' +
-    '<optgroup label="Proyectos Bifrost">' + lujos.join('') + '</optgroup>' +
-    '<optgroup label="Recetas Simplificadas">' + simples.join('') + '</optgroup>';
-}
+    // ──────────────────────────────────────────────────
+    // SISTEMA DE RECETAS (HÍBRIDO LUJO Y SIMPLE)
+    // ──────────────────────────────────────────────────
+    const _LUJO_KEY = 'bifrost_cost_recetas_lujo';
+    const _SIMPLE_KEY = 'bifrost_cost_historico';
 
-function cargarRecetaLujo() {
-  const selVal = $('sel-recipe-lujo')?.value;
-  if (!selVal) { _lujo_showToast('Selecciona una receta', false); return; }
+    const _SCALAR_FIELDS = [
+      'lote-nombre', 'lote-numero', 'lote-kg', 'rendimiento', 'botella-vol', 'meses-barrica', 'angel-pct', 'merma-lias',
+      'e-botella', 'e-corcho', 'e-capsula', 'e-etiq-front', 'e-etiq-back', 'e-medallon', 'e-caja',
+      'm-h-cosecha', 'm-p-cosecha',
+      'pct-marketing', 'pct-margen', 'pct-isc', 'pct-iva', 'tc-usd'
+    ];
 
-  const isLujo = selVal.startsWith('l_');
-  const idRaw  = selVal.substring(2);
+    function generarNuevoLote() {
+      const d = new Date();
+      const dias = ['dom', 'lun', 'mar', 'mie', 'jue', 'vie', 'sab'];
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy = d.getFullYear();
+      return dias[d.getDay()] + dd + mm + yyyy;
+    }
+    function actualizarLote() {
+      const el = document.getElementById('lote-numero');
+      if (!el.value) { el.value = generarNuevoLote(); }
+    }
 
-  if (isLujo) {
-    const receta = _lujo_getRecetas().find(r => r.id === idRaw);
-    if (!receta) return;
+    function _lujo_getRecetas() {
+      try { return JSON.parse(localStorage.getItem(_LUJO_KEY) || '[]'); } catch { return []; }
+    }
 
-    // 1. Restaurar todos los campos escalares (inputs, selects, numbers)
-    Object.entries(receta.campos || {}).forEach(([fieldId, val]) => {
-      const el = $(fieldId);
-      if (!el) return;
-      el.value = val;
-    });
+    function _simple_getRecetas() {
+      try { return JSON.parse(localStorage.getItem(_SIMPLE_KEY) || '[]'); } catch { return []; }
+    }
 
-    // 2. Restaurar unitariosData (base de precios unitarios)
-    if (receta.unitarios) unitariosData = JSON.parse(JSON.stringify(receta.unitarios));
+    function _lujo_showToast(msg, ok = true) {
+      const existing = document.getElementById('lujo-toast');
+      const t = existing || (() => {
+        const el = document.createElement('div');
+        el.id = 'lujo-toast';
+        el.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;padding:0.65rem 1.1rem;border-radius:10px;font-size:0.82rem;font-weight:600;opacity:0;transition:opacity 0.25s ease;pointer-events:none;max-width:320px;';
+        document.body.appendChild(el);
+        return el;
+      })();
+      t.textContent = msg;
+      t.style.background = ok ? 'rgba(76,175,80,0.18)' : 'rgba(239,83,80,0.18)';
+      t.style.border = ok ? '1px solid rgba(76,175,80,0.35)' : '1px solid rgba(239,83,80,0.35)';
+      t.style.color = ok ? '#81C784' : '#EF9A9A';
+      t.style.opacity = '1';
+      clearTimeout(t._t);
+      t._t = setTimeout(() => { t.style.opacity = '0'; }, 3000);
+    }
 
-    // 3. Restaurar mpData y cifData ANTES de renderizar para que el sync los encuentre
-    if (receta.mp)  mpData  = JSON.parse(JSON.stringify(receta.mp));
-    if (receta.cif) cifData = JSON.parse(JSON.stringify(receta.cif));
+    let _ecommerceWinesCache = [];
 
-    // 4. Renderizar unitarios (internamente llama renderMP con sync normal)
-    //    El sync encontrará los mpData restaurados y mantendrá sus cantidades
-    renderUnitarios();
+    async function _cargarVinosEcommerce() {
+      try {
+        const res = await fetch(`${_FB_BASE}/productos_ecommerce.json`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data) return;
+        _ecommerceWinesCache = Object.values(data).filter(Boolean);
+        const sel = $('lote-nombre-sel');
+        if (sel) {
+          const existingIds = Array.from(sel.options).map(o => o.value);
+          _ecommerceWinesCache.forEach(w => {
+            if (!existingIds.includes(String(w.id))) {
+              const opt = document.createElement('option');
+              opt.value = w.id;
+              opt.textContent = `${w.emoji || '🍷'} ${w.name}`;
+              opt.setAttribute('data-name', w.name);
+              sel.insertBefore(opt, $('opt-new-prod'));
+            }
+          });
+        }
+      } catch (e) { console.warn('No se pudo cargar vinos:', e); }
+    }
 
-    // 5. Pero renderUnitarios->renderMP puede haber mezclado datos — restaurar de nuevo
-    //    y renderizar MP sin sync (skipSync=true) para respetar exactamente los datos guardados
-    if (receta.mp)  mpData  = JSON.parse(JSON.stringify(receta.mp));
-    if (receta.cif) cifData = JSON.parse(JSON.stringify(receta.cif));
-    renderMP(true);   // skipSync: no sobreescribir cantidades
-    renderCIF();
+    function handleProductSelect() {
+      const sel = $('lote-nombre-sel');
+      if (sel.value === '_NEW_') {
+        sel.style.display = 'none';
+        $('new-product-wrap').style.display = 'block';
+        $('lote-nombre-input').focus();
+      } else {
+        let name = '';
+        if (sel.selectedIndex >= 0) {
+          name = sel.options[sel.selectedIndex].getAttribute('data-name') || sel.options[sel.selectedIndex].text;
+        }
+        $('lote-nombre').value = name;
+        actualizarLote();
+      }
+    }
 
-    // 6. Calcular inmediatamente + con delay para garantizar que el DOM esté listo
-    calcular();
-    setTimeout(calcular, 50);
+    function updateLoteNombreInput() {
+      $('lote-nombre').value = $('lote-nombre-input').value;
+      actualizarLote();
+    }
 
-    _lujo_showToast(`📂 Proyecto "${receta.nombre}" cargado — listo para editar`);
+    function cancelNewProduct() {
+      $('lote-nombre-input').value = '';
+      $('new-product-wrap').style.display = 'none';
+      $('lote-nombre-sel').style.display = 'block';
+      $('lote-nombre-sel').value = '';
+      handleProductSelect();
+    }
 
-  } else {
-    // Importar desde Simplificado
-    const recetaS = _simple_getRecetas().find(r => r.id === idRaw);
-    if (!recetaS) return;
+    function guardarRecetaLujo() {
+      let nombre = "";
+      let mcommerceId = "";
+      let skipInitialFirebaseDelta = false;
 
-    if ($('lote-nombre')) $('lote-nombre').value = recetaS.nombre;
-    if ($('lote-kg')) $('lote-kg').value = recetaS.litros_obtenidos || 208;
-    
-    mpData = [];
-    cifData = [];
-    
-    if (parseFloat(recetaS.mp_costo_total) > 0)
-      mpData.push({ unitId: 'custom', nombreCustom: `MP: ${recetaS.mp_nombre || 'Fruta Base'}`, usado: parseFloat(recetaS.mp_costo_total) });
-    if (parseFloat(recetaS.agua_costo) > 0)
-      mpData.push({ unitId: 'custom', nombreCustom: 'Agua Lote', usado: parseFloat(recetaS.agua_costo) });
-    if (parseFloat(recetaS.azucar_precio) > 0 && parseFloat(recetaS.azucar_cantidad) > 0)
-      mpData.push({ unitId: 'custom', nombreCustom: 'Azúcar Lote', usado: parseFloat(recetaS.azucar_precio) * parseFloat(recetaS.azucar_cantidad) });
-    if (parseFloat(recetaS.levadura_precio) > 0 && parseFloat(recetaS.levadura_cantidad) > 0)
-      mpData.push({ unitId: 'custom', nombreCustom: 'Levadura Lote', usado: parseFloat(recetaS.levadura_precio) * parseFloat(recetaS.levadura_cantidad) });
-    
-    (recetaS.insumos_extra || []).forEach(ins =>
-      mpData.push({ unitId: 'custom', nombreCustom: ins.nombre || 'Extra', usado: parseFloat(ins.costoTotal) || 0 })
-    );
+      const selEl = $('lote-nombre-sel');
+      const pvp = $('r-pvp-final')?.textContent || '—';
+      const parsedPvp = parseFloat(pvp.replace(/[^\d.-]/g, '')) || 0;
+      const bots = $('r-botellas')?.textContent || '—';
+      const parsedBots = parseInt(bots.replace(/[^\d.-]/g, '')) || 0;
 
-    if (parseFloat(recetaS.destajo_por_saco) > 0)
-      cifData.push({ concepto: 'Destajo MP', total: parseFloat(recetaS.destajo_por_saco) * parseFloat(recetaS.destajo_unidades || 1) });
-    
-    renderMP();
-    renderCIF();
-    calcular();
-    _lujo_showToast(`🔄 Importado de Simplificado: "${recetaS.nombre}"`);
-  }
-}
+      if (selEl.style.display !== 'none') {
+        mcommerceId = selEl.value;
+        if (selEl.selectedIndex >= 0) {
+          const opt = selEl.options[selEl.selectedIndex];
+          nombre = opt.getAttribute('data-name') || opt.textContent;
+        }
+      } else {
+        nombre = $('lote-nombre-input').value.trim();
+        if (nombre) {
+          mcommerceId = Date.now().toString();
+          const newWine = {
+            id: mcommerceId, name: nombre, vintage: new Date().getFullYear(),
+            category: 'Producción', price: parsedPvp, stock: parsedBots,
+            discount: 0, description: 'Lote registrado automáticamente desde Maestro de Costos.',
+            imageUrl: '', emoji: '🍷', region: '', alcohol: '', pairing: '',
+            featured: false, tastingNotes: []
+          };
+          skipInitialFirebaseDelta = true;
+          fetch(`${_FB_BASE}/productos_ecommerce/${mcommerceId}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newWine)
+          }).catch(e => console.warn('Error auto-creando vino:', e));
+          
+          _ecommerceWinesCache.push(newWine);
+          
+          const opt = document.createElement('option');
+          opt.value = mcommerceId;
+          opt.textContent = `🍷 ${nombre}`;
+          opt.setAttribute('data-name', nombre);
+          selEl.insertBefore(opt, $('opt-new-prod'));
+          
+          selEl.value = mcommerceId;
+          cancelNewProduct();
+          selEl.value = mcommerceId;
+        }
+      }
 
-function eliminarRecetaLujo(id) {
-  const recetas = _lujo_getRecetas().filter(r => r.id !== id);
-  localStorage.setItem(_LUJO_KEY, JSON.stringify(recetas));
-  _fb_deleteRecetaFromFirebase(id);  // ─ eliminar también de Firebase
-  _lujo_populateSelector();
-  renderHistorialLujo();
-  _lujo_showToast('Proyecto eliminado', false);
-}
+      if (!nombre || nombre === "— Sin enlazar a tienda —") {
+        _lujo_showToast('⚠️ Debes enlazara un producto, elige crear uno nuevo', false);
+        return;
+      }
+      $('lote-nombre').value = nombre;
 
-function renderHistorialLujo() {
-  const wrap = $('history-lujo-wrap');
-  if (!wrap) return;
-  const recetas = [..._lujo_getRecetas()].sort((a,b) => (b.fecha||'').localeCompare(a.fecha||''));
+      const campos = {};
+      _SCALAR_FIELDS.forEach(id => {
+        const el = $(id);
+        if (el) campos[id] = el.value;
+      });
 
-  if (recetas.length === 0) {
-    wrap.innerHTML = '<p style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:1.5rem 0;">No hay proyectos Bifrost guardados todavía.</p>';
-    return;
-  }
+      const exw = $('r-ex-works')?.textContent || '—';
+      const cpt = $('r-cpt')?.textContent || '—';
 
-  wrap.innerHTML = `
+      const recetas = _lujo_getRecetas();
+      const existIdx = recetas.findIndex(r => r.nombre === nombre);
+      const receta = {
+        id: existIdx !== -1 ? recetas[existIdx].id : `lujo_${Date.now()}`,
+        nombre,
+        fecha: new Date().toISOString().split('T')[0],
+        campos,
+        unitarios: JSON.parse(JSON.stringify(unitariosData)),
+        mp: JSON.parse(JSON.stringify(mpData)),
+        cif: JSON.parse(JSON.stringify(cifData)),
+        res_pvp: pvp,
+        res_exw: exw,
+        res_bots: bots,
+        res_cpt: cpt,
+      };
+
+      if (existIdx !== -1) { recetas[existIdx] = receta; }
+      else { recetas.push(receta); }
+
+      localStorage.setItem(_LUJO_KEY, JSON.stringify(recetas));
+      _fb_syncRecetaToFirebase(receta);
+
+      if (bots && bots !== '—') {
+        const loteNum = campos['lote-numero'] || '';
+        _registrarLoteProduccion({ nombre, mcommerceId, parsedBots, loteNum, pvp, exw, recetaId: receta.id, skipDelta: skipInitialFirebaseDelta });
+      }
+
+      _lujo_populateSelector();
+      renderHistorialLujo();
+      _lujo_showToast(`✅ Proyecto "${nombre}" guardado exitosamente`);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // FIREBASE SYNC — Recetas Históricas + Fichas de Producción
+    // ─────────────────────────────────────────────────────────────
+    const _FB_BASE = 'https://bifrost-sa-default-rtdb.firebaseio.com';
+
+    // Guarda/actualiza una receta en Firebase bajo /recetas_lujo/{id}
+    function _fb_syncRecetaToFirebase(receta) {
+      fetch(`${_FB_BASE}/recetas_lujo/${receta.id}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(receta)
+      }).catch(err => console.warn('Firebase sync receta failed:', err));
+    }
+
+    // Elimina una receta de Firebase
+    function _fb_deleteRecetaFromFirebase(id) {
+      fetch(`${_FB_BASE}/recetas_lujo/${id}.json`, {
+        method: 'DELETE'
+      }).catch(() => { });
+    }
+
+    // Descarga todas las recetas desde Firebase y las fusiona con localStorage
+    async function _fb_loadRecetasFromFirebase() {
+      try {
+        const res = await fetch(`${_FB_BASE}/recetas_lujo.json`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data) return;
+
+        const fbRecetas = Object.values(data).filter(Boolean);
+        const local = _lujo_getRecetas();
+
+        // Merge: Firebase tiene prioridad sobre local (es la fuente de verdad)
+        const merged = [...local];
+        fbRecetas.forEach(fr => {
+          const idx = merged.findIndex(l => l.id === fr.id);
+          if (idx !== -1) {
+            // Firebase gana si es más reciente
+            if ((fr.fecha || '') >= (merged[idx].fecha || '')) merged[idx] = fr;
+          } else {
+            merged.push(fr);
+          }
+        });
+
+        localStorage.setItem(_LUJO_KEY, JSON.stringify(merged));
+        _lujo_populateSelector();
+        renderHistorialLujo();
+      } catch (e) { /* offline — usar localStorage */ }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // HELPER: Registro inteligente de Lote de Producción
+    // Mismo lote-numero → ajuste delta | Nuevo lote → suma total
+    // ─────────────────────────────────────────────────────────────
+    const _LOTES_PROD_KEY = 'bifrost_lotes_produccion';
+
+    function _getLotesProduccion() {
+      try { return JSON.parse(localStorage.getItem(_LOTES_PROD_KEY) || '[]'); } catch { return []; }
+    }
+
+    function _registrarLoteProduccion({ nombre, mcommerceId, parsedBots, loteNum, pvp, exw, recetaId, skipDelta }) {
+      const lotes = _getLotesProduccion();
+      const today = new Date().toISOString().split('T')[0];
+
+      if (loteNum) {
+        const existing = lotes.find(l => l.loteNumero === loteNum);
+        if (existing) {
+          // Mismo número de lote → corrección (delta)
+          const delta = parsedBots - (existing.totalBotellas || 0);
+          existing.totalBotellas = parsedBots;
+          existing.pvp = pvp;
+          existing.exw = exw;
+          existing.fecha = today;
+          existing.recetaId = recetaId;
+          if (mcommerceId && delta !== 0 && !skipDelta) {
+            _pushDeltaStockToFirebase(mcommerceId, delta);
+            if (delta !== 0) _lujo_showToast(`📦 Lote #${loteNum} ajustado: ${delta > 0 ? '+' : ''}${delta} bot.`, delta >= 0);
+          }
+        } else {
+          // Número de lote diferente → nuevo lote, suma completa
+          lotes.push({
+            id: `lote_${Date.now()}`,
+            loteNumero: loteNum,
+            fecha: today,
+            nombre,
+            mcommerceId,
+            totalBotellas: parsedBots,
+            pvp,
+            exw,
+            recetaId
+          });
+          if (mcommerceId && parsedBots > 0 && !skipDelta) _pushDeltaStockToFirebase(mcommerceId, parsedBots);
+        }
+      } else {
+        // Sin número de lote → registrar como nuevo lote genérico
+        lotes.push({
+          id: `lote_${Date.now()}`,
+          loteNumero: `auto_${Date.now()}`,
+          fecha: today,
+          nombre,
+          mcommerceId,
+          totalBotellas: parsedBots,
+          pvp,
+          exw,
+          recetaId
+        });
+        if (mcommerceId && parsedBots > 0 && !skipDelta) _pushDeltaStockToFirebase(mcommerceId, parsedBots);
+      }
+
+      localStorage.setItem(_LOTES_PROD_KEY, JSON.stringify(lotes));
+
+      // Sync lotes + receta_cpt a Firebase bajo /lotes_produccion
+      const fbLotes = Object.fromEntries(lotes.map(l => [l.id, l]));
+      fetch(`${_FB_BASE}/lotes_produccion.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fbLotes)
+      }).catch(() => { });
+    }
+
+    // HELPER: Aplica un delta (positivo o negativo) al stock en Firebase
+    function _pushDeltaStockToFirebase(mcommerceId, delta) {
+      if (!mcommerceId || delta === 0) return;
+      fetch(`${_FB_BASE}/productos_ecommerce/${mcommerceId}.json`)
+        .then(r => r.json())
+        .then(data => {
+          if (data) {
+            const newStock = Math.max(0, (data.stock || 0) + delta);
+            fetch(`${_FB_BASE}/productos_ecommerce/${mcommerceId}.json`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ stock: newStock })
+            });
+          }
+        }).catch(err => console.warn('Error actualizando stock Firebase:', err));
+    }
+
+    function _lujo_populateSelector() {
+      const sel = $('sel-recipe-lujo');
+      if (!sel) return;
+      const lujos = _lujo_getRecetas().map(r => `<option value="l_${r.id}">👑 ${r.nombre} (${r.fecha || '?'})</option>`);
+      const simples = _simple_getRecetas().map(s => `<option value="s_${s.id}">📝 ${s.nombre} (Simplificado)</option>`);
+
+      sel.innerHTML = '<option value="">— Seleccionar —</option>' +
+        '<optgroup label="Proyectos Bifrost">' + lujos.join('') + '</optgroup>' +
+        '<optgroup label="Recetas Simplificadas">' + simples.join('') + '</optgroup>';
+    }
+
+    function cargarRecetaLujo() {
+      const selVal = $('sel-recipe-lujo')?.value;
+      if (!selVal) { _lujo_showToast('Selecciona una receta', false); return; }
+
+      const isLujo = selVal.startsWith('l_');
+      const idRaw = selVal.substring(2);
+
+      if (isLujo) {
+        const receta = _lujo_getRecetas().find(r => r.id === idRaw);
+        if (!receta) return;
+
+        // 1. Restaurar todos los campos escalares (inputs, selects, numbers)
+        Object.entries(receta.campos || {}).forEach(([fieldId, val]) => {
+          const el = $(fieldId);
+          if (!el) return;
+          el.value = val;
+        });
+
+        if (receta.campos && receta.campos['lote-nombre']) {
+          const loadedName = receta.campos['lote-nombre'];
+          const sel = $('lote-nombre-sel');
+          let found = false;
+          Array.from(sel.options).forEach(opt => {
+              if (opt.getAttribute('data-name') === loadedName || opt.text.includes(loadedName)) {
+                  sel.value = opt.value;
+                  found = true;
+              }
+          });
+          if (!found) {
+              $('lote-nombre-input').value = loadedName;
+              sel.style.display = 'none';
+              $('new-product-wrap').style.display = 'block';
+          } else {
+              sel.style.display = 'block';
+              $('new-product-wrap').style.display = 'none';
+          }
+        }
+
+        // 2. Restaurar unitariosData (base de precios unitarios)
+        if (receta.unitarios) unitariosData = JSON.parse(JSON.stringify(receta.unitarios));
+
+        // 3. Restaurar mpData y cifData ANTES de renderizar para que el sync los encuentre
+        if (receta.mp) mpData = JSON.parse(JSON.stringify(receta.mp));
+        if (receta.cif) cifData = JSON.parse(JSON.stringify(receta.cif));
+
+        // 4. Renderizar unitarios (internamente llama renderMP con sync normal)
+        //    El sync encontrará los mpData restaurados y mantendrá sus cantidades
+        renderUnitarios();
+
+        // 5. Pero renderUnitarios->renderMP puede haber mezclado datos — restaurar de nuevo
+        //    y renderizar MP sin sync (skipSync=true) para respetar exactamente los datos guardados
+        if (receta.mp) mpData = JSON.parse(JSON.stringify(receta.mp));
+        if (receta.cif) cifData = JSON.parse(JSON.stringify(receta.cif));
+        renderMP(true);   // skipSync: no sobreescribir cantidades
+        renderCIF();
+
+        // 6. Calcular inmediatamente + con delay para garantizar que el DOM esté listo
+        calcular();
+        setTimeout(calcular, 50);
+
+        _lujo_showToast(`📂 Proyecto "${receta.nombre}" cargado — listo para editar`);
+
+      } else {
+        // Importar desde Simplificado
+        const recetaS = _simple_getRecetas().find(r => r.id === idRaw);
+        if (!recetaS) return;
+
+        if ($('lote-nombre')) $('lote-nombre').value = recetaS.nombre;
+        if ($('lote-kg')) $('lote-kg').value = recetaS.litros_obtenidos || 208;
+
+        mpData = [];
+        cifData = [];
+
+        if (parseFloat(recetaS.mp_costo_total) > 0)
+          mpData.push({ unitId: 'custom', nombreCustom: `MP: ${recetaS.mp_nombre || 'Fruta Base'}`, usado: parseFloat(recetaS.mp_costo_total) });
+        if (parseFloat(recetaS.agua_costo) > 0)
+          mpData.push({ unitId: 'custom', nombreCustom: 'Agua Lote', usado: parseFloat(recetaS.agua_costo) });
+        if (parseFloat(recetaS.azucar_precio) > 0 && parseFloat(recetaS.azucar_cantidad) > 0)
+          mpData.push({ unitId: 'custom', nombreCustom: 'Azúcar Lote', usado: parseFloat(recetaS.azucar_precio) * parseFloat(recetaS.azucar_cantidad) });
+        if (parseFloat(recetaS.levadura_precio) > 0 && parseFloat(recetaS.levadura_cantidad) > 0)
+          mpData.push({ unitId: 'custom', nombreCustom: 'Levadura Lote', usado: parseFloat(recetaS.levadura_precio) * parseFloat(recetaS.levadura_cantidad) });
+
+        (recetaS.insumos_extra || []).forEach(ins =>
+          mpData.push({ unitId: 'custom', nombreCustom: ins.nombre || 'Extra', usado: parseFloat(ins.costoTotal) || 0 })
+        );
+
+        if (parseFloat(recetaS.destajo_por_saco) > 0)
+          cifData.push({ concepto: 'Destajo MP', total: parseFloat(recetaS.destajo_por_saco) * parseFloat(recetaS.destajo_unidades || 1) });
+
+        renderMP();
+        renderCIF();
+        calcular();
+        _lujo_showToast(`🔄 Importado de Simplificado: "${recetaS.nombre}"`);
+      }
+    }
+
+    function eliminarRecetaLujo(id) {
+      const recetas = _lujo_getRecetas().filter(r => r.id !== id);
+      localStorage.setItem(_LUJO_KEY, JSON.stringify(recetas));
+      _fb_deleteRecetaFromFirebase(id);  // ─ eliminar también de Firebase
+      _lujo_populateSelector();
+      renderHistorialLujo();
+      _lujo_showToast('Proyecto eliminado', false);
+    }
+
+    function renderHistorialLujo() {
+      const wrap = $('history-lujo-wrap');
+      if (!wrap) return;
+      const recetas = [..._lujo_getRecetas()].sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
+
+      if (recetas.length === 0) {
+        wrap.innerHTML = '<p style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:1.5rem 0;">No hay proyectos Bifrost guardados todavía.</p>';
+        return;
+      }
+
+      wrap.innerHTML = `
     <div class="table-responsive">
     <table class="breakdown-table" style="width:100%;border-collapse:collapse;">
       <thead>
@@ -2137,59 +2659,41 @@ function renderHistorialLujo() {
     </table>
     </div>
   `;
-}
-
-document.addEventListener('DOMContentLoaded', async () => {
-  cargarUnitarios();
-  actualizarLote();
-  renderUnitarios();
-  renderMP();
-  renderCIF();
-  calcular();
-  _lujo_populateSelector();
-  renderHistorialLujo();
-  // Sincronizar recetas desde Firebase (en background, no bloquea UI)
-  _fb_loadRecetasFromFirebase();
-
-  // Populate datalist de productos
-  try {
-    const res = await fetch(`${_FB_BASE}/productos_ecommerce.json`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data) {
-        const datalist = $('ecommerce-wines-list');
-        if (datalist) {
-          datalist.innerHTML = '';
-          Object.values(data).filter(Boolean).forEach(w => {
-            const opt = document.createElement('option');
-            opt.value = w.name;
-            datalist.appendChild(opt);
-          });
-        }
-      }
     }
-  } catch(e) {}
 
-  // Update historial badge when selector changes
-  const sel = document.getElementById('sel-recipe-lujo');
-  if (sel) {
-    const badge = document.getElementById('sb-receta-badge');
-    sel.addEventListener('change', () => {
-      const opt = sel.options[sel.selectedIndex];
-      if (badge) badge.textContent = opt?.text?.replace(/^[📝🍶] /, '').substring(0, 22) || 'Cargar receta';
+    document.addEventListener('DOMContentLoaded', async () => {
+      cargarUnitarios();
+      actualizarLote();
+      renderUnitarios();
+      renderMP();
+      renderCIF();
+      calcular();
+      _lujo_populateSelector();
+      renderHistorialLujo();
+      _cargarVinosEcommerce();
+      // Sincronizar recetas desde Firebase (en background, no bloquea UI)
+      _fb_loadRecetasFromFirebase();
+
+      // Update historial badge when selector changes
+      const sel = document.getElementById('sel-recipe-lujo');
+      if (sel) {
+        const badge = document.getElementById('sb-receta-badge');
+        sel.addEventListener('change', () => {
+          const opt = sel.options[sel.selectedIndex];
+          if (badge) badge.textContent = opt?.text?.replace(/^[📝🍶] /, '').substring(0, 22) || 'Cargar receta';
+        });
+      }
     });
-  }
-});
 
-// ─────────────────────────────────────────────────
-// ACCORDION TOGGLE
-// ─────────────────────────────────────────────────
-function toggleAccordion(id) {
-  const block = document.getElementById(id);
-  if (!block) return;
-  block.classList.toggle('open');
-}
-</script>
+    // ─────────────────────────────────────────────────
+    // ACCORDION TOGGLE
+    // ─────────────────────────────────────────────────
+    function toggleAccordion(id) {
+      const block = document.getElementById(id);
+      if (!block) return;
+      block.classList.toggle('open');
+    }
+  </script>
 </body>
-</html>
 
+</html>
