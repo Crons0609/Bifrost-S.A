@@ -1589,24 +1589,39 @@ function cargarRecetaLujo() {
   if (!selVal) { _lujo_showToast('Selecciona una receta', false); return; }
 
   const isLujo = selVal.startsWith('l_');
-  const idRaw = selVal.substring(2);
+  const idRaw  = selVal.substring(2);
 
   if (isLujo) {
     const receta = _lujo_getRecetas().find(r => r.id === idRaw);
     if (!receta) return;
 
+    // 1. Restaurar campos escalares (inputs y selects)
     Object.entries(receta.campos || {}).forEach(([fieldId, val]) => {
-      if ($(fieldId)) $(fieldId).value = val;
+      const el = $(fieldId);
+      if (!el) return;
+      // Para <select> asignamos el value directamente
+      el.value = val;
     });
 
-    if (receta.unitarios) unitariosData = receta.unitarios;
-    if (receta.mp) mpData = receta.mp;
-    if (receta.cif) cifData = receta.cif;
-    
+    // 2. Restaurar base de costos unitarios
+    if (receta.unitarios) unitariosData = JSON.parse(JSON.stringify(receta.unitarios));
+
+    // 3. Renderizar unitarios (esto internamente llama renderMP y sincroniza
+    //    mpData con unitariosData — PERO necesitamos sobreescribir después)
     renderUnitarios();
+
+    // 4. Restaurar mpData DESPUÉS del render para que no sea sobreescrito
+    if (receta.mp)  mpData  = JSON.parse(JSON.stringify(receta.mp));
+    if (receta.cif) cifData = JSON.parse(JSON.stringify(receta.cif));
+
+    // 5. Renderizar tablas con los datos restaurados
+    renderMP();
     renderCIF();
+
+    // 6. Recalcular resultados
     calcular();
-    _lujo_showToast(`📂 Proyecto "${receta.nombre}" cargado`);
+
+    _lujo_showToast(`📂 Proyecto "${receta.nombre}" cargado — listo para editar`);
   } else {
     // Importar desde Simplificado
     const recetaS = _simple_getRecetas().find(r => r.id === idRaw);
