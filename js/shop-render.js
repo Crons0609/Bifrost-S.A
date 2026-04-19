@@ -142,8 +142,8 @@ function buildCard(wine, settings, index) {
         <div class="product-card__vintage">${wine.vintage} · ${wine.category}</div>
         <div class="product-card__name">${wine.name}</div>
         <div class="product-card__price-row">
-          <span class="product-card__price">$${finalPrice.toFixed(2)}</span>
-          ${discountPct > 0 ? `<span class="product-card__price-original">$${wine.price.toFixed(2)}</span>` : ''}
+          <span class="product-card__price">C$${finalPrice.toFixed(2)}</span>
+          ${discountPct > 0 ? `<span class="product-card__price-original">C$${wine.price.toFixed(2)}</span>` : ''}
           <span class="stock-indicator stock-indicator--${stockLevel}" title="${stockLabel}"></span>
         </div>
       </div>
@@ -266,8 +266,8 @@ async function openQuickView(e, id) {
           ${stockLabel}
         </div>
         <div style="display:flex; align-items:baseline; gap:12px;">
-          <div class="quick-view-price">$${finalPrice.toFixed(2)}</div>
-          ${discPct > 0 ? `<del style="color:var(--color-text-muted);">$${wine.price.toFixed(2)}</del>` : ''}
+          <div class="quick-view-price">C$${finalPrice.toFixed(2)}</div>
+          ${discPct > 0 ? `<del style="color:var(--color-text-muted);">C$${wine.price.toFixed(2)}</del>` : ''}
         </div>
         <div style="display:flex; gap:12px; margin-top:4px;">
           <button class="btn btn--primary btn-ripple" style="flex:1"

@@ -170,7 +170,7 @@ function renderCartSidebar() {
         <a href="../statics/shop.html" class="btn btn--outline btn--sm">Explorar Colección</a>
       </div>
     `;
-    if (totalEl) totalEl.textContent = '$0.00';
+    if (totalEl) totalEl.textContent = 'C$0.00';
     return;
   }
 
@@ -189,7 +189,7 @@ function renderCartSidebar() {
         </div>
       </div>
       <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
-        <span class="cart-item__price">$${(item.price * item.qty).toFixed(2)}</span>
+        <span class="cart-item__price">C$${(item.price * item.qty).toFixed(2)}</span>
         <button class="cart-item__remove" onclick="Cart.remove(${item.id})" title="Eliminar">
           <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -199,7 +199,7 @@ function renderCartSidebar() {
     </div>
   `).join('');
 
-  if (totalEl) totalEl.textContent = `$${Cart.total.toFixed(2)}`;
+  if (totalEl) totalEl.textContent = `C$${Cart.total.toFixed(2)}`;
 }
 
 /* ── Navbar & Mobile Menu ────────────────────────────────────── */
@@ -269,9 +269,9 @@ function initNavbar() {
 
 /* ── Format Currency ─────────────────────────────────────────── */
 window.formatPrice = function(amount) {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('es-NI', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'NIO',
     minimumFractionDigits: 2,
   }).format(amount);
 };
