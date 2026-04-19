@@ -1086,27 +1086,29 @@ function addUnitarioRow() {
 }
 function removeU(i) { unitariosData.splice(i,1); renderUnitarios(); calcular(); }
 
-function renderMP() {
+function renderMP(skipSync = false) {
   const tbody = $('lista-mp');
   if(!tbody) return;
   tbody.innerHTML = '';
 
-  // Auto-sync mpData with unitariosData so names appear automatically
-  const newMpData = [];
-  unitariosData.forEach(u => {
-     let existing = mpData.find(mp => mp.unitId === u.id);
-     if (existing) {
-         newMpData.push(existing);
-     } else {
-         newMpData.push({ unitId: u.id, usado: 0 }); 
-     }
-  });
-  mpData.forEach(mp => {
-     if (!unitariosData.find(u => u.id === mp.unitId)) {
-        newMpData.push(mp);
-     }
-  });
-  mpData = newMpData;
+  if (!skipSync) {
+    // Auto-sync mpData with unitariosData so names appear automatically
+    const newMpData = [];
+    unitariosData.forEach(u => {
+       let existing = mpData.find(mp => mp.unitId === u.id);
+       if (existing) {
+           newMpData.push(existing);
+       } else {
+           newMpData.push({ unitId: u.id, usado: 0 }); 
+       }
+    });
+    mpData.forEach(mp => {
+       if (!unitariosData.find(u => u.id === mp.unitId)) {
+          newMpData.push(mp);
+       }
+    });
+    mpData = newMpData;
+  }
 
   mpData.forEach((mp, i) => {
     const tr = document.createElement('tr');
@@ -1595,33 +1597,37 @@ function cargarRecetaLujo() {
     const receta = _lujo_getRecetas().find(r => r.id === idRaw);
     if (!receta) return;
 
-    // 1. Restaurar campos escalares (inputs y selects)
+    // 1. Restaurar todos los campos escalares (inputs, selects, numbers)
     Object.entries(receta.campos || {}).forEach(([fieldId, val]) => {
       const el = $(fieldId);
       if (!el) return;
-      // Para <select> asignamos el value directamente
       el.value = val;
     });
 
-    // 2. Restaurar base de costos unitarios
+    // 2. Restaurar unitariosData (base de precios unitarios)
     if (receta.unitarios) unitariosData = JSON.parse(JSON.stringify(receta.unitarios));
 
-    // 3. Renderizar unitarios (esto internamente llama renderMP y sincroniza
-    //    mpData con unitariosData — PERO necesitamos sobreescribir después)
-    renderUnitarios();
-
-    // 4. Restaurar mpData DESPUÉS del render para que no sea sobreescrito
+    // 3. Restaurar mpData y cifData ANTES de renderizar para que el sync los encuentre
     if (receta.mp)  mpData  = JSON.parse(JSON.stringify(receta.mp));
     if (receta.cif) cifData = JSON.parse(JSON.stringify(receta.cif));
 
-    // 5. Renderizar tablas con los datos restaurados
-    renderMP();
+    // 4. Renderizar unitarios (internamente llama renderMP con sync normal)
+    //    El sync encontrará los mpData restaurados y mantendrá sus cantidades
+    renderUnitarios();
+
+    // 5. Pero renderUnitarios->renderMP puede haber mezclado datos — restaurar de nuevo
+    //    y renderizar MP sin sync (skipSync=true) para respetar exactamente los datos guardados
+    if (receta.mp)  mpData  = JSON.parse(JSON.stringify(receta.mp));
+    if (receta.cif) cifData = JSON.parse(JSON.stringify(receta.cif));
+    renderMP(true);   // skipSync: no sobreescribir cantidades
     renderCIF();
 
-    // 6. Recalcular resultados
+    // 6. Calcular inmediatamente + con delay para garantizar que el DOM esté listo
     calcular();
+    setTimeout(calcular, 50);
 
     _lujo_showToast(`📂 Proyecto "${receta.nombre}" cargado — listo para editar`);
+
   } else {
     // Importar desde Simplificado
     const recetaS = _simple_getRecetas().find(r => r.id === idRaw);
