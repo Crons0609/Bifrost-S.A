@@ -286,6 +286,292 @@
     .form-group { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.8rem; }
     .form-label { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; letter-spacing: 0.05em; }
 
+    /* ═══════════════════════════════════════════════════════
+       SIDEBAR REDESIGN — Sistema de Bloques
+    ═══════════════════════════════════════════════════════ */
+    .sb-block {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .sb-block:hover { border-color: rgba(255,255,255,0.1); }
+
+    .sb-block--accent {
+      background: linear-gradient(135deg, rgba(212,175,55,0.07) 0%, var(--glass) 100%);
+      border-color: rgba(212,175,55,0.25);
+    }
+    .sb-block--gold {
+      border-color: rgba(212,175,55,0.3);
+    }
+
+    .sb-block__head {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .sb-block--collapsible .sb-block__head { cursor: default; }
+    .sb-accordion-trigger { cursor: pointer; user-select: none; }
+    .sb-accordion-trigger:hover { background: rgba(255,255,255,0.03); }
+
+    .sb-block__icon {
+      font-size: 1rem;
+      width: 28px;
+      height: 28px;
+      background: rgba(212,175,55,0.12);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .sb-block__title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      flex: 1;
+    }
+
+    .sb-block__badge {
+      font-size: 0.65rem;
+      color: var(--gold);
+      background: rgba(212,175,55,0.1);
+      border: 1px solid rgba(212,175,55,0.2);
+      padding: 0.15rem 0.5rem;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .sb-accordion-arrow {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      transition: transform 0.25s ease;
+      margin-left: auto;
+    }
+    .sb-block--collapsible.open .sb-accordion-arrow { transform: rotate(180deg); }
+
+    /* Accordion body */
+    .sb-accordion-body {
+      overflow: hidden;
+      padding: 0;
+      max-height: 0;
+      transition: max-height 0.3s ease, padding 0.2s;
+    }
+    .sb-block--collapsible.open .sb-accordion-body {
+      max-height: 800px;
+      padding: 0.85rem 1rem;
+    }
+    /* Non-collapsible blocks (ficha and historial) always show body */
+    .sb-block:not(.sb-block--collapsible) .sb-accordion-body,
+    .sb-block:not(.sb-block--collapsible) > *:not(.sb-block__head) {
+      padding: 0.85rem 1rem;
+    }
+
+    /* Load row */
+    .sb-load-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      padding: 0.85rem 1rem;
+    }
+    .sb-load-row .sb-select { flex: 1; min-width: 0; }
+
+    /* Fields */
+    .sb-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      margin-bottom: 0.65rem;
+    }
+    .sb-field:last-child { margin-bottom: 0; }
+
+    .sb-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .sb-label__icon { font-size: 0.82rem; }
+
+    /* Inputs */
+    .sb-input, .sb-select {
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      border: 1px solid var(--glass-border);
+      background: rgba(0,0,0,0.3);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+      width: 100%;
+    }
+    .sb-input:focus, .sb-select:focus {
+      border-color: var(--gold);
+      background: rgba(0,0,0,0.45);
+    }
+    .sb-select option { background: var(--surface); }
+
+    /* Suffix inputs (number + unit label) */
+    .sb-input-suffix {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(0,0,0,0.3);
+      transition: border-color 0.2s;
+    }
+    .sb-input-suffix:focus-within { border-color: var(--gold); }
+    .sb-input-suffix .sb-input {
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      padding: 0.5rem 0.6rem;
+      flex: 1;
+      min-width: 0;
+    }
+    .sb-input-suffix .sb-input:focus { border: none; }
+    .sb-suffix {
+      padding: 0.5rem 0.65rem;
+      font-size: 0.68rem;
+      color: var(--gold);
+      background: rgba(212,175,55,0.06);
+      border-left: 1px solid var(--glass-border);
+      white-space: nowrap;
+      font-weight: 600;
+    }
+
+    /* 2-column grid for paired inputs */
+    .sb-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+      margin-bottom: 0.65rem;
+    }
+    .sb-grid-2:last-child { margin-bottom: 0; }
+
+    /* Table inside accordion */
+    .sb-table { width: 100%; border-collapse: collapse; }
+    .sb-table th {
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 0.3rem 0.4rem;
+      text-align: left;
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .sb-table td {
+      padding: 0.3rem 0.4rem;
+      font-size: 0.8rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      color: var(--text-secondary);
+    }
+    .sb-hint {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 0.65rem;
+      line-height: 1.5;
+    }
+
+    /* Envasado: label + input rows */
+    .sb-envasado-grid { display: flex; flex-direction: column; gap: 0.45rem; }
+    .sb-env-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+    .sb-env-item > span {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      flex: 1;
+    }
+    .sb-env-item .sb-input-suffix { width: 110px; flex-shrink: 0; }
+    .sb-env-item .sb-input-suffix .sb-input { width: 55px; }
+
+    /* MOD row */
+    .sb-mod-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .sb-mod-label {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      flex: 1;
+      min-width: 100px;
+    }
+    .sb-mod-sep {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+    .sb-mod-row .sb-input-suffix { width: 100px; }
+
+    /* "Guardar base de datos" mini button */
+    .sb-save-db-btn {
+      width: 100%;
+      margin-top: 0.6rem;
+      padding: 0.4rem 0.75rem;
+      background: rgba(212,175,55,0.07);
+      border: 1px solid rgba(212,175,55,0.2);
+      color: var(--gold);
+      border-radius: 8px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .sb-save-db-btn:hover { background: rgba(212,175,55,0.14); }
+
+    /* Sticky save button at bottom of sidebar */
+    .sb-save-sticky {
+      position: sticky;
+      bottom: 0;
+      padding: 0.75rem 0;
+      background: linear-gradient(to top, var(--bg) 80%, transparent);
+      margin-top: 0.25rem;
+    }
+    .sb-btn-save {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: linear-gradient(135deg, #d4af37 0%, #b8942b 100%);
+      border: none;
+      border-radius: 10px;
+      color: #1a1610;
+      font-weight: 800;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      letter-spacing: 0.04em;
+      box-shadow: 0 4px 20px rgba(212,175,55,0.3);
+      transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+    }
+    .sb-btn-save:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 28px rgba(212,175,55,0.45);
+      filter: brightness(1.08);
+    }
+    .sb-btn-save:active { transform: translateY(0); }
+
+    /* btn size variants */
+    .btn--sm { padding: 0.4rem 0.75rem !important; font-size: 0.78rem !important; white-space: nowrap; }
+    .btn--xs { padding: 0.2rem 0.45rem !important; font-size: 0.68rem !important; }
+
     .form-input, .form-select {
       padding: 0.6rem 0.85rem;
       border-radius: var(--r-sm);
@@ -613,263 +899,315 @@
     <!-- ════ SIDEBAR IZQUIERDO ════ -->
     <aside class="sidebar">
 
-      <!-- Cargar Receta -->
-      <div class="card" style="background:linear-gradient(135deg,rgba(212,175,55,0.06) 0%,var(--surface) 100%);border-color:rgba(212,175,55,0.2);">
-        <div class="card__header">
-          <div class="card__icon">📁</div>
-          <span class="card__title">Cargar Receta Histórica</span>
+      <!-- ── CARGA / HISTORIAL ────────────────────────────── -->
+      <div class="sb-block sb-block--accent">
+        <div class="sb-block__head">
+          <span class="sb-block__icon">📁</span>
+          <span class="sb-block__title">Historial</span>
+          <span class="sb-block__badge" id="sb-receta-badge">Cargar receta</span>
         </div>
-        <div class="form-group">
-          <label class="form-label">Desde Lujo o Simplificado</label>
-          <div style="display:flex;gap:0.5rem;">
-            <select id="sel-recipe-lujo" class="form-select" style="flex:1;"></select>
-            <button class="btn btn--gold" onclick="cargarRecetaLujo()" style="padding:0.4rem 0.8rem;font-size:0.78rem;white-space:nowrap;">Cargar</button>
-          </div>
+        <div class="sb-load-row">
+          <select id="sel-recipe-lujo" class="sb-select"></select>
+          <button class="btn btn--gold btn--sm" onclick="cargarRecetaLujo()">
+            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            Cargar
+          </button>
         </div>
       </div>
 
-      <!-- Ficha Técnica -->
-      <div class="card">
-        <div class="card__header">
-          <div class="card__icon">📋</div>
-          <span class="card__title">Ficha Técnica y Lote</span>
+      <!-- ── FICHA TÉCNICA ─────────────────────────────────── -->
+      <div class="sb-block">
+        <div class="sb-block__head">
+          <span class="sb-block__icon">🍶</span>
+          <span class="sb-block__title">Ficha del Lote</span>
         </div>
-        <div class="form-group">
-          <label class="form-label">Nombre del Producto / MP Principal</label>
-          <select class="form-select" id="lote-nombre" onchange="actualizarLote()">
-            <option value="">— Ninguno (No enlazar a tienda) —</option>
-            <option value="4" data-name="Tamarindo (Vortex obsidian)">Tamarindo (Vortex obsidian)</option>
-            <option value="5" data-name="Calala (frost meridian)">Calala (frost meridian)</option>
-            <option value="3" data-name="Piña (bifrost Aurora)">Piña (bifrost Aurora)</option>
-            <option value="2" data-name="Coyolito (Vortex eclipse)">Coyolito (Vortex eclipse)</option>
-            <option value="6" data-name="Mango (Vortex singularity)">Mango (Vortex singularity)</option>
-            <option value="1" data-name="Jamaica (Vortex nebula)">Jamaica (Vortex nebula)</option>
+
+        <!-- Producto -->
+        <div class="sb-field">
+          <label class="sb-label">
+            <span class="sb-label__icon">🍷</span> Producto
+          </label>
+          <select class="sb-select" id="lote-nombre" onchange="actualizarLote()">
+            <option value="">— Sin enlazar a tienda —</option>
+            <option value="4" data-name="Tamarindo (Vortex obsidian)">🍫 Tamarindo (Vortex Obsidian)</option>
+            <option value="5" data-name="Calala (frost meridian)">🌺 Calala (Frost Meridian)</option>
+            <option value="3" data-name="Piña (bifrost Aurora)">🍍 Piña (Bifrost Aurora)</option>
+            <option value="2" data-name="Coyolito (Vortex eclipse)">🌑 Coyolito (Vortex Eclipse)</option>
+            <option value="6" data-name="Mango (Vortex singularity)">🥭 Mango (Vortex Singularity)</option>
+            <option value="1" data-name="Jamaica (Vortex nebula)">🌸 Jamaica (Vortex Nebula)</option>
           </select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Lote #</label>
-          <input type="text" class="form-input" id="lote-numero">
+
+        <!-- Lote # -->
+        <div class="sb-field">
+          <label class="sb-label">
+            <span class="sb-label__icon">🏷️</span> N° de Lote
+          </label>
+          <input type="text" class="sb-input" id="lote-numero" placeholder="ej: vie18042026">
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Litros Totales Obtenidos</label>
-            <input type="number" class="form-input" id="lote-kg" value="208" oninput="calcular()">
-          </div>
-          <div class="form-group" style="display:none;">
-            <label class="form-label">Rendimiento (L/kg)</label>
-            <input type="number" class="form-input" id="rendimiento" value="1.0" step="0.01" oninput="calcular()">
+        <!-- Litros -->
+        <div class="sb-field">
+          <label class="sb-label">
+            <span class="sb-label__icon">🫙</span> Litros Totales Obtenidos
+          </label>
+          <div class="sb-input-suffix">
+            <input type="number" class="sb-input" id="lote-kg" value="208" oninput="calcular()">
+            <span class="sb-suffix">L</span>
           </div>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Tamaño Botella</label>
-            <select id="botella-vol" class="form-select" onchange="calcular()">
+        <!-- inputs ocultos -->
+        <input type="hidden" id="rendimiento" value="1.0">
+
+        <!-- Botella + Barrica (2 cols) -->
+        <div class="sb-grid-2">
+          <div class="sb-field">
+            <label class="sb-label">
+              <span class="sb-label__icon">🍾</span> Botella
+            </label>
+            <select id="botella-vol" class="sb-select" onchange="calcular()">
               <option value="0.75">750 ml</option>
               <option value="0.50">500 ml</option>
               <option value="0.35">350 ml</option>
             </select>
           </div>
-          <div class="form-group">
-            <label class="form-label">Meses en Barrica</label>
-            <input type="number" class="form-input" id="meses-barrica" value="0" oninput="calcular()">
+          <div class="sb-field">
+            <label class="sb-label">
+              <span class="sb-label__icon">🛢️</span> Barrica
+            </label>
+            <div class="sb-input-suffix">
+              <input type="number" class="sb-input" id="meses-barrica" value="0" oninput="calcular()">
+              <span class="sb-suffix">mes</span>
+            </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">% Merma Ángel/mes</label>
-            <input type="number" class="form-input" id="angel-pct" value="0" step="0.1" oninput="calcular()">
+        </div>
+
+        <!-- Mermas (2 cols) -->
+        <div class="sb-grid-2">
+          <div class="sb-field">
+            <label class="sb-label">
+              <span class="sb-label__icon">👼</span> Ángel/mes
+            </label>
+            <div class="sb-input-suffix">
+              <input type="number" class="sb-input" id="angel-pct" value="0" step="0.1" oninput="calcular()">
+              <span class="sb-suffix">%</span>
+            </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">% Merma Lías</label>
-            <input type="number" class="form-input" id="merma-lias" value="5" step="0.1" oninput="calcular()">
+          <div class="sb-field">
+            <label class="sb-label">
+              <span class="sb-label__icon">💧</span> Merma Lías
+            </label>
+            <div class="sb-input-suffix">
+              <input type="number" class="sb-input" id="merma-lias" value="5" step="0.1" oninput="calcular()">
+              <span class="sb-suffix">%</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- BASE DE DATOS: Costos Unitarios Estáticos -->
-      <div class="card card--gold-border">
-        <div class="card__header">
-          <div class="card__icon">📔</div>
-          <span class="card__title">Costos Unitarios Estáticos</span>
-          <button onclick="addUnitarioRow()" class="btn btn--outline" style="margin-left:auto;padding:0.2rem 0.5rem;font-size:0.7rem;">+ Añadir</button>
+      <!-- ── COSTOS UNITARIOS ──────────────────────────────── -->
+      <div class="sb-block sb-block--collapsible" id="acc-unitarios">
+        <div class="sb-block__head sb-accordion-trigger" onclick="toggleAccordion('acc-unitarios')">
+          <span class="sb-block__icon">📔</span>
+          <span class="sb-block__title">Base de Costos Unitarios</span>
+          <span class="sb-accordion-arrow">▾</span>
+          <button class="btn btn--xs btn--outline" onclick="event.stopPropagation();addUnitarioRow()">+ Add</button>
         </div>
-        <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.8rem;">Define tus precios base (Ej: Agua por L: 5.29 NIO, Clavo por pz: 0.16 NIO).</p>
-        <div class="table-responsive">
-        <table class="insumos-table">
-          <thead>
-            <tr>
-              <th>Ítem</th>
-              <th style="width: 50px;">Unidad</th>
-              <th style="width: 80px;">NIO</th>
-              <th style="width: 30px;"></th>
-            </tr>
-          </thead>
-          <tbody id="lista-unitarios">
-          </tbody>
-        </table>
-        </div>
-      </div>
-
-      <!-- MATERIA PRIMA DINÁMICA -->
-      <div class="card">
-        <div class="card__header">
-          <div class="card__icon">🌿</div>
-          <span class="card__title">Gastos por Lote (MP)</span>
-          <button onclick="addMPRow()" class="btn btn--outline" style="margin-left:auto;padding:0.2rem 0.5rem;font-size:0.7rem;">+ Añadir</button>
-        </div>
-        <div class="table-responsive">
-        <table class="insumos-table">
-          <thead>
-            <tr>
-              <th>Insumo</th>
-              <th style="width: 60px;">Uso</th>
-              <th style="width: 80px;">NIO</th>
-              <th style="width: 30px;"></th>
-            </tr>
-          </thead>
-          <tbody id="lista-mp">
-          </tbody>
-        </table>
-        </div>
-      </div>
-
-      <!-- ENVASADO -->
-      <div class="card">
-        <div class="card__header">
-          <div class="card__icon">🍾</div>
-          <span class="card__title">Envasado / Botella</span>
-        </div>
-        <div class="table-responsive">
-        <table class="insumos-table">
-          <thead>
-            <tr>
-              <th>Artículo</th>
-              <th>NIO/u</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Botella 750ml</td>
-              <td><input type="number" class="insumo-price-input" id="e-botella" value="25" oninput="calcular()"></td>
-            </tr>
-            <tr>
-              <td>Corcho</td>
-              <td><input type="number" class="insumo-price-input" id="e-corcho" value="10" oninput="calcular()"></td>
-            </tr>
-            <tr>
-              <td>Cápsula / Lacre</td>
-              <td><input type="number" class="insumo-price-input" id="e-capsula" value="5" oninput="calcular()"></td>
-            </tr>
-            <tr>
-              <td>Etiqueta Frontal</td>
-              <td><input type="number" class="insumo-price-input" id="e-etiq-front" value="12" oninput="calcular()"></td>
-            </tr>
-            <tr>
-              <td>Contraetiqueta</td>
-              <td><input type="number" class="insumo-price-input" id="e-etiq-back" value="4" oninput="calcular()"></td>
-            </tr>
-            <tr>
-              <td>Collarín/Medallón</td>
-              <td><input type="number" class="insumo-price-input" id="e-medallon" value="8" oninput="calcular()"></td>
-            </tr>
-            <tr>
-              <td>Caja (÷6)</td>
-              <td><input type="number" class="insumo-price-input" id="e-caja" value="90" oninput="calcular()"></td>
-            </tr>
-          </tbody>
-        </table>
-        </div>
-      </div>
-
-      <!-- MANO DE OBRA DIRECTA -->
-      <div class="card">
-        <div class="card__header">
-          <div class="card__icon">👨‍🔬</div>
-          <span class="card__title">Mano de Obra Directa</span>
-        </div>
-        <div class="table-responsive">
-        <table class="insumos-table">
-          <thead>
-            <tr>
-              <th>Actividad</th>
-              <th>Horas</th>
-              <th>NIO/h</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Cosecha/Recepción P.</td>
-              <td><input type="number" class="insumo-price-input" id="m-h-cosecha" value="8" oninput="calcular()"></td>
-              <td><input type="number" class="insumo-price-input" id="m-p-cosecha" value="25" oninput="calcular()"></td>
-            </tr>
-          </tbody>
-        </table>
-        </div>
-      </div>
-
-      <!-- CIF DINÁMICO -->
-      <div class="card">
-        <div class="card__header">
-          <div class="card__icon">🏛️</div>
-          <span class="card__title">Costos Indirectos (CIF)</span>
-          <button onclick="addCIFRow()" class="btn btn--outline" style="margin-left:auto;padding:0.2rem 0.5rem;font-size:0.7rem;">+ Añadir</button>
-        </div>
-        <div class="table-responsive">
-        <table class="insumos-table">
-          <thead>
-            <tr>
-              <th>Concepto</th>
-              <th style="width: 90px;">NIO (Total)</th>
-              <th style="width: 30px;"></th>
-            </tr>
-          </thead>
-          <tbody id="lista-cif">
-          </tbody>
-        </table>
-        </div>
-      </div>
-
-      <!-- Márgenes e Impuestos -->
-      <div class="card card--gold-border">
-        <div class="card__header">
-          <div class="card__icon">📊</div>
-          <span class="card__title">Márgenes e Impuestos</span>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Marketing (% c.costo)</label>
-            <input type="number" class="form-input" id="pct-marketing" value="15" oninput="calcular()">
+        <div class="sb-accordion-body">
+          <p class="sb-hint">Precio base por unidad de cada insumo.</p>
+          <div class="table-responsive">
+            <table class="sb-table">
+              <thead>
+                <tr><th>Ítem</th><th>Und.</th><th>NIO</th><th></th></tr>
+              </thead>
+              <tbody id="lista-unitarios"></tbody>
+            </table>
           </div>
-          <div class="form-group">
-            <label class="form-label">Margen Utilidad (%)</label>
-            <input type="number" class="form-input" id="pct-margen" value="55" oninput="calcular()">
+          <button class="sb-save-db-btn" onclick="guardarUnitarios()">💾 Guardar base de datos</button>
+        </div>
+      </div>
+
+      <!-- ── MATERIA PRIMA ─────────────────────────────────── -->
+      <div class="sb-block sb-block--collapsible open" id="acc-mp">
+        <div class="sb-block__head sb-accordion-trigger" onclick="toggleAccordion('acc-mp')">
+          <span class="sb-block__icon">🌿</span>
+          <span class="sb-block__title">Gastos por Lote (MP)</span>
+          <span class="sb-accordion-arrow">▾</span>
+          <button class="btn btn--xs btn--outline" onclick="event.stopPropagation();addMPRow()">+ Add</button>
+        </div>
+        <div class="sb-accordion-body">
+          <div class="table-responsive">
+            <table class="sb-table">
+              <thead>
+                <tr><th>Insumo</th><th>Uso</th><th>NIO</th><th></th></tr>
+              </thead>
+              <tbody id="lista-mp"></tbody>
+            </table>
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">ISC Vino NIC (%)</label>
-            <input type="number" class="form-input" id="pct-isc" value="20" oninput="calcular()">
-          </div>
-          <div class="form-group">
-            <label class="form-label">IVA (%)</label>
-            <input type="number" class="form-input" id="pct-iva" value="15" oninput="calcular()">
-          </div>
+      </div>
+
+      <!-- ── ENVASADO ─────────────────────────────────────── -->
+      <div class="sb-block sb-block--collapsible" id="acc-envasado">
+        <div class="sb-block__head sb-accordion-trigger" onclick="toggleAccordion('acc-envasado')">
+          <span class="sb-block__icon">🍾</span>
+          <span class="sb-block__title">Envasado / Botella</span>
+          <span class="sb-accordion-arrow">▾</span>
         </div>
-        <div class="form-group">
-          <label class="form-label">Tipo de cambio NIO → USD</label>
-          <input type="number" class="form-input" id="tc-usd" value="36.5" step="0.1" oninput="calcular()">
+        <div class="sb-accordion-body">
+          <div class="sb-envasado-grid">
+            <div class="sb-env-item">
+              <span>Botella 750ml</span>
+              <div class="sb-input-suffix">
+                <input type="number" class="sb-input" id="e-botella" value="25" oninput="calcular()">
+                <span class="sb-suffix">NIO</span>
+              </div>
+            </div>
+            <div class="sb-env-item">
+              <span>Corcho</span>
+              <div class="sb-input-suffix">
+                <input type="number" class="sb-input" id="e-corcho" value="10" oninput="calcular()">
+                <span class="sb-suffix">NIO</span>
+              </div>
+            </div>
+            <div class="sb-env-item">
+              <span>Cápsula / Lacre</span>
+              <div class="sb-input-suffix">
+                <input type="number" class="sb-input" id="e-capsula" value="5" oninput="calcular()">
+                <span class="sb-suffix">NIO</span>
+              </div>
+            </div>
+            <div class="sb-env-item">
+              <span>Etiqueta Frontal</span>
+              <div class="sb-input-suffix">
+                <input type="number" class="sb-input" id="e-etiq-front" value="12" oninput="calcular()">
+                <span class="sb-suffix">NIO</span>
+              </div>
+            </div>
+            <div class="sb-env-item">
+              <span>Contraetiqueta</span>
+              <div class="sb-input-suffix">
+                <input type="number" class="sb-input" id="e-etiq-back" value="4" oninput="calcular()">
+                <span class="sb-suffix">NIO</span>
+              </div>
+            </div>
+            <div class="sb-env-item">
+              <span>Collarín / Medallón</span>
+              <div class="sb-input-suffix">
+                <input type="number" class="sb-input" id="e-medallon" value="8" oninput="calcular()">
+                <span class="sb-suffix">NIO</span>
+              </div>
+            </div>
+            <div class="sb-env-item">
+              <span>Caja (÷6)</span>
+              <div class="sb-input-suffix">
+                <input type="number" class="sb-input" id="e-caja" value="90" oninput="calcular()">
+                <span class="sb-suffix">NIO</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Guardar Receta -->
-      <div class="card" style="background:linear-gradient(135deg,rgba(212,175,55,0.06) 0%,var(--surface) 100%);border-color:rgba(212,175,55,0.25);">
-        <div class="card__header">
-          <div class="card__icon">💾</div>
-          <span class="card__title">Guardar Ficha de Producción</span>
+      <!-- ── MANO DE OBRA ──────────────────────────────────── -->
+      <div class="sb-block sb-block--collapsible" id="acc-mod">
+        <div class="sb-block__head sb-accordion-trigger" onclick="toggleAccordion('acc-mod')">
+          <span class="sb-block__icon">👷</span>
+          <span class="sb-block__title">Mano de Obra (MOD)</span>
+          <span class="sb-accordion-arrow">▾</span>
         </div>
-        <button onclick="guardarRecetaLujo()" class="btn btn--gold" style="width:100%;margin-top:0.3rem;">
-          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
-          Guardar Proyecto
+        <div class="sb-accordion-body">
+          <div class="sb-mod-row">
+            <span class="sb-mod-label">Cosecha / Recepción</span>
+            <div class="sb-input-suffix">
+              <input type="number" class="sb-input" id="m-h-cosecha" value="8" oninput="calcular()">
+              <span class="sb-suffix">h</span>
+            </div>
+            <span class="sb-mod-sep">×</span>
+            <div class="sb-input-suffix">
+              <input type="number" class="sb-input" id="m-p-cosecha" value="25" oninput="calcular()">
+              <span class="sb-suffix">NIO/h</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CIF ──────────────────────────────────────────── -->
+      <div class="sb-block sb-block--collapsible" id="acc-cif">
+        <div class="sb-block__head sb-accordion-trigger" onclick="toggleAccordion('acc-cif')">
+          <span class="sb-block__icon">🏛️</span>
+          <span class="sb-block__title">Costos Indirectos (CIF)</span>
+          <span class="sb-accordion-arrow">▾</span>
+          <button class="btn btn--xs btn--outline" onclick="event.stopPropagation();addCIFRow()">+ Add</button>
+        </div>
+        <div class="sb-accordion-body">
+          <div class="table-responsive">
+            <table class="sb-table">
+              <thead>
+                <tr><th>Concepto</th><th>NIO</th><th></th></tr>
+              </thead>
+              <tbody id="lista-cif"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── MÁRGENES E IMPUESTOS ─────────────────────────── -->
+      <div class="sb-block sb-block--gold sb-block--collapsible" id="acc-margenes">
+        <div class="sb-block__head sb-accordion-trigger" onclick="toggleAccordion('acc-margenes')">
+          <span class="sb-block__icon">📊</span>
+          <span class="sb-block__title">Márgenes e Impuestos</span>
+          <span class="sb-accordion-arrow">▾</span>
+        </div>
+        <div class="sb-accordion-body">
+          <div class="sb-grid-2">
+            <div class="sb-field">
+              <label class="sb-label">Marketing</label>
+              <div class="sb-input-suffix">
+                <input type="number" class="sb-input" id="pct-marketing" value="15" oninput="calcular()">
+                <span class="sb-suffix">%</span>
+              </div>
+            </div>
+            <div class="sb-field">
+              <label class="sb-label">Margen Utilidad</label>
+              <div class="sb-input-suffix">
+                <input type="number" class="sb-input" id="pct-margen" value="55" oninput="calcular()">
+                <span class="sb-suffix">%</span>
+              </div>
+            </div>
+            <div class="sb-field">
+              <label class="sb-label">ISC Vino NIC</label>
+              <div class="sb-input-suffix">
+                <input type="number" class="sb-input" id="pct-isc" value="20" oninput="calcular()">
+                <span class="sb-suffix">%</span>
+              </div>
+            </div>
+            <div class="sb-field">
+              <label class="sb-label">IVA</label>
+              <div class="sb-input-suffix">
+                <input type="number" class="sb-input" id="pct-iva" value="15" oninput="calcular()">
+                <span class="sb-suffix">%</span>
+              </div>
+            </div>
+          </div>
+          <div class="sb-field" style="margin-top:0.5rem;">
+            <label class="sb-label">Tipo de Cambio NIO → USD</label>
+            <div class="sb-input-suffix">
+              <input type="number" class="sb-input" id="tc-usd" value="36.5" step="0.1" oninput="calcular()">
+              <span class="sb-suffix">C$/USD</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── GUARDAR (sticky) ─────────────────────────────── -->
+      <div class="sb-save-sticky">
+        <button onclick="guardarRecetaLujo()" class="sb-btn-save">
+          <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+          </svg>
+          Guardar Ficha de Producción
         </button>
       </div>
 
@@ -1776,7 +2114,27 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderHistorialLujo();
   // Sincronizar recetas desde Firebase (en background, no bloquea UI)
   _fb_loadRecetasFromFirebase();
+
+  // Update historial badge when selector changes
+  const sel = document.getElementById('sel-recipe-lujo');
+  if (sel) {
+    const badge = document.getElementById('sb-receta-badge');
+    sel.addEventListener('change', () => {
+      const opt = sel.options[sel.selectedIndex];
+      if (badge) badge.textContent = opt?.text?.replace(/^[📝🍶] /, '').substring(0, 22) || 'Cargar receta';
+    });
+  }
 });
+
+// ─────────────────────────────────────────────────
+// ACCORDION TOGGLE
+// ─────────────────────────────────────────────────
+function toggleAccordion(id) {
+  const block = document.getElementById(id);
+  if (!block) return;
+  block.classList.toggle('open');
+}
 </script>
 </body>
 </html>
+
