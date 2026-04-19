@@ -1453,6 +1453,7 @@ function guardarRecetaLujo() {
   const pvp   = $('r-pvp-final')?.textContent || '—';
   const exw   = $('r-ex-works')?.textContent  || '—';
   const bots  = $('r-botellas')?.textContent  || '—';
+  const cpt   = $('r-cpt')?.textContent        || '—';
 
   const recetas = _lujo_getRecetas();
   const existIdx = recetas.findIndex(r => r.nombre === nombre);
@@ -1464,15 +1465,19 @@ function guardarRecetaLujo() {
     unitarios: JSON.parse(JSON.stringify(unitariosData)),
     mp: JSON.parse(JSON.stringify(mpData)),
     cif: JSON.parse(JSON.stringify(cifData)),
-    res_pvp: pvp,
-    res_exw: exw,
+    res_pvp:  pvp,
+    res_exw:  exw,
     res_bots: bots,
+    res_cpt:  cpt,
   };
 
   if (existIdx !== -1) { recetas[existIdx] = receta; }
   else { recetas.push(receta); }
 
   localStorage.setItem(_LUJO_KEY, JSON.stringify(recetas));
+
+  // ─ Sincronizar receta a Firebase ─
+  _fb_syncRecetaToFirebase(receta);
 
   // ── Registro de Lote de Producción (con lógica de lote-numero) ──
   if (bots && bots !== '—') {
@@ -1484,6 +1489,56 @@ function guardarRecetaLujo() {
   _lujo_populateSelector();
   renderHistorialLujo();
   _lujo_showToast(`✅ Proyecto "${nombre}" guardado exitosamente`);
+}
+
+// ─────────────────────────────────────────────────────────────
+// FIREBASE SYNC — Recetas Históricas + Fichas de Producción
+// ─────────────────────────────────────────────────────────────
+const _FB_BASE = 'https://bifrost-sa-default-rtdb.firebaseio.com';
+
+// Guarda/actualiza una receta en Firebase bajo /recetas_lujo/{id}
+function _fb_syncRecetaToFirebase(receta) {
+  fetch(`${_FB_BASE}/recetas_lujo/${receta.id}.json`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(receta)
+  }).catch(err => console.warn('Firebase sync receta failed:', err));
+}
+
+// Elimina una receta de Firebase
+function _fb_deleteRecetaFromFirebase(id) {
+  fetch(`${_FB_BASE}/recetas_lujo/${id}.json`, {
+    method: 'DELETE'
+  }).catch(() => {});
+}
+
+// Descarga todas las recetas desde Firebase y las fusiona con localStorage
+async function _fb_loadRecetasFromFirebase() {
+  try {
+    const res = await fetch(`${_FB_BASE}/recetas_lujo.json`);
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data) return;
+
+    const fbRecetas = Object.values(data).filter(Boolean);
+    const local = _lujo_getRecetas();
+
+    // Merge: Firebase tiene prioridad sobre local (es la fuente de verdad)
+    const merged = [...local];
+    fbRecetas.forEach(fr => {
+      const idx = merged.findIndex(l => l.id === fr.id);
+      if (idx !== -1) {
+        // Firebase gana si es más reciente
+        if ((fr.fecha || '') >= (merged[idx].fecha || '')) merged[idx] = fr;
+      } else {
+        merged.push(fr);
+      }
+    });
+
+    localStorage.setItem(_LUJO_KEY, JSON.stringify(merged));
+    _lujo_populateSelector();
+    renderHistorialLujo();
+  } catch (e) { /* offline — usar localStorage */ }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1547,10 +1602,9 @@ function _registrarLoteProduccion({ nombre, mcommerceId, parsedBots, loteNum, pv
 
   localStorage.setItem(_LOTES_PROD_KEY, JSON.stringify(lotes));
 
-  // Sync lotes a Firebase
-  const base = 'https://bifrost-sa-default-rtdb.firebaseio.com';
+  // Sync lotes + receta_cpt a Firebase bajo /lotes_produccion
   const fbLotes = Object.fromEntries(lotes.map(l => [l.id, l]));
-  fetch(`${base}/lotes_produccion.json`, {
+  fetch(`${_FB_BASE}/lotes_produccion.json`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(fbLotes)
@@ -1560,13 +1614,12 @@ function _registrarLoteProduccion({ nombre, mcommerceId, parsedBots, loteNum, pv
 // HELPER: Aplica un delta (positivo o negativo) al stock en Firebase
 function _pushDeltaStockToFirebase(mcommerceId, delta) {
   if (!mcommerceId || delta === 0) return;
-  const base = 'https://bifrost-sa-default-rtdb.firebaseio.com';
-  fetch(`${base}/productos_ecommerce/${mcommerceId}.json`)
+  fetch(`${_FB_BASE}/productos_ecommerce/${mcommerceId}.json`)
     .then(r => r.json())
     .then(data => {
       if (data) {
         const newStock = Math.max(0, (data.stock || 0) + delta);
-        fetch(`${base}/productos_ecommerce/${mcommerceId}.json`, {
+        fetch(`${_FB_BASE}/productos_ecommerce/${mcommerceId}.json`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ stock: newStock })
@@ -1665,6 +1718,7 @@ function cargarRecetaLujo() {
 function eliminarRecetaLujo(id) {
   const recetas = _lujo_getRecetas().filter(r => r.id !== id);
   localStorage.setItem(_LUJO_KEY, JSON.stringify(recetas));
+  _fb_deleteRecetaFromFirebase(id);  // ─ eliminar también de Firebase
   _lujo_populateSelector();
   renderHistorialLujo();
   _lujo_showToast('Proyecto eliminado', false);
@@ -1711,17 +1765,17 @@ function renderHistorialLujo() {
   `;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   cargarUnitarios();
   actualizarLote();
   renderUnitarios();
   renderMP();
   renderCIF();
   calcular();
-  // NOTE: Stock Firebase push ONLY happens on explicit save (guardarRecetaLujo)
-  // NOT on page load, to prevent stock duplication on every reload
   _lujo_populateSelector();
   renderHistorialLujo();
+  // Sincronizar recetas desde Firebase (en background, no bloquea UI)
+  _fb_loadRecetasFromFirebase();
 });
 </script>
 </body>
