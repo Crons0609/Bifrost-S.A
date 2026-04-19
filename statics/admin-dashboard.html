@@ -187,6 +187,15 @@
           Maestro de Costos
         </button>
 
+        <button class="admin-nav-link" data-panel="produccion">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+          Producción
+          <span class="nav-badge" id="nav-prod-badge"></span>
+        </button>
+
 
 
         <button class="admin-nav-link" data-panel="discounts">
@@ -380,8 +389,80 @@
         </div>
 
 
+        <!-- ══════════ PANEL PRODUCCIÓN ══════════ -->
+        <div class="admin-panel hidden" data-panel="produccion" id="produccion-panel">
 
-        <!-- ══════════ DISCOUNTS PANEL ══════════ -->
+          <!-- KPIs -->
+          <div class="admin-stats-grid" style="margin-bottom:var(--space-6);">
+            <div class="admin-stat-card">
+              <div class="admin-stat-card__label">Total Producidas</div>
+              <div class="admin-stat-card__value" id="prod-kpi-total" style="color:#45A29E;">0</div>
+              <div class="admin-stat-card__sub">Botellas históricas</div>
+            </div>
+            <div class="admin-stat-card">
+              <div class="admin-stat-card__label">Vendidas</div>
+              <div class="admin-stat-card__value gold" id="prod-kpi-vendidas">0</div>
+              <div class="admin-stat-card__sub">Todos los canales</div>
+            </div>
+            <div class="admin-stat-card">
+              <div class="admin-stat-card__label">En Stock</div>
+              <div class="admin-stat-card__value success" id="prod-kpi-stock">0</div>
+              <div class="admin-stat-card__sub">Disponibles</div>
+            </div>
+            <div class="admin-stat-card">
+              <div class="admin-stat-card__label">Lotes Activos</div>
+              <div class="admin-stat-card__value" id="prod-kpi-lotes" style="color:#9B6DD9;">0</div>
+              <div class="admin-stat-card__sub">Fichas de producción</div>
+            </div>
+          </div>
+
+          <!-- Header -->
+          <div class="admin-panel__header">
+            <div>
+              <h2 class="admin-panel__title">Registro de Lotes de Producción</h2>
+              <p style="color:var(--color-text-muted);font-size:var(--fs-sm);margin-top:4px;">
+                Cada Ficha de Producción guardada genera un lote. El sistema cruza ventas para calcular unidades restantes.
+              </p>
+            </div>
+            <div class="admin-panel__actions">
+              <button class="btn btn--outline" onclick="window.initProduccionPanel?.()" style="font-size:0.8rem;">
+                <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Actualizar
+              </button>
+              <a href="costos.html" target="_blank" class="btn btn--primary" style="font-size:0.8rem;">
+                <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Nueva Ficha
+              </a>
+            </div>
+          </div>
+
+          <!-- Tabla de lotes -->
+          <div class="admin-table-wrap">
+            <table class="admin-table" aria-label="Lotes de producción">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Producto / Lote</th>
+                  <th style="text-align:center;">Producidas</th>
+                  <th style="text-align:center;">Vendidas</th>
+                  <th style="text-align:center;">En Stock</th>
+                  <th style="min-width:100px;">Avance</th>
+                  <th>PVP</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="prod-table-body">
+                <tr>
+                  <td colspan="8" style="text-align:center;padding:40px;color:var(--color-text-muted);">Cargando lotes…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
         <div class="admin-panel hidden" data-panel="discounts" id="discounts-panel">
 
           <!-- Flash Sale Banner -->
@@ -1045,6 +1126,7 @@
   <script src="../js/admin-crud.js"></script>
   <script src="../js/admin-sales.js"></script>
   <script src="../js/admin-users.js"></script>
+  <script src="../js/admin-produccion.js"></script>
   <script src="../js/admin-telegram-panel.js"></script>
 
   <script>
@@ -1079,6 +1161,9 @@
         if (panel === 'admins' && !usersInited) {
           usersInited = true;
           await window.initUsersPanel?.();
+        }
+        if (panel === 'produccion') {
+          await window.initProduccionPanel?.();
         }
         // Inicializar panel Telegram (lazy)
         if (panel === 'telegram') {

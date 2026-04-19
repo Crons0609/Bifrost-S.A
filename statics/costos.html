@@ -1438,7 +1438,6 @@ function guardarRecetaLujo() {
   const mcommerceId = selEl.options ? selEl.value : '';
 
   if (!nombre) {
-
     _lujo_showToast('⚠️ Escribe el nombre del lote/producto', false);
     return;
   }
@@ -1473,10 +1472,11 @@ function guardarRecetaLujo() {
 
   localStorage.setItem(_LUJO_KEY, JSON.stringify(recetas));
 
-  // Sync stock with Firebase eCommerce (only on explicit save)
-  if (mcommerceId && bots && bots !== '—') {
+  // ── Registro de Lote de Producción (con lógica de lote-numero) ──
+  if (bots && bots !== '—') {
     const parsedBots = parseInt(bots.replace(/[^\d.-]/g, '')) || 0;
-    _pushStockToFirebase(mcommerceId, parsedBots);
+    const loteNum = campos['lote-numero'] || '';
+    _registrarLoteProduccion({ nombre, mcommerceId, parsedBots, loteNum, pvp, exw, recetaId: receta.id });
   }
 
   _lujo_populateSelector();
@@ -1485,21 +1485,90 @@ function guardarRecetaLujo() {
 }
 
 // ─────────────────────────────────────────────────────────────
-// HELPER: Subir stock de botellas a Firebase eCommerce
+// HELPER: Registro inteligente de Lote de Producción
+// Mismo lote-numero → ajuste delta | Nuevo lote → suma total
 // ─────────────────────────────────────────────────────────────
-function _pushStockToFirebase(mcommerceId, qty) {
-  if (!mcommerceId || !qty || qty <= 0) return;
+const _LOTES_PROD_KEY = 'bifrost_lotes_produccion';
+
+function _getLotesProduccion() {
+  try { return JSON.parse(localStorage.getItem(_LOTES_PROD_KEY) || '[]'); } catch { return []; }
+}
+
+function _registrarLoteProduccion({ nombre, mcommerceId, parsedBots, loteNum, pvp, exw, recetaId }) {
+  const lotes = _getLotesProduccion();
+  const today = new Date().toISOString().split('T')[0];
+
+  if (loteNum) {
+    const existing = lotes.find(l => l.loteNumero === loteNum);
+    if (existing) {
+      // Mismo número de lote → corrección (delta)
+      const delta = parsedBots - (existing.totalBotellas || 0);
+      existing.totalBotellas = parsedBots;
+      existing.pvp  = pvp;
+      existing.exw  = exw;
+      existing.fecha = today;
+      existing.recetaId = recetaId;
+      if (mcommerceId && delta !== 0) {
+        _pushDeltaStockToFirebase(mcommerceId, delta);
+        if (delta !== 0) _lujo_showToast(`📦 Lote #${loteNum} ajustado: ${delta > 0 ? '+' : ''}${delta} bot.`, delta >= 0);
+      }
+    } else {
+      // Número de lote diferente → nuevo lote, suma completa
+      lotes.push({
+        id: `lote_${Date.now()}`,
+        loteNumero: loteNum,
+        fecha: today,
+        nombre,
+        mcommerceId,
+        totalBotellas: parsedBots,
+        pvp,
+        exw,
+        recetaId
+      });
+      if (mcommerceId && parsedBots > 0) _pushDeltaStockToFirebase(mcommerceId, parsedBots);
+    }
+  } else {
+    // Sin número de lote → registrar como nuevo lote genérico
+    lotes.push({
+      id: `lote_${Date.now()}`,
+      loteNumero: `auto_${Date.now()}`,
+      fecha: today,
+      nombre,
+      mcommerceId,
+      totalBotellas: parsedBots,
+      pvp,
+      exw,
+      recetaId
+    });
+    if (mcommerceId && parsedBots > 0) _pushDeltaStockToFirebase(mcommerceId, parsedBots);
+  }
+
+  localStorage.setItem(_LOTES_PROD_KEY, JSON.stringify(lotes));
+
+  // Sync lotes a Firebase
+  const base = 'https://bifrost-sa-default-rtdb.firebaseio.com';
+  const fbLotes = Object.fromEntries(lotes.map(l => [l.id, l]));
+  fetch(`${base}/lotes_produccion.json`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(fbLotes)
+  }).catch(() => {});
+}
+
+// HELPER: Aplica un delta (positivo o negativo) al stock en Firebase
+function _pushDeltaStockToFirebase(mcommerceId, delta) {
+  if (!mcommerceId || delta === 0) return;
   const base = 'https://bifrost-sa-default-rtdb.firebaseio.com';
   fetch(`${base}/productos_ecommerce/${mcommerceId}.json`)
     .then(r => r.json())
     .then(data => {
       if (data) {
-        const newStock = Math.max(0, (data.stock || 0) + qty);
+        const newStock = Math.max(0, (data.stock || 0) + delta);
         fetch(`${base}/productos_ecommerce/${mcommerceId}.json`, {
           method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ stock: newStock })
         });
-        _lujo_showToast(`+${qty} botellas añadidas a la tienda online`);
       }
     }).catch(err => console.warn('Error actualizando stock Firebase:', err));
 }
