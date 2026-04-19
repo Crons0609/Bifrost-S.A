@@ -86,20 +86,60 @@ async function _autoSyncDeProduccionAInventario() {
     });
 
     const lotes = Object.values(lotesData).filter(Boolean);
-    if (lotes.length === 0) return;
+
+    // Calcular mayor volumen de venta
+    const salesVolumeByName = {};
+    sales.forEach(s => {
+      const sName = (s.wineName || s.product || '').trim().toLowerCase();
+      if (!sName) return;
+      salesVolumeByName[sName] = (salesVolumeByName[sName] || 0) + (parseInt(s.quantity) || 0);
+    });
+
+    let bestSellerName = "";
+    let maxSales = 0;
+    for (const [name, volume] of Object.entries(salesVolumeByName)) {
+        if (volume > maxSales) {
+            maxSales = volume;
+            bestSellerName = name;
+        }
+    }
 
     let changed = false;
+
+    // Remover categorias de todo (no se usan)
+    for (const w of winesCache) {
+      if (w.category && w.category !== "") { w.category = ""; changed = true; }
+    }
+
     const prodMap = {};
+
+    // Base core presentations
+    const coreWines = [
+       "🍫 Tamarindo (Vortex Obsidian)",
+       "🌺 Calala (Frost Meridian)",
+       "🍍 Piña (Bifrost Aurora)",
+       "🌑 Coyolito (Vortex Eclipse)",
+       "🥭 Mango (Vortex Singularity)",
+       "🌸 Jamaica (Vortex Nebula)"
+    ];
+
+    coreWines.forEach(name => {
+       prodMap[name] = { name: name, stock: 0, price: 0, sold: 0 };
+    });
 
     for (const lote of lotes) {
       if (!lote.nombre) continue;
-      const lNombre = lote.nombre.trim();
+      const lNombreOriginal = lote.nombre.trim();
+      let lNombreKey = lNombreOriginal;
       
+      const coreMatch = coreWines.find(cw => cw.includes(lNombreOriginal) || lNombreOriginal.includes(cw.replace(/[^\w\s()]/gi, '').trim()));
+      if (coreMatch) lNombreKey = coreMatch;
+
       const vendidas = sales
         .filter(s => {
           const sNombre = (s.wineName || s.product || '').toLowerCase();
           if (!sNombre) return false;
-          const lWords = lNombre.toLowerCase().split(/[\s()]+/).filter(w => w.length > 3);
+          const lWords = lNombreKey.toLowerCase().split(/[\s()]+/).filter(w => w.length > 3);
           return lWords.some(w => sNombre.includes(w));
         })
         .reduce((sum, s) => sum + (parseInt(s.quantity) || 0), 0);
@@ -110,17 +150,23 @@ async function _autoSyncDeProduccionAInventario() {
       const unformattedPvp = (lote.pvp || '0').replace(/[^\d.-]/g, '');
       const parsedPvp = parseFloat(unformattedPvp) || 0;
 
-      if (!prodMap[lNombre]) {
-        prodMap[lNombre] = { name: lNombre, stock: restantes, price: parsedPvp };
+      if (!prodMap[lNombreKey]) {
+        prodMap[lNombreKey] = { name: lNombreKey, stock: restantes, price: parsedPvp, sold: vendidas };
       } else {
-        prodMap[lNombre].stock += restantes;
-        if (prodMap[lNombre].price === 0 && parsedPvp > 0) prodMap[lNombre].price = parsedPvp;
+        prodMap[lNombreKey].stock += restantes;
+        prodMap[lNombreKey].sold += vendidas;
+        if (prodMap[lNombreKey].price === 0 && parsedPvp > 0) prodMap[lNombreKey].price = parsedPvp;
       }
     }
 
-    for (const pName in prodMap) {
-      const pData = prodMap[pName];
-      const existMatch = winesCache.find(w => w.name.toLowerCase() === pName.toLowerCase());
+    for (const [pName, pData] of Object.entries(prodMap)) {
+      let isFeatured = false;
+      const lowerName = pName.toLowerCase();
+      if (bestSellerName && (lowerName.includes(bestSellerName) || bestSellerName.includes(lowerName.replace(/[^\w\s()]/gi, '').trim()))) {
+          isFeatured = true;
+      }
+
+      let existMatch = winesCache.find(w => w.name.toLowerCase() === lowerName || lowerName.includes(w.name.toLowerCase()));
       
       if (!existMatch) {
          const mcommerceId = Date.now().toString() + Math.random().toString().substring(2,6);
@@ -128,34 +174,49 @@ async function _autoSyncDeProduccionAInventario() {
             id: mcommerceId, 
             name: pName, 
             vintage: new Date().getFullYear(),
-            category: 'Producción', 
-            price: pData.price, 
+            category: '', 
+            price: pData.price || 500, 
             stock: pData.stock,
             discount: 0, 
-            description: 'Lote importado automáticamente del Historial de Producción.',
+            description: 'Gestionado automáticamente por el sistema central de Producción.',
             imageUrl: '', 
-            emoji: '🍷', 
+            emoji: pName.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]/) ? pName.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]/)[0] : '🍷', 
             region: '', 
             alcohol: '', 
             pairing: '',
-            featured: false, 
+            featured: isFeatured, 
             tastingNotes: []
          };
          await window.BifrostDB.addWine(newWine);
          winesCache.push(newWine);
          changed = true;
       } else {
-         if (existMatch.stock !== pData.stock) {
-            existMatch.stock = pData.stock;
+         let needsUpdate = false;
+         if (existMatch.stock !== pData.stock) { existMatch.stock = pData.stock; needsUpdate = true; }
+         if (existMatch.featured !== isFeatured) { existMatch.featured = isFeatured; needsUpdate = true; }
+         if (coreWines.includes(pName) && existMatch.name !== pName) { existMatch.name = pName; needsUpdate = true; }
+         if (existMatch.category !== "") { existMatch.category = ""; needsUpdate = true; }
+
+         if (needsUpdate) {
             await window.BifrostDB.updateWine(existMatch);
             changed = true;
          }
       }
     }
 
+    for (const w of winesCache) {
+      if (!prodMap[w.name] && !prodMap[w.name.trim()] && !coreWines.includes(w.name)) {
+         let isBest = false;
+         if (bestSellerName && w.name.toLowerCase().includes(bestSellerName)) isBest = true;
+         let needsUp = false;
+         if (w.featured !== isBest) { w.featured = isBest; needsUp = true; }
+         if (w.category !== "") { w.category = ""; needsUp = true; }
+         if (needsUp) { await window.BifrostDB.updateWine(w); changed = true; }
+      }
+    }
+
     if (changed) {
-      if (typeof showToast === 'function') showToast('📦 Fichas históricas importadas automáticamente a Inventario', 'success');
-      console.log('Automated import of production batches into inventory completed.');
+      if (typeof showToast === 'function') showToast('📦 Inventario actualizado automáticamente', 'success');
     }
   } catch(e) {
     console.warn("Auto sync produccion -> inventario error:", e);
@@ -237,7 +298,7 @@ function renderInventoryTable() {
 
   const searchQuery = document.querySelector('#table-search')?.value.toLowerCase() || '';
   const display = searchQuery
-    ? winesCache.filter(w => w.name.toLowerCase().includes(searchQuery) || w.category.toLowerCase().includes(searchQuery))
+    ? winesCache.filter(w => w.name.toLowerCase().includes(searchQuery))
     : winesCache;
 
   tbody.innerHTML = display.map(wine => {
@@ -258,15 +319,10 @@ function renderInventoryTable() {
             </div>
           </div>
         </td>
-        <td style="color:var(--color-text-secondary)">${wine.category}</td>
-        <td style="color:var(--color-gold); font-weight:600;">$${wine.price.toFixed(2)}</td>
+        <td style="color:var(--color-gold); font-weight:600;">C$${wine.price.toFixed(2)}</td>
         <td>
-          <div class="stock-controls">
-            <button class="stock-adj-btn" onclick="adjustStock(${wine.id}, -1)">−</button>
-            <input type="number" class="stock-input" value="${wine.stock}"
-              min="0" id="stock-${wine.id}"
-              onchange="setStock(${wine.id}, this.value)">
-            <button class="stock-adj-btn" onclick="adjustStock(${wine.id}, 1)">+</button>
+          <div style="font-weight:600; color:#fff; user-select:none;">
+            ${wine.stock} botellas
           </div>
         </td>
         <td>
@@ -279,7 +335,7 @@ function renderInventoryTable() {
               background:${levelColors[level]};
               box-shadow:0 0 6px ${levelColors[level]}88">
             </span>
-            ${level === 'in' ? 'In Stock' : level === 'low' ? 'Low' : 'Out'}
+            ${level === 'in' ? 'In Stock' : level === 'low' ? 'Low' : 'Agotado'}
           </span>
         </td>
         <td>

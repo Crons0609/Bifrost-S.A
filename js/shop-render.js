@@ -139,7 +139,7 @@ function buildCard(wine, settings, index) {
 
       <!-- Info Overlay -->
       <div class="product-card__overlay">
-        <div class="product-card__vintage">${wine.vintage} · ${wine.category}</div>
+        <div class="product-card__vintage">Cosecha ${wine.vintage}</div>
         <div class="product-card__name">${wine.name}</div>
         <div class="product-card__price-row">
           <span class="product-card__price">C$${finalPrice.toFixed(2)}</span>
@@ -252,7 +252,7 @@ async function openQuickView(e, id) {
       </div>
       <div class="quick-view-info">
         <div>
-          <div class="quick-view-vintage">${wine.vintage} · ${wine.category}</div>
+          <div class="quick-view-vintage">Cosecha ${wine.vintage}</div>
           <h2 class="quick-view-name">${wine.name}</h2>
         </div>
         <div class="quick-view-desc">${wine.description}</div>
