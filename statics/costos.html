@@ -575,7 +575,7 @@
     // Protect this page: redirect to login if not authenticated
     (function() {
       const key = 'bifrost_admin_session';
-      if (sessionStorage.getItem(key) !== 'authenticated') {
+      if (localStorage.getItem(key) !== 'authenticated') {
         window.location.replace('admin-login.html');
       }
     })();
@@ -1387,7 +1387,7 @@ const _LUJO_KEY = 'bifrost_cost_recetas_lujo';
 const _SIMPLE_KEY = 'bifrost_cost_historico';
 
 const _SCALAR_FIELDS = [
-  'lote-nombre','lote-numero','lote-kg','botella-vol','meses-barrica','angel-pct',
+  'lote-nombre','lote-numero','lote-kg','rendimiento','botella-vol','meses-barrica','angel-pct','merma-lias',
   'e-botella','e-corcho','e-capsula','e-etiq-front','e-etiq-back','e-medallon','e-caja',
   'm-h-cosecha','m-p-cosecha',
   'pct-marketing','pct-margen','pct-isc','pct-iva','tc-usd'
@@ -1475,7 +1475,8 @@ function guardarRecetaLujo() {
 
   // Sync stock with Firebase eCommerce (only on explicit save)
   if (mcommerceId && bots && bots !== '—') {
-    _pushStockToFirebase(mcommerceId, parseInt(bots) || 0);
+    const parsedBots = parseInt(bots.replace(/[^\d.-]/g, '')) || 0;
+    _pushStockToFirebase(mcommerceId, parsedBots);
   }
 
   _lujo_populateSelector();

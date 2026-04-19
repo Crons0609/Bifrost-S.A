@@ -12,7 +12,7 @@ const SESSION_ROLE   = 'bifrost_admin_role';
 /* ── Session Helpers ─────────────────────────────────────────── */
 const AdminAuth = {
   isLoggedIn() {
-    return sessionStorage.getItem(SESSION_KEY) === 'authenticated';
+    return localStorage.getItem(SESSION_KEY) === 'authenticated';
   },
 
   // Sync fallback (initial superadmin)
@@ -27,9 +27,9 @@ const AdminAuth = {
         await window.BifrostDB.ready();
         const admin = await window.BifrostDB.verifyAdmin(username, password);
         if (admin) {
-          sessionStorage.setItem(SESSION_KEY, 'authenticated');
-          sessionStorage.setItem(SESSION_USER, admin.username);
-          sessionStorage.setItem(SESSION_ROLE, admin.role || 'admin');
+          localStorage.setItem(SESSION_KEY, 'authenticated');
+          localStorage.setItem(SESSION_USER, admin.username);
+          localStorage.setItem(SESSION_ROLE, admin.role || 'admin');
           return true;
         }
       }
@@ -37,18 +37,18 @@ const AdminAuth = {
 
     // 2. Fallback: hardcoded superadmin
     if (this._syncCheck(username, password)) {
-      sessionStorage.setItem(SESSION_KEY, 'authenticated');
-      sessionStorage.setItem(SESSION_USER, username);
-      sessionStorage.setItem(SESSION_ROLE, 'superadmin');
+      localStorage.setItem(SESSION_KEY, 'authenticated');
+      localStorage.setItem(SESSION_USER, username);
+      localStorage.setItem(SESSION_ROLE, 'superadmin');
       return true;
     }
     return false;
   },
 
   logout() {
-    sessionStorage.removeItem(SESSION_KEY);
-    sessionStorage.removeItem(SESSION_USER);
-    sessionStorage.removeItem(SESSION_ROLE);
+    localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(SESSION_USER);
+    localStorage.removeItem(SESSION_ROLE);
     window.location.href = 'admin-login.html';
   },
 
@@ -66,11 +66,11 @@ const AdminAuth = {
   },
 
   getUser() {
-    return sessionStorage.getItem(SESSION_USER) || 'Admin';
+    return localStorage.getItem(SESSION_USER) || 'Admin';
   },
 
   getRole() {
-    return sessionStorage.getItem(SESSION_ROLE) || 'admin';
+    return localStorage.getItem(SESSION_ROLE) || 'admin';
   },
 
   isSuperAdmin() {
