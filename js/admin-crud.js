@@ -144,6 +144,12 @@ async function _autoSyncDeProduccionAInventario() {
          await window.BifrostDB.addWine(newWine);
          winesCache.push(newWine);
          changed = true;
+      } else {
+         if (existMatch.stock !== pData.stock) {
+            existMatch.stock = pData.stock;
+            await window.BifrostDB.updateWine(existMatch);
+            changed = true;
+         }
       }
     }
 
