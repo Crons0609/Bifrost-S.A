@@ -19,12 +19,13 @@ const Cart = {
 
   add(wine, quantity = 1) {
     const items = this.items;
-    const existing = items.find(i => i.id === wine.id);
+    const existing = items.find(i => String(i.id) === String(wine.id));
+    // Treat undefined/null stock as effectively unlimited (9999)
+    const maxStock = (wine.stock == null || wine.stock < 0) ? 9999 : wine.stock;
 
     if (existing) {
       const newQty = existing.qty + quantity;
-      // Respect stock
-      existing.qty = Math.min(newQty, wine.stock);
+      existing.qty = Math.min(newQty, maxStock);
       if (existing.qty !== newQty) {
         showToast(`Límite de stock alcanzado para ${wine.name}`, 'warning');
       }
@@ -36,8 +37,8 @@ const Cart = {
         price:    wine.finalPrice || wine.price,
         emoji:    wine.emoji || '🍷',
         imageUrl: wine.imageUrl || '',
-        stock:    wine.stock,
-        qty:      Math.min(quantity, wine.stock),
+        stock:    maxStock,
+        qty:      Math.min(quantity, maxStock),
       });
     }
 
@@ -47,13 +48,13 @@ const Cart = {
   },
 
   remove(id) {
-    const items = this.items.filter(i => i.id !== id);
+    const items = this.items.filter(i => String(i.id) !== String(id));
     this.save(items);
   },
 
   updateQty(id, qty) {
     const items = this.items;
-    const item  = items.find(i => i.id === id);
+    const item  = items.find(i => String(i.id) === String(id));
     if (!item) return;
 
     if (qty <= 0) {
@@ -183,14 +184,14 @@ function renderCartSidebar() {
         <div class="cart-item__name">${item.name}</div>
         <div class="cart-item__vintage">${item.vintage}</div>
         <div class="cart-item__controls">
-          <button class="qty-btn" onclick="Cart.updateQty(${item.id}, ${item.qty - 1})">−</button>
+          <button class="qty-btn" onclick="Cart.updateQty('${item.id}', ${item.qty - 1})">−</button>
           <span class="qty-display">${item.qty}</span>
-          <button class="qty-btn" onclick="Cart.updateQty(${item.id}, ${item.qty + 1})">+</button>
+          <button class="qty-btn" onclick="Cart.updateQty('${item.id}', ${item.qty + 1})">+</button>
         </div>
       </div>
       <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
         <span class="cart-item__price">C$${(item.price * item.qty).toFixed(2)}</span>
-        <button class="cart-item__remove" onclick="Cart.remove(${item.id})" title="Eliminar">
+        <button class="cart-item__remove" onclick="Cart.remove('${item.id}')" title="Eliminar">
           <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
           </svg>

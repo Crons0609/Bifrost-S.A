@@ -224,7 +224,7 @@ async function openQuickView(e, id) {
   e.stopPropagation();
   if (!quickViewModal) return;
 
-  const wine = allWines.find(w => w.id === id);
+  const wine = allWines.find(w => String(w.id) === String(id));
   if (!wine) return;
 
   const settings  = await window.BifrostDB.getSettings() || {};
@@ -292,8 +292,10 @@ function closeQuickView() {
 }
 
 async function addToCartFromModal(wineId) {
-  const wine = allWines.find(w => w.id === wineId);
-  if (!wine || wine.stock <= 0) return;
+  const wine = allWines.find(w => String(w.id) === String(wineId));
+  // Only block if stock is explicitly defined and zero or less
+  if (!wine) return;
+  if (wine.stock != null && wine.stock <= 0) return;
 
   const settings  = await window.BifrostDB.getSettings() || {};
   const flashPct  = settings.flashSaleActive ? (settings.flashSaleDiscount || 0) : 0;
