@@ -168,29 +168,9 @@ async function _autoSyncDeProduccionAInventario() {
 
       let existMatch = winesCache.find(w => w.name.toLowerCase() === lowerName || lowerName.includes(w.name.toLowerCase()));
       
-      if (!existMatch) {
-         const mcommerceId = Date.now().toString() + Math.random().toString().substring(2,6);
-         const newWine = {
-            id: mcommerceId, 
-            name: pName, 
-            vintage: new Date().getFullYear(),
-            category: '', 
-            price: pData.price || 500, 
-            stock: pData.stock,
-            discount: 0, 
-            description: 'Gestionado automáticamente por el sistema central de Producción.',
-            imageUrl: '', 
-            emoji: pName.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]/) ? pName.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]/)[0] : '🍷', 
-            region: '', 
-            alcohol: '', 
-            pairing: '',
-            featured: isFeatured, 
-            tastingNotes: []
-         };
-         await window.BifrostDB.addWine(newWine);
-         winesCache.push(newWine);
-         changed = true;
-      } else {
+      // ── IMPORTANTE: solo ACTUALIZAR existentes, NUNCA crear nuevos ──────────
+      // Los productos solo se crean manualmente desde "Maestro de Costos Bifrost".
+      if (existMatch) {
          let needsUpdate = false;
          if (existMatch.stock !== pData.stock) { existMatch.stock = pData.stock; needsUpdate = true; }
          if (existMatch.featured !== isFeatured) { existMatch.featured = isFeatured; needsUpdate = true; }
@@ -202,17 +182,40 @@ async function _autoSyncDeProduccionAInventario() {
             changed = true;
          }
       }
+      // Si NO existe → no crear.
+    }
+
+    // ── Eliminar duplicados: conservar la entrada con emoji, borrar sin emoji ──
+    const seenNames = {};
+    const toDelete = [];
+    for (const w of winesCache) {
+      const cleanName = w.name.replace(/[^\w\s()]/gi, '').trim().toLowerCase();
+      if (seenNames[cleanName]) {
+        const existing = seenNames[cleanName];
+        const existingHasEmoji = /[^\x00-\x7F]/.test(existing.name);
+        const currentHasEmoji  = /[^\x00-\x7F]/.test(w.name);
+        if (currentHasEmoji && !existingHasEmoji) {
+          toDelete.push(existing.id);
+          seenNames[cleanName] = w;
+        } else {
+          toDelete.push(w.id);
+        }
+      } else {
+        seenNames[cleanName] = w;
+      }
+    }
+    for (const dupId of toDelete) {
+      console.warn(`[BifrostDB] Eliminando duplicado id=${dupId}`);
+      await window.BifrostDB.deleteWine(dupId);
+      const idx = winesCache.findIndex(w => w.id === dupId);
+      if (idx !== -1) winesCache.splice(idx, 1);
+      changed = true;
     }
 
     for (const w of winesCache) {
-      if (!prodMap[w.name] && !prodMap[w.name.trim()] && !coreWines.includes(w.name)) {
-         let isBest = false;
-         if (bestSellerName && w.name.toLowerCase().includes(bestSellerName)) isBest = true;
-         let needsUp = false;
-         if (w.featured !== isBest) { w.featured = isBest; needsUp = true; }
-         if (w.category !== "") { w.category = ""; needsUp = true; }
-         if (needsUp) { await window.BifrostDB.updateWine(w); changed = true; }
-      }
+      let needsUp = false;
+      if (w.category !== "") { w.category = ""; needsUp = true; }
+      if (needsUp) { await window.BifrostDB.updateWine(w); changed = true; }
     }
 
     if (changed) {
