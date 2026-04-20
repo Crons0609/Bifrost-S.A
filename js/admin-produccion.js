@@ -159,7 +159,7 @@ async function renderLotesTable() {
 }
 
 /* ── Eliminar Lote ────────────────────────────────────────────── */
-function eliminarLoteProduccion(id) {
+async function eliminarLoteProduccion(id) {
   const lote = _getLotesFromStorage().find(l => l.id === id);
   const nombre = lote ? lote.nombre : 'este lote';
   if (!confirm(`¿Eliminar el lote de "${nombre}" del registro de producción?\n\n¡ATENCION! Esto REDUCIRÁ automáticamente las botellas de este lote del inventario de la tienda.`)) return;
@@ -167,31 +167,17 @@ function eliminarLoteProduccion(id) {
   const updated = _getLotesFromStorage().filter(l => l.id !== id);
   localStorage.setItem(_PROD_LOTES_KEY, JSON.stringify(updated));
 
-  // Remove from Firebase
+  // Remove from Firebase and let auto-sync handle the stock math
   try {
     const base = 'https://bifrost-sa-default-rtdb.firebaseio.com';
-    fetch(`${base}/lotes_produccion/${id}.json`, { method: 'DELETE' }).catch(() => {});
+    // Esperar a que se borre de la base de datos para que el inventario no lo pille al recalcular
+    await fetch(`${base}/lotes_produccion/${id}.json`, { method: 'DELETE' });
     
-    // Descontar inmediatamente el stock en el inventario Ecommerce (si tiene ID enlazado)
-    if (lote && lote.mcommerceId && lote.totalBotellas > 0) {
-      fetch(`${base}/productos_ecommerce/${lote.mcommerceId}.json`)
-        .then(r => r.json())
-        .then(data => {
-          if (data) {
-            const newStock = Math.max(0, (data.stock || 0) - lote.totalBotellas);
-            fetch(`${base}/productos_ecommerce/${lote.mcommerceId}.json`, {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ stock: newStock })
-            });
-            // Emitir evento local para actualizar la tabla del dashboard si está abierta
-            setTimeout(() => window.dispatchEvent(new Event('wines-updated')), 500);
-          }
-        }).catch(err => console.warn('Error descontando stock en Firebase:', err));
-    } else {
-      setTimeout(() => window.dispatchEvent(new Event('wines-updated')), 500);
-    }
-  } catch(e) {}
+    // Disparamos el evento para que admin-crud lance loadData() y _autoSyncDeProduccionAInventario()
+    setTimeout(() => window.dispatchEvent(new Event('wines-updated')), 100);
+  } catch(err) {
+    console.warn('Error borrando de Firebase:', err);
+  }
 
   renderLotesTable();
   renderProduccionKPIs();
