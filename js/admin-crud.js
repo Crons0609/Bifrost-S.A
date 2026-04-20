@@ -173,6 +173,8 @@ async function _autoSyncDeProduccionAInventario() {
       if (existMatch) {
          let needsUpdate = false;
          if (existMatch.stock !== pData.stock) { existMatch.stock = pData.stock; needsUpdate = true; }
+         // Actualizar precio si el lote tiene uno válido y el producto aún no tiene precio
+         if (pData.price > 0 && existMatch.price === 0) { existMatch.price = pData.price; needsUpdate = true; }
          if (existMatch.featured !== isFeatured) { existMatch.featured = isFeatured; needsUpdate = true; }
          if (coreWines.includes(pName) && existMatch.name !== pName) { existMatch.name = pName; needsUpdate = true; }
          if (existMatch.category !== "") { existMatch.category = ""; needsUpdate = true; }

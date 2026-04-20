@@ -2430,6 +2430,8 @@
     function _registrarLoteProduccion({ nombre, mcommerceId, parsedBots, loteNum, pvp, exw, recetaId, skipDelta }) {
       const lotes = _getLotesProduccion();
       const today = new Date().toISOString().split('T')[0];
+      // Convertir pvp string ("C$ 50.00") a número para pasarla a Firebase
+      const parsedPvp = parseFloat((pvp || '0').replace(/[^\d.-]/g, '')) || 0;
 
       if (loteNum) {
         const existing = lotes.find(l => l.loteNumero === loteNum);
@@ -2442,7 +2444,7 @@
           existing.fecha = today;
           existing.recetaId = recetaId;
           if (mcommerceId && delta !== 0 && !skipDelta) {
-            _pushDeltaStockToFirebase(mcommerceId, delta);
+            _pushDeltaStockToFirebase(mcommerceId, delta, parsedPvp);
             if (delta !== 0) _lujo_showToast(`📦 Lote #${loteNum} ajustado: ${delta > 0 ? '+' : ''}${delta} bot.`, delta >= 0);
           }
         } else {
@@ -2458,7 +2460,7 @@
             exw,
             recetaId
           });
-          if (mcommerceId && parsedBots > 0 && !skipDelta) _pushDeltaStockToFirebase(mcommerceId, parsedBots);
+          if (mcommerceId && parsedBots > 0 && !skipDelta) _pushDeltaStockToFirebase(mcommerceId, parsedBots, parsedPvp);
         }
       } else {
         // Sin número de lote → registrar como nuevo lote genérico
@@ -2473,7 +2475,7 @@
           exw,
           recetaId
         });
-        if (mcommerceId && parsedBots > 0 && !skipDelta) _pushDeltaStockToFirebase(mcommerceId, parsedBots);
+        if (mcommerceId && parsedBots > 0 && !skipDelta) _pushDeltaStockToFirebase(mcommerceId, parsedBots, parsedPvp);
       }
 
       localStorage.setItem(_LOTES_PROD_KEY, JSON.stringify(lotes));
@@ -2488,17 +2490,21 @@
     }
 
     // HELPER: Aplica un delta (positivo o negativo) al stock en Firebase
-    function _pushDeltaStockToFirebase(mcommerceId, delta) {
+    // También actualiza precio si se proporciona pvpValue > 0
+    function _pushDeltaStockToFirebase(mcommerceId, delta, pvpValue) {
       if (!mcommerceId || delta === 0) return;
       fetch(`${_FB_BASE}/productos_ecommerce/${mcommerceId}.json`)
         .then(r => r.json())
         .then(data => {
           if (data) {
             const newStock = Math.max(0, (data.stock || 0) + delta);
+            const patch = { stock: newStock };
+            const parsedPvpValue = parseFloat(pvpValue) || 0;
+            if (parsedPvpValue > 0) patch.price = parsedPvpValue;
             fetch(`${_FB_BASE}/productos_ecommerce/${mcommerceId}.json`, {
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ stock: newStock })
+              body: JSON.stringify(patch)
             });
           }
         }).catch(err => console.warn('Error actualizando stock Firebase:', err));
