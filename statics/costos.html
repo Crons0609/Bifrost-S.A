@@ -2346,19 +2346,11 @@
         if (!data) return;
 
         const fbRecetas = Object.values(data).filter(Boolean);
-        const local = _lujo_getRecetas();
 
-        // Merge: Firebase tiene prioridad sobre local (es la fuente de verdad)
-        const merged = [...local];
-        fbRecetas.forEach(fr => {
-          const idx = merged.findIndex(l => l.id === fr.id);
-          if (idx !== -1) {
-            // Firebase gana si es más reciente
-            if ((fr.fecha || '') >= (merged[idx].fecha || '')) merged[idx] = fr;
-          } else {
-            merged.push(fr);
-          }
-        });
+        // Firebase es la única fuente de la verdad. Hacemos un reemplazo estricto.
+        // Cualquier receta que se haya borrado en Firebase o en otra pestaña, se borrará aquí.
+        const merged = fbRecetas;
+
 
         localStorage.setItem(_LUJO_KEY, JSON.stringify(merged));
         _lujo_populateSelector();
