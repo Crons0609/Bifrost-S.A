@@ -162,7 +162,7 @@ async function renderLotesTable() {
 function eliminarLoteProduccion(id) {
   const lote = _getLotesFromStorage().find(l => l.id === id);
   const nombre = lote ? lote.nombre : 'este lote';
-  if (!confirm(`¿Eliminar el lote de "${nombre}" del registro de producción?\n\nNota: esto NO afecta el stock actual en inventario.`)) return;
+  if (!confirm(`¿Eliminar el lote de "${nombre}" del registro de producción?\n\n¡ATENCION! Esto REDUCIRÁ automáticamente las botellas de este lote del inventario de la tienda.`)) return;
 
   const updated = _getLotesFromStorage().filter(l => l.id !== id);
   localStorage.setItem(_PROD_LOTES_KEY, JSON.stringify(updated));
@@ -171,11 +171,32 @@ function eliminarLoteProduccion(id) {
   try {
     const base = 'https://bifrost-sa-default-rtdb.firebaseio.com';
     fetch(`${base}/lotes_produccion/${id}.json`, { method: 'DELETE' }).catch(() => {});
+    
+    // Descontar inmediatamente el stock en el inventario Ecommerce (si tiene ID enlazado)
+    if (lote && lote.mcommerceId && lote.totalBotellas > 0) {
+      fetch(`${base}/productos_ecommerce/${lote.mcommerceId}.json`)
+        .then(r => r.json())
+        .then(data => {
+          if (data) {
+            const newStock = Math.max(0, (data.stock || 0) - lote.totalBotellas);
+            fetch(`${base}/productos_ecommerce/${lote.mcommerceId}.json`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ stock: newStock })
+            });
+            // Emitir evento local para actualizar la tabla del dashboard si está abierta
+            setTimeout(() => window.dispatchEvent(new Event('wines-updated')), 500);
+          }
+        }).catch(err => console.warn('Error descontando stock en Firebase:', err));
+    } else {
+      setTimeout(() => window.dispatchEvent(new Event('wines-updated')), 500);
+    }
   } catch(e) {}
 
   renderLotesTable();
   renderProduccionKPIs();
-  window.showToast?.('Lote eliminado del registro', 'info');
+  
+  if (window.showToast) window.showToast('Lote eliminado y stock descontado', 'info');
 }
 
 /* ── Utils ────────────────────────────────────────────────────── */
