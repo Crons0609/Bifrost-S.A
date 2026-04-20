@@ -401,16 +401,20 @@ class BifrostDB {
       try { if (_fbDb) await _fbDb.ref(`productos_ecommerce/${id}`).remove(); } catch(e) { console.warn('FB remove error:', e); }
       if (!this.useIndexedDB) {
         let wines = JSON.parse(localStorage.getItem('bifrost_wines') || '[]');
-        wines = wines.filter(w => w.id !== Number(id));
+        wines = wines.filter(w => String(w.id) !== String(id));
         localStorage.setItem('bifrost_wines', JSON.stringify(wines));
         resolve();
         return;
       }
       const tx = this.db.transaction(STORE_NAME, 'readwrite');
       const store = tx.objectStore(STORE_NAME);
-      const request = store.delete(Number(id));
-      request.onsuccess = () => resolve();
-      request.onerror  = () => reject(request.error);
+      // Attempt to delete with exact type first, fallback to Number if it's a numeric string
+      const reqExact = store.delete(id);
+      if (!isNaN(Number(id))) {
+         store.delete(Number(id));
+      }
+      reqExact.onsuccess = () => resolve();
+      reqExact.onerror  = () => reject(reqExact.error);
     });
   }
 
@@ -613,6 +617,7 @@ class BifrostDB {
         if (this.useIndexedDB) {
            const tx = this.db.transaction(STORE_NAME, 'readwrite');
            const store = tx.objectStore(STORE_NAME);
+           store.clear(); // Clear local cache entirely before updating
            fbWines.forEach(w => store.put(w));
         } else {
            localStorage.setItem('bifrost_wines', JSON.stringify(fbWines));

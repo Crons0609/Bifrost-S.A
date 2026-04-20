@@ -131,8 +131,8 @@ async function _autoSyncDeProduccionAInventario() {
       if (!lote.nombre) continue;
       const lNombreOriginal = lote.nombre.trim();
       let lNombreKey = lNombreOriginal;
-      
-      const coreMatch = coreWines.find(cw => cw.includes(lNombreOriginal) || lNombreOriginal.includes(cw.replace(/[^\w\s()]/gi, '').trim()));
+      const lNombreLower = lNombreOriginal.toLowerCase();
+      const coreMatch = coreWines.find(cw => cw.toLowerCase().includes(lNombreLower) || lNombreLower.includes(cw.replace(/[^\w\s()]/gi, '').trim().toLowerCase()));
       if (coreMatch) lNombreKey = coreMatch;
 
       const vendidas = sales
