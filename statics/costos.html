@@ -2235,7 +2235,7 @@
               opt.value = w.id;
               opt.textContent = `${w.emoji || '🍷'} ${w.name}`;
               opt.setAttribute('data-name', w.name);
-              sel.insertBefore(opt, $('opt-new-prod'));
+              sel.appendChild(opt);
             }
           });
         }
@@ -2244,31 +2244,12 @@
 
     function handleProductSelect() {
       const sel = $('lote-nombre-sel');
-      if (sel.value === '_NEW_') {
-        sel.style.display = 'none';
-        $('new-product-wrap').style.display = 'block';
-        $('lote-nombre-input').focus();
-      } else {
-        let name = '';
-        if (sel.selectedIndex >= 0) {
-          name = sel.options[sel.selectedIndex].getAttribute('data-name') || sel.options[sel.selectedIndex].text;
-        }
-        $('lote-nombre').value = name;
-        actualizarLote();
+      let name = '';
+      if (sel.selectedIndex >= 0) {
+        name = sel.options[sel.selectedIndex].getAttribute('data-name') || sel.options[sel.selectedIndex].text;
       }
-    }
-
-    function updateLoteNombreInput() {
-      $('lote-nombre').value = $('lote-nombre-input').value;
+      $('lote-nombre').value = name;
       actualizarLote();
-    }
-
-    function cancelNewProduct() {
-      $('lote-nombre-input').value = '';
-      $('new-product-wrap').style.display = 'none';
-      $('lote-nombre-sel').style.display = 'block';
-      $('lote-nombre-sel').value = '';
-      handleProductSelect();
     }
 
     function guardarRecetaLujo() {
@@ -2282,46 +2263,14 @@
       const bots = $('r-botellas')?.textContent || '—';
       const parsedBots = parseInt(bots.replace(/[^\d.-]/g, '')) || 0;
 
-      if (selEl.style.display !== 'none') {
-        mcommerceId = selEl.value;
-        if (selEl.selectedIndex >= 0) {
-          const opt = selEl.options[selEl.selectedIndex];
-          nombre = opt.getAttribute('data-name') || opt.textContent;
-        }
-      } else {
-        nombre = $('lote-nombre-input').value.trim();
-        if (nombre) {
-          mcommerceId = Date.now().toString();
-          const newWine = {
-            id: mcommerceId, name: nombre, vintage: new Date().getFullYear(),
-            category: 'Producción', price: parsedPvp, stock: parsedBots,
-            discount: 0, description: 'Lote registrado automáticamente desde Maestro de Costos.',
-            imageUrl: '', emoji: '🍷', region: '', alcohol: '', pairing: '',
-            featured: false, tastingNotes: []
-          };
-          skipInitialFirebaseDelta = true;
-          fetch(`${_FB_BASE}/productos_ecommerce/${mcommerceId}.json`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newWine)
-          }).catch(e => console.warn('Error auto-creando vino:', e));
-          
-          _ecommerceWinesCache.push(newWine);
-          
-          const opt = document.createElement('option');
-          opt.value = mcommerceId;
-          opt.textContent = `🍷 ${nombre}`;
-          opt.setAttribute('data-name', nombre);
-          selEl.insertBefore(opt, $('opt-new-prod'));
-          
-          selEl.value = mcommerceId;
-          cancelNewProduct();
-          selEl.value = mcommerceId;
-        }
+      mcommerceId = selEl.value;
+      if (selEl.selectedIndex >= 0) {
+        const opt = selEl.options[selEl.selectedIndex];
+        nombre = opt.getAttribute('data-name') || opt.textContent;
       }
 
-      if (!nombre || nombre === "— Sin enlazar a tienda —") {
-        _lujo_showToast('⚠️ Debes enlazara un producto, elige crear uno nuevo', false);
+      if (!nombre || nombre === "— Sin enlazar a tienda —" || !mcommerceId) {
+        _lujo_showToast('⚠️ Debes enlazar un producto existente del catálogo', false);
         return;
       }
       $('lote-nombre').value = nombre;
@@ -2552,13 +2501,8 @@
                   found = true;
               }
           });
-          if (!found) {
-              $('lote-nombre-input').value = loadedName;
-              sel.style.display = 'none';
-              $('new-product-wrap').style.display = 'block';
-          } else {
-              sel.style.display = 'block';
-              $('new-product-wrap').style.display = 'none';
+          if (!found && sel.options.length > 0) {
+              sel.selectedIndex = 0; // Si no se encuentra, seleccionar el primero por defecto
           }
         }
 
