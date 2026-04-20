@@ -2544,7 +2544,10 @@
           const sel = $('lote-nombre-sel');
           let found = false;
           Array.from(sel.options).forEach(opt => {
-              if (opt.getAttribute('data-name') === loadedName || opt.text.includes(loadedName)) {
+              const optName = (opt.getAttribute('data-name') || '').toLowerCase();
+              const optText = (opt.text || '').toLowerCase();
+              const reqName = loadedName.toLowerCase();
+              if (optName === reqName || optText.includes(reqName) || reqName.includes(optName.replace(/[^\w\s()]/gi, '').trim())) {
                   sel.value = opt.value;
                   found = true;
               }
