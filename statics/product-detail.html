@@ -265,9 +265,9 @@
           <!-- Price -->
           <div>
             <div class="product-info__price-block">
-              <span class="product-info__price">$${finalPrice.toFixed(2)}</span>
+              <span class="product-info__price">C$${finalPrice.toFixed(2)}</span>
               ${discPct > 0 ? `
-                <span class="product-info__price-original">$${wine.price.toFixed(2)}</span>
+                <span class="product-info__price-original">C$${wine.price.toFixed(2)}</span>
                 <span class="product-info__discount-label">−${discPct}%</span>
               ` : ''}
             </div>
@@ -297,14 +297,14 @@
 
             <button class="add-to-cart-btn btn-ripple" id="add-to-cart-btn"
               onclick="addToCart()"
-              ${wine.stock <= 0 ? 'disabled' : ''}
+              ${(wine.stock != null && wine.stock !== "" && wine.stock <= 0) ? 'disabled' : ''}
               aria-label="Add ${wine.name} to cart">
               <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round"
                   d="M3 3h2l.4 2M7 13h10l4-8H5.4"/>
                 <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
               </svg>
-              ${wine.stock <= 0 ? 'Out of Stock' : 'Add to Cellar'}
+              ${(wine.stock != null && wine.stock !== "" && wine.stock <= 0) ? 'Out of Stock' : 'Add to Cellar'}
             </button>
           </div>
 
@@ -374,7 +374,7 @@
               <div class="product-card__vintage">${w.vintage} · ${w.category}</div>
               <div class="product-card__name">${w.name}</div>
               <div class="product-card__price-row">
-                <span class="product-card__price">$${finalPrice.toFixed(2)}</span>
+                <span class="product-card__price">C$${finalPrice.toFixed(2)}</span>
                 <span class="stock-indicator stock-indicator--${stockLevel}"></span>
               </div>
             </div>
@@ -410,7 +410,8 @@
 
     /* ── Add to Cart ── */
     async function addToCart() {
-      if (!currentWine || currentWine.stock <= 0) return;
+      if (!currentWine) return;
+      if (currentWine.stock !== "" && currentWine.stock != null && currentWine.stock <= 0) return;
 
       const settings  = await window.BifrostDB.getSettings() || {};
       const flashPct  = settings.flashSaleActive ? (settings.flashSaleDiscount || 0) : 0;

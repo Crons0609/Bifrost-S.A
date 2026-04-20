@@ -272,8 +272,8 @@ async function openQuickView(e, id) {
         <div style="display:flex; gap:12px; margin-top:4px;">
           <button class="btn btn--primary btn-ripple" style="flex:1"
             onclick="addToCartFromModal('${wine.id}'); event.stopPropagation();"
-            ${wine.stock <= 0 ? 'disabled' : ''}>
-            ${wine.stock <= 0 ? 'Sin Stock' : 'Añadir a la Cava'}
+            ${(wine.stock != null && wine.stock !== "" && wine.stock <= 0) ? 'disabled' : ''}>
+            ${(wine.stock != null && wine.stock !== "" && wine.stock <= 0) ? 'Sin Stock' : 'Añadir a la Cava'}
           </button>
           <a href="product-detail.html?id=${wine.id}" class="btn btn--outline">Ver Detalles</a>
         </div>
