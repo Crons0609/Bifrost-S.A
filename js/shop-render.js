@@ -104,7 +104,7 @@ function buildCard(wine, settings, index) {
   return `
     <article class="product-card reveal scale-in ${delayClass}" 
              data-id="${wine.id}"
-             onclick="goToProduct(${wine.id})"
+             onclick="goToProduct('${wine.id}')"
              role="article"
              aria-label="${wine.name} ${wine.vintage}">
 
@@ -115,7 +115,7 @@ function buildCard(wine, settings, index) {
       ${discountPct > 0 ? `<div class="discount-badge">−${discountPct}% DESC.</div>` : ''}
 
       <!-- Botón Vista Rápida -->
-      <div class="product-card__quick-view" onclick="openQuickView(event, ${wine.id})">
+      <div class="product-card__quick-view" onclick="openQuickView(event, '${wine.id}')">
         <button class="btn btn--sm glass" aria-label="Vista rápida de ${wine.name}">
           <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -271,7 +271,7 @@ async function openQuickView(e, id) {
         </div>
         <div style="display:flex; gap:12px; margin-top:4px;">
           <button class="btn btn--primary btn-ripple" style="flex:1"
-            onclick="addToCartFromModal(${wine.id}); event.stopPropagation();"
+            onclick="addToCartFromModal('${wine.id}'); event.stopPropagation();"
             ${wine.stock <= 0 ? 'disabled' : ''}>
             ${wine.stock <= 0 ? 'Sin Stock' : 'Añadir a la Cava'}
           </button>
