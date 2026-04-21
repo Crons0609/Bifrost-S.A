@@ -282,16 +282,17 @@ window.switchPanel = switchPanel;
 
 /* ── Stat Cards ──────────────────────────────────────────────── */
 function updateStatCards() {
-  const total    = winesCache.length;
-  const inStock  = winesCache.filter(w => w.stock > 5).length;
-  const lowStock = winesCache.filter(w => w.stock > 0 && w.stock <= 5).length;
-  const outStock = winesCache.filter(w => w.stock <= 0).length;
+  const total      = winesCache.length;
+  const totalBtls  = winesCache.reduce((s, w) => s + (parseInt(w.stock) || 0), 0);
+  const lowStock   = winesCache.filter(w => w.stock > 0 && w.stock <= 5).length;
+  const outStock   = winesCache.filter(w => !w.stock || w.stock <= 0).length;
 
   setText('stat-total',     total);
-  setText('stat-in-stock',  inStock);
+  setText('stat-in-stock',  totalBtls);
   setText('stat-low-stock', lowStock);
   setText('stat-out-stock', outStock);
 }
+
 
 function setText(id, value) {
   const el = document.getElementById(id);
