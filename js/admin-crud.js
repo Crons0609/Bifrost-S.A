@@ -253,16 +253,26 @@ function switchPanel(panel) {
     p.classList.toggle('hidden', p.dataset.panel !== panel);
   });
 
-  // Ocultar stat cards cuando se muestra el panel de Telegram
+  // Las stat cards globales solo se muestran en Inventory
   const statsGrid = document.querySelector('.admin-stats-grid');
   if (statsGrid) {
-    statsGrid.style.display = panel === 'telegram' ? 'none' : '';
+    statsGrid.style.display = panel === 'inventory' ? '' : 'none';
   }
 
   // Update topbar title
   const titleEl = document.querySelector('.admin-topbar__title');
   if (titleEl) {
-    const titles = { inventory: 'Inventory Management', discounts: 'Discount Management' };
+    const titles = {
+      inventory:  'Inventory Management',
+      discounts:  'Discount Management',
+      produccion: 'Producción — Lotes de Producción',
+      activos:    'Activos Fijos',
+      sales:      'Historial de Ventas',
+      admins:     'Administradores',
+      telegram:   'Mensajes Telegram',
+      costos:     'Maestro de Costos Bifrost',
+      uptime:     'Servidor & Uptime'
+    };
     titleEl.textContent = titles[panel] || 'Dashboard';
   }
 }
