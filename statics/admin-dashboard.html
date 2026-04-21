@@ -198,6 +198,15 @@
 
 
 
+        <button class="admin-nav-link" data-panel="activos">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293H17a2 2 0 012 2V7" />
+          </svg>
+          Activos Fijos
+          <span class="nav-badge" id="nav-activos-badge" style="background:rgba(69,162,158,0.2);color:#45A29E;">0</span>
+        </button>
+
         <button class="admin-nav-link" data-panel="discounts">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -455,6 +464,123 @@
             </table>
           </div>
         </div>
+
+        <!-- ════════════ ACTIVOS FIJOS PANEL ════════════ -->
+        <div class="admin-panel hidden" data-panel="activos" id="activos-panel-dash">
+
+          <!-- KPIs -->
+          <div class="admin-stats-grid" style="margin-bottom:var(--space-6);">
+            <div class="admin-stat-card">
+              <div class="admin-stat-card__label">Inversión Total</div>
+              <div class="admin-stat-card__value" id="af-kpi-total" style="color:#45A29E;">C$ 0.00</div>
+              <div class="admin-stat-card__sub">Todos los activos</div>
+            </div>
+            <div class="admin-stat-card">
+              <div class="admin-stat-card__label">Ítems Registrados</div>
+              <div class="admin-stat-card__value gold" id="af-kpi-count">0</div>
+              <div class="admin-stat-card__sub">Equipos únicos</div>
+            </div>
+            <div class="admin-stat-card">
+              <div class="admin-stat-card__label">Categorías</div>
+              <div class="admin-stat-card__value" id="af-kpi-cats" style="color:#9B6DD9;">0</div>
+              <div class="admin-stat-card__sub">Tipos de activo</div>
+            </div>
+            <div class="admin-stat-card">
+              <div class="admin-stat-card__label">Mayor Activo</div>
+              <div class="admin-stat-card__value" id="af-kpi-top" style="font-size:var(--fs-sm);color:var(--color-gold);">—</div>
+              <div class="admin-stat-card__sub">Ítem más costoso</div>
+            </div>
+          </div>
+
+          <!-- Header -->
+          <div class="admin-panel__header">
+            <div>
+              <h2 class="admin-panel__title">Activos Fijos — Compras No Recurrentes</h2>
+              <p style="color:var(--color-text-muted);font-size:var(--fs-sm);margin-top:4px;">
+                Barriles, básculas, medidores, garrafones y cualquier equipo que se compra una sola vez.
+              </p>
+            </div>
+            <div class="admin-panel__actions">
+              <button class="btn btn--outline" onclick="afRefresh()" style="font-size:0.8rem;">
+                <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Actualizar
+              </button>
+              <button class="btn btn--primary btn-ripple" onclick="afAddRow()">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Agregar Activo
+              </button>
+            </div>
+          </div>
+
+          <!-- Tabla principal -->
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="af-table" aria-label="Activos fijos">
+              <thead>
+                <tr>
+                  <th>Artículo</th>
+                  <th>Categoría</th>
+                  <th style="text-align:center;">Cantidad</th>
+                  <th style="text-align:right;">Precio Unit. (C$)</th>
+                  <th style="text-align:right;">Total (C$)</th>
+                  <th style="text-align:center;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="af-tbody">
+                <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--color-text-muted);">Cargando activos…</td></tr>
+              </tbody>
+              <tfoot>
+                <tr style="background:rgba(69,162,158,0.07);">
+                  <td colspan="4" style="padding:14px 12px;font-weight:700;color:#45A29E;font-size:0.9rem;">🏆 TOTAL INVERTIDO EN ACTIVOS FIJOS</td>
+                  <td id="af-grand-total" style="text-align:right;padding:14px 12px;font-family:monospace;font-weight:700;color:#45A29E;font-size:1rem;border-top:1px solid rgba(69,162,158,0.25);">C$ 0.00</td>
+                  <td style="border-top:1px solid rgba(69,162,158,0.25);"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <!-- Fila de edición inline oculta (se inyecta dinámicamente) -->
+          <div id="af-inline-form" style="display:none;margin-top:var(--space-4);padding:var(--space-5);background:rgba(69,162,158,0.05);border:1px solid rgba(69,162,158,0.2);border-radius:var(--radius-lg);">
+            <h3 style="font-size:var(--fs-base);color:#45A29E;margin-bottom:var(--space-4);">➕ Nuevo Activo</h3>
+            <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:var(--space-3);margin-bottom:var(--space-4);">
+              <div>
+                <label style="font-size:0.75rem;color:var(--color-text-muted);display:block;margin-bottom:4px;">Nombre del activo</label>
+                <input type="text" id="af-new-nombre" class="form-input" placeholder="Ej: Barril de Roble 200L" style="width:100%;">
+              </div>
+              <div>
+                <label style="font-size:0.75rem;color:var(--color-text-muted);display:block;margin-bottom:4px;">Categoría</label>
+                <select id="af-new-cat" class="form-select" style="width:100%;">
+                  <option>Fermentación</option>
+                  <option>Medición</option>
+                  <option>Contenedores</option>
+                  <option>Herramientas</option>
+                  <option>Infraestructura</option>
+                  <option>Otro</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:0.75rem;color:var(--color-text-muted);display:block;margin-bottom:4px;">Cantidad</label>
+                <input type="number" id="af-new-qty" class="form-input" value="1" min="1" style="width:100%;">
+              </div>
+              <div>
+                <label style="font-size:0.75rem;color:var(--color-text-muted);display:block;margin-bottom:4px;">Precio unitario (C$)</label>
+                <input type="number" id="af-new-price" class="form-input" value="0" min="0" step="0.01" style="width:100%;">
+              </div>
+            </div>
+            <div style="display:flex;gap:var(--space-3);justify-content:flex-end;">
+              <button class="btn btn--outline" onclick="document.getElementById('af-inline-form').style.display='none'">Cancelar</button>
+              <button class="btn btn--primary" onclick="afSaveNew()">💾 Guardar Activo</button>
+            </div>
+          </div>
+
+          <div style="margin-top:var(--space-5);padding:var(--space-4);background:rgba(69,162,158,0.05);border-left:3px solid #45A29E;border-radius:0 var(--radius-md) var(--radius-md) 0;font-size:0.82rem;color:var(--color-text-secondary);line-height:1.6;">
+            <strong style="color:#45A29E;">💡 Activos Fijos:</strong> Estas inversiones <strong>no se incluyen</strong> en el Costo de Producción por Lote (CPT). Son compras de capital que se realizan una sola vez y se amortizan a largo plazo. Se sincronizan automáticamente con el Maestro de Costos.
+          </div>
+        </div>
+
         <div class="admin-panel hidden" data-panel="discounts" id="discounts-panel">
 
           <!-- Flash Sale Banner -->
@@ -1275,6 +1401,269 @@
         });
       }
     }
+
+  // ══════════════════════════════════════════════════════
+  // ACTIVOS FIJOS — Panel del Dashboard
+  // ══════════════════════════════════════════════════════
+  const _AF_FB = 'https://bifrost-sa-default-rtdb.firebaseio.com/activos_fijos.json';
+  const _AF_CATS_COLORS = {
+    'Fermentación': '#9C27B0', 'Medición': '#45A29E',
+    'Contenedores': '#FF9800', 'Herramientas': '#4CAF50',
+    'Infraestructura': '#2196F3', 'Otro': '#78909C'
+  };
+  let _afData = {};
+
+  const _afFmt = (n) => (n || 0).toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  async function afRefresh() {
+    const tbody = document.getElementById('af-tbody');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--color-text-muted);">Cargando desde Firebase…</td></tr>';
+    try {
+      const res = await fetch(_AF_FB);
+      const data = await res.json();
+      _afData = data || {};
+      afRender();
+    } catch(e) {
+      // Fallback: cargar desde localStorage (compartido con costos.html)
+      try {
+        const saved = localStorage.getItem('bifrost_activos_fijos');
+        if (saved) {
+          const arr = JSON.parse(saved);
+          _afData = Object.fromEntries(arr.map(a => [a.id, a]));
+        }
+      } catch(_) {}
+      afRender();
+    }
+  }
+
+  const _afCatsAll = ['Fermentación','Medición','Contenedores','Herramientas','Infraestructura','Otro'];
+  const _afInputStyle = 'width:100%;padding:0.3rem 0.5rem;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.35);color:var(--color-text);font-size:0.83rem;outline:none;box-sizing:border-box;';
+  const _afNumStyle  = 'width:100%;padding:0.3rem 0.5rem;border-radius:6px;border:1px solid rgba(69,162,158,0.4);background:rgba(0,0,0,0.45);color:#45A29E;font-family:monospace;font-size:0.9rem;font-weight:700;text-align:right;outline:none;box-sizing:border-box;';
+
+  function afRender() {
+    const tbody = document.getElementById('af-tbody');
+    if (!tbody) return;
+
+    const items = Object.values(_afData).filter(Boolean);
+    let grandTotal = 0;
+    let rows = '';
+
+    if (items.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--color-text-muted);">No hay activos registrados. Haz clic en "+ Agregar Activo" para comenzar.</td></tr>';
+    } else {
+      items.forEach((a) => {
+        const qty   = parseFloat(a.cantidad)   || 0;
+        const price = parseFloat(a.precioUnit) || 0;
+        const total = qty * price;
+        grandTotal += total;
+        const color   = _AF_CATS_COLORS[a.categoria] || '#78909C';
+        const catOpts = _afCatsAll.map(c =>
+          `<option value="${c}"${c === a.categoria ? ' selected' : ''}>${c}</option>`
+        ).join('');
+        rows += `
+          <tr id="af-row-${a.id}" style="vertical-align:middle;">
+            <td style="min-width:140px;">
+              <input id="af-n-${a.id}" type="text" value="${(a.nombre||'').replace(/"/g,'&quot;')}"
+                style="${_afInputStyle}"
+                onfocus="this.style.borderColor='#45A29E'"
+                onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+            </td>
+            <td style="min-width:130px;">
+              <select id="af-c-${a.id}"
+                style="${_afInputStyle}">
+                ${catOpts}
+              </select>
+            </td>
+            <td style="width:80px;">
+              <input id="af-q-${a.id}" type="number" value="${qty}" min="1"
+                style="${_afInputStyle}text-align:center;"
+                oninput="afLiveTotal('${a.id}')"
+                onfocus="this.style.borderColor='#45A29E'"
+                onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+            </td>
+            <td style="width:170px;">
+              <div style="display:flex;align-items:center;gap:5px;">
+                <span style="font-size:0.85rem;font-weight:800;color:#45A29E;flex-shrink:0;">C$</span>
+                <input id="af-p-${a.id}" type="number" value="${price}" min="0" step="0.01" placeholder="0.00"
+                  style="${_afNumStyle}"
+                  oninput="afLiveTotal('${a.id}')"
+                  onfocus="this.style.borderColor='#45A29E'"
+                  onblur="this.style.borderColor='rgba(69,162,158,0.4)'">
+              </div>
+            </td>
+            <td style="width:130px;text-align:right;font-family:monospace;font-weight:700;font-size:0.95rem;color:#45A29E;" id="af-t-${a.id}">
+              C$ ${_afFmt(total)}
+            </td>
+            <td style="width:130px;text-align:center;white-space:nowrap;">
+              <button onclick="afSaveRow('${a.id}')"
+                style="padding:0.25rem 0.65rem;border-radius:6px;border:1px solid rgba(69,162,158,0.4);background:rgba(69,162,158,0.12);color:#45A29E;font-size:0.72rem;font-weight:600;cursor:pointer;margin-right:4px;"
+                title="Guardar cambios de esta fila">💾 Guardar</button>
+              <button onclick="afDelete('${a.id}')"
+                style="padding:0.25rem 0.5rem;border-radius:6px;border:1px solid rgba(239,83,80,0.3);background:rgba(239,83,80,0.08);color:#EF5350;font-size:0.72rem;cursor:pointer;"
+                title="Eliminar activo">✕</button>
+            </td>
+          </tr>`;
+      });
+      tbody.innerHTML = rows;
+    }
+
+    // Pie de tabla
+    const grandCell = document.getElementById('af-grand-total');
+    if (grandCell) grandCell.textContent = 'C$ ' + _afFmt(grandTotal);
+
+    // KPIs
+    const kpiTotal = document.getElementById('af-kpi-total');
+    const kpiCount = document.getElementById('af-kpi-count');
+    const kpiCats  = document.getElementById('af-kpi-cats');
+    const kpiTop   = document.getElementById('af-kpi-top');
+    const navBadge = document.getElementById('nav-activos-badge');
+
+    if (kpiTotal) kpiTotal.textContent = 'C$ ' + _afFmt(grandTotal);
+    if (kpiCount) kpiCount.textContent = items.length;
+    if (kpiCats)  kpiCats.textContent  = new Set(items.map(a => a.categoria)).size;
+    if (navBadge) navBadge.textContent  = items.length;
+
+    if (kpiTop && items.length > 0) {
+      const top = items.reduce((best, a) => {
+        const t  = (parseFloat(a.cantidad) || 0) * (parseFloat(a.precioUnit) || 0);
+        const bt = (parseFloat(best.cantidad) || 0) * (parseFloat(best.precioUnit) || 0);
+        return t > bt ? a : best;
+      });
+      kpiTop.textContent = top.nombre || '—';
+    } else if (kpiTop) {
+      kpiTop.textContent = '—';
+    }
+  }
+
+  // Actualiza sólo la celda de total de la fila en tiempo real
+  function afLiveTotal(id) {
+    const qty   = parseFloat(document.getElementById('af-q-' + id)?.value) || 0;
+    const price = parseFloat(document.getElementById('af-p-' + id)?.value) || 0;
+    const cell  = document.getElementById('af-t-' + id);
+    if (cell) cell.textContent = 'C$ ' + _afFmt(qty * price);
+    // Recalcular gran total
+    let gt = 0;
+    Object.values(_afData).filter(Boolean).forEach(a => {
+      const q = a.id === id ? qty   : (parseFloat(a.cantidad)   || 0);
+      const p = a.id === id ? price : (parseFloat(a.precioUnit) || 0);
+      gt += q * p;
+    });
+    const gc = document.getElementById('af-grand-total');
+    const kt = document.getElementById('af-kpi-total');
+    if (gc) gc.textContent = 'C$ ' + _afFmt(gt);
+    if (kt) kt.textContent = 'C$ ' + _afFmt(gt);
+  }
+
+  // Guarda los cambios de una fila individual a Firebase y localStorage
+  async function afSaveRow(id) {
+    const nombre    = (document.getElementById('af-n-' + id)?.value || '').trim();
+    const categoria = document.getElementById('af-c-' + id)?.value  || 'Otro';
+    const cantidad  = parseFloat(document.getElementById('af-q-' + id)?.value) || 0;
+    const precioUnit= parseFloat(document.getElementById('af-p-' + id)?.value) || 0;
+
+    if (!nombre) { window.showToast?.('El nombre no puede estar vacío', 'error'); return; }
+
+    _afData[id] = { ..._afData[id], id, nombre, categoria, cantidad, precioUnit };
+
+    try {
+      await fetch(_AF_FB, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(_afData)
+      });
+    } catch(e) { console.warn('Firebase activos guardar fila:', e); }
+
+    localStorage.setItem('bifrost_activos_fijos', JSON.stringify(Object.values(_afData)));
+    window.showToast?.('✅ Activo guardado: ' + nombre, 'success');
+    // Actualizar KPIs sin re-renderizar la tabla (para no perder foco)
+    const items = Object.values(_afData).filter(Boolean);
+    const gt = items.reduce((s, a) => s + (parseFloat(a.cantidad)||0)*(parseFloat(a.precioUnit)||0), 0);
+    const kpiTotal = document.getElementById('af-kpi-total');
+    const kpiTop   = document.getElementById('af-kpi-top');
+    const navBadge = document.getElementById('nav-activos-badge');
+    if (kpiTotal) kpiTotal.textContent = 'C$ ' + _afFmt(gt);
+    if (navBadge) navBadge.textContent  = items.length;
+    if (kpiTop && items.length > 0) {
+      const top = items.reduce((b, a) => {
+        return ((parseFloat(a.cantidad)||0)*(parseFloat(a.precioUnit)||0)) >
+               ((parseFloat(b.cantidad)||0)*(parseFloat(b.precioUnit)||0)) ? a : b;
+      });
+      kpiTop.textContent = top.nombre || '—';
+    }
+  }
+
+  function afAddRow() {
+    const form = document.getElementById('af-inline-form');
+    if (!form) return;
+    form.style.display = 'block';
+    document.getElementById('af-new-nombre').focus();
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function afSaveNew() {
+    const nombre  = (document.getElementById('af-new-nombre')?.value || '').trim();
+    const cat     = document.getElementById('af-new-cat')?.value || 'Otro';
+    const qty     = parseFloat(document.getElementById('af-new-qty')?.value) || 1;
+    const price   = parseFloat(document.getElementById('af-new-price')?.value) || 0;
+
+    if (!nombre) { window.showToast?.('Ingresa un nombre para el activo', 'error'); return; }
+
+    const id = 'a' + Date.now();
+    const item = { id, nombre, categoria: cat, cantidad: qty, precioUnit: price };
+
+    _afData[id] = item;
+
+    // Guardar en Firebase
+    try {
+      await fetch(_AF_FB, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(_afData)
+      });
+    } catch(e) { console.warn('Firebase activos save failed:', e); }
+
+    // Sync a localStorage para que costos.html lo vea
+    localStorage.setItem('bifrost_activos_fijos', JSON.stringify(Object.values(_afData)));
+
+    // Reset form
+    document.getElementById('af-new-nombre').value = '';
+    document.getElementById('af-new-qty').value = '1';
+    document.getElementById('af-new-price').value = '0';
+    document.getElementById('af-inline-form').style.display = 'none';
+
+    afRender();
+    window.showToast?.('✅ Activo guardado correctamente', 'success');
+  }
+
+  async function afDelete(id) {
+    if (!confirm('¿Eliminar este activo?')) return;
+    delete _afData[id];
+
+    try {
+      await fetch(_AF_FB, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(_afData)
+      });
+    } catch(e) {}
+
+    localStorage.setItem('bifrost_activos_fijos', JSON.stringify(Object.values(_afData)));
+    afRender();
+    window.showToast?.('Activo eliminado', 'info');
+  }
+
+  // Cargar activos cuando se navega al panel
+  document.addEventListener('DOMContentLoaded', () => {
+    // Hook into panel navigation to load activos lazily
+    const origShowPanel = window.__origShowPanel;
+    document.querySelectorAll('[data-panel]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.panel === 'activos') {
+          afRefresh();
+        }
+      });
+    });
+  });
   </script>
 </body>
 
