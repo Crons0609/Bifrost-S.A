@@ -1199,6 +1199,114 @@
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
     }
+
+    /* ── Activos Fijos ── */
+    .activos-total-hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, rgba(69,162,158,0.10) 0%, rgba(69,162,158,0.04) 100%);
+      border: 1px solid rgba(69,162,158,0.3);
+      border-radius: var(--r-xl);
+      padding: 1.4rem 1.8rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .activos-total-hero__label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+      margin-bottom: 0.3rem;
+    }
+
+    .activos-total-hero__value {
+      font-family: var(--font-heading);
+      font-size: 2.6rem;
+      font-weight: 900;
+      color: var(--teal);
+      line-height: 1;
+    }
+
+    .activos-total-hero__sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+    }
+
+    .activos-count-badge {
+      text-align: center;
+      background: rgba(69,162,158,0.1);
+      border: 1px solid rgba(69,162,158,0.2);
+      border-radius: var(--r-lg);
+      padding: 0.8rem 1.4rem;
+    }
+
+    .activos-count-badge__num {
+      font-family: var(--font-mono);
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--teal);
+    }
+
+    .activos-count-badge__label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .activos-registry-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .activos-registry-table th {
+      font-size: 0.66rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 0.45rem 0.6rem;
+      text-align: left;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .activos-registry-table th:last-child {
+      text-align: right;
+    }
+
+    .activos-registry-table td {
+      padding: 0.5rem 0.6rem;
+      font-size: 0.82rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      vertical-align: middle;
+    }
+
+    .activos-registry-table td:last-child {
+      text-align: right;
+      font-family: var(--font-mono);
+      color: var(--teal);
+      font-weight: 600;
+    }
+
+    .activos-grand-total-row td {
+      background: rgba(69,162,158,0.07);
+      color: var(--teal) !important;
+      font-weight: 700;
+      border-top: 1px solid rgba(69,162,158,0.25);
+      font-size: 0.9rem !important;
+    }
+
+    .activo-category-badge {
+      display: inline-block;
+      padding: 0.1rem 0.45rem;
+      border-radius: 99px;
+      font-size: 0.62rem;
+      font-weight: 600;
+      background: rgba(69,162,158,0.12);
+      color: var(--teal);
+      margin-left: 0.4rem;
+      vertical-align: middle;
+    }
   </style>
 
   <!-- Auth Guard: require admin session -->
@@ -1533,6 +1641,35 @@
           </div>
         </div>
 
+        <!-- ── ACTIVOS FIJOS / COMPRAS NO RECURRENTES ───────── -->
+        <div class="sb-block sb-block--collapsible" id="acc-activos">
+          <div class="sb-block__head sb-accordion-trigger" onclick="toggleAccordion('acc-activos')">
+            <span class="sb-block__icon">🏭</span>
+            <span class="sb-block__title">Activos Fijos</span>
+            <span class="sb-block__badge" id="activos-sidebar-badge">C$ 0</span>
+            <span class="sb-accordion-arrow">▾</span>
+            <button class="btn btn--xs btn--outline" onclick="event.stopPropagation();addActivoRow()">+ Add</button>
+          </div>
+          <div class="sb-accordion-body">
+            <p class="sb-hint">Equipos y herramientas compradas una sola vez (barriles, básculas, medidores, garrafones, etc.). No se repiten por lote.</p>
+            <div class="table-responsive">
+              <table class="sb-table" id="tabla-activos-sidebar">
+                <thead>
+                  <tr>
+                    <th>Ítem</th>
+                    <th>Ctd.</th>
+                    <th>NIO/u</th>
+                    <th>Total</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="lista-activos"></tbody>
+              </table>
+            </div>
+            <button class="sb-save-db-btn" onclick="guardarActivos()">💾 Guardar activos</button>
+          </div>
+        </div>
+
         <!-- ── MÁRGENES E IMPUESTOS ─────────────────────────── -->
         <div class="sb-block sb-block--gold sb-block--collapsible" id="acc-margenes">
           <div class="sb-block__head sb-accordion-trigger" onclick="toggleAccordion('acc-margenes')">
@@ -1785,6 +1922,58 @@
           </p>
         </div>
 
+        <!-- ── REGISTRO DE ACTIVOS FIJOS ── -->
+        <div class="card animate-in" id="activos-panel">
+          <div class="card__header">
+            <div class="card__icon">🏭</div>
+            <span class="card__title">Activos Fijos — Inversiones No Recurrentes</span>
+            <button onclick="addActivoRow();toggleAccordion('acc-activos');" style="margin-left:auto;background:rgba(69,162,158,0.1);border:1px solid rgba(69,162,158,0.25);border-radius:var(--r-sm);color:var(--teal);padding:0.2rem 0.65rem;cursor:pointer;font-size:0.75rem;font-weight:600;">+ Agregar ítem</button>
+          </div>
+
+          <!-- Hero totales -->
+          <div class="activos-total-hero">
+            <div>
+              <div class="activos-total-hero__label">Inversión Total en Activos</div>
+              <div class="activos-total-hero__value" id="activos-total-display">C$ 0.00</div>
+              <div class="activos-total-hero__sub">Equipos y herramientas — compra única, no repetida por lote</div>
+            </div>
+            <div class="activos-count-badge">
+              <div class="activos-count-badge__num" id="activos-count-display">0</div>
+              <div class="activos-count-badge__label">ítems registrados</div>
+            </div>
+          </div>
+
+          <!-- Tabla de registro -->
+          <div class="table-responsive">
+            <table class="activos-registry-table">
+              <thead>
+                <tr>
+                  <th>Artículo</th>
+                  <th>Categoría</th>
+                  <th style="text-align:center;">Cantidad</th>
+                  <th style="text-align:right;">Precio Unit. (NIO)</th>
+                  <th style="text-align:right;">Total (NIO)</th>
+                </tr>
+              </thead>
+              <tbody id="activos-registry-body">
+                <tr id="activos-empty-row">
+                  <td colspan="5" style="text-align:center;color:var(--text-muted);padding:2rem 0;font-size:0.82rem;">No hay activos registrados. Usa el panel izquierdo para agregar equipos.</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr class="activos-grand-total-row">
+                  <td colspan="4"><strong>🏆 TOTAL INVERTIDO EN ACTIVOS FIJOS</strong></td>
+                  <td id="activos-grand-total-cell">C$ 0.00</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <div class="highlight-box" style="margin-top:1rem; border-left-color:var(--teal);">
+            <strong style="color:var(--teal);">💡 Activos Fijos:</strong> Estos costos <strong>no se incluyen</strong> en el Costo de Producción por Lote (CPT), ya que son inversiones de capital que se amortizan a lo largo del tiempo. Se registran aquí para tener visibilidad de la inversión total realizada en la bodega.
+          </div>
+        </div>
+
         <!-- Historial de Recetas -->
         <div class="card animate-in">
           <div class="card__header">
@@ -1825,6 +2014,13 @@
     ];
     let mpData = [];
     let cifData = [];
+    let activosData = [
+      { id: 'a1', nombre: 'Barril de Roble', categoria: 'Fermentación', cantidad: 1, precioUnit: 0 },
+      { id: 'a2', nombre: 'Báscula Digital', categoria: 'Medición', cantidad: 1, precioUnit: 0 },
+      { id: 'a3', nombre: 'Medidor de Gramos', categoria: 'Medición', cantidad: 1, precioUnit: 0 },
+      { id: 'a4', nombre: 'Garrafón 20L', categoria: 'Contenedores', cantidad: 1, precioUnit: 0 },
+    ];
+    const ACTIVOS_CATEGORIAS = ['Fermentación','Medición','Contenedores','Herramientas','Infraestructura','Otro'];
 
     function guardarUnitarios() {
       localStorage.setItem('bifrost_unitarios_db', JSON.stringify(unitariosData));
@@ -1997,6 +2193,117 @@
     }
     function addCIFRow() { cifData.push({ concepto: 'Nuevo CIF', total: 0 }); renderCIF(); }
     function removeCIF(i) { cifData.splice(i, 1); renderCIF(); calcular(); }
+
+    // ──────────────────────────────────────────────────
+    // ACTIVOS FIJOS — CRUD
+    // ──────────────────────────────────────────────────
+    function renderActivos() {
+      const tbody = $('lista-activos');
+      if (tbody) {
+        tbody.innerHTML = '';
+        activosData.forEach((a, i) => {
+          const tr = document.createElement('tr');
+          const catOpts = ACTIVOS_CATEGORIAS.map(c => `<option value="${c}" ${c === a.categoria ? 'selected' : ''}>${c}</option>`).join('');
+          const total = (parseFloat(a.cantidad) || 0) * (parseFloat(a.precioUnit) || 0);
+          tr.innerHTML = `
+            <td><input type="text" class="form-input" style="padding:0.2rem;font-size:0.75rem;min-width:90px;" value="${a.nombre}" onchange="updateActivo(${i},'nombre',this.value)"></td>
+            <td><select class="form-select" style="padding:0.2rem;font-size:0.72rem;" onchange="updateActivo(${i},'categoria',this.value)">${catOpts}</select></td>
+            <td style="text-align:center;"><input type="number" class="insumo-price-input" style="width:52px;" value="${a.cantidad}" min="1" oninput="updateActivo(${i},'cantidad',this.value)"></td>
+            <td><input type="number" class="insumo-price-input" value="${a.precioUnit}" min="0" step="0.01" oninput="updateActivo(${i},'precioUnit',this.value)"></td>
+            <td style="text-align:right;font-family:var(--font-mono);font-size:0.8rem;color:var(--teal);" id="activo-total-${i}">${fmt(total)}</td>
+            <td style="text-align:center;"><button class="btn btn--danger" style="padding:0.1rem 0.3rem;" onclick="removeActivo(${i})">✕</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+      renderActivosPanel();
+    }
+
+    function renderActivosPanel() {
+      const body = $('activos-registry-body');
+      if (!body) return;
+
+      let grandTotal = 0;
+      let rows = '';
+
+      activosData.forEach((a) => {
+        const qty = parseFloat(a.cantidad) || 0;
+        const price = parseFloat(a.precioUnit) || 0;
+        const total = qty * price;
+        grandTotal += total;
+
+        const catColor = {
+          'Fermentación': 'rgba(156,39,176,0.15)', 'Medición': 'rgba(69,162,158,0.15)',
+          'Contenedores': 'rgba(255,152,0,0.15)', 'Herramientas': 'rgba(76,175,80,0.15)',
+          'Infraestructura': 'rgba(33,150,243,0.15)', 'Otro': 'rgba(255,255,255,0.07)'
+        }[a.categoria] || 'rgba(255,255,255,0.07)';
+
+        rows += `
+          <tr>
+            <td style="font-weight:600;color:var(--text);">${a.nombre || '—'}</td>
+            <td><span style="display:inline-block;padding:0.12rem 0.5rem;border-radius:99px;font-size:0.62rem;font-weight:600;background:${catColor};color:var(--text-secondary);">${a.categoria || 'Otro'}</span></td>
+            <td style="text-align:center;font-family:var(--font-mono);color:var(--text-secondary);">${qty}</td>
+            <td style="text-align:right;font-family:var(--font-mono);color:var(--text-secondary);">C$ ${fmt(price)}</td>
+            <td style="text-align:right;font-family:var(--font-mono);color:var(--teal);font-weight:600;">C$ ${fmt(total)}</td>
+          </tr>`;
+      });
+
+      if (activosData.length === 0) {
+        body.innerHTML = `<tr id="activos-empty-row"><td colspan="5" style="text-align:center;color:var(--text-muted);padding:2rem 0;font-size:0.82rem;">No hay activos registrados. Usa el panel izquierdo para agregar equipos.</td></tr>`;
+      } else {
+        body.innerHTML = rows;
+      }
+
+      // Actualizar hero
+      const displayEl = $('activos-total-display');
+      const countEl = $('activos-count-display');
+      const grandCell = $('activos-grand-total-cell');
+      const badgeEl = $('activos-sidebar-badge');
+
+      if (displayEl) displayEl.textContent = 'C$ ' + fmt(grandTotal);
+      if (countEl) countEl.textContent = activosData.length;
+      if (grandCell) grandCell.textContent = 'C$ ' + fmt(grandTotal);
+      if (badgeEl) badgeEl.textContent = 'C$ ' + fmt(grandTotal);
+    }
+
+    function updateActivo(index, field, val) {
+      if (field === 'cantidad') activosData[index].cantidad = parseFloat(val) || 0;
+      else if (field === 'precioUnit') activosData[index].precioUnit = parseFloat(val) || 0;
+      else activosData[index][field] = val;
+
+      // Actualizar celda de total en sidebar sin re-renderizar toda la tabla
+      const totalEl = $('activo-total-' + index);
+      if (totalEl) {
+        const total = (activosData[index].cantidad || 0) * (activosData[index].precioUnit || 0);
+        totalEl.textContent = fmt(total);
+      }
+      renderActivosPanel();
+    }
+
+    function addActivoRow() {
+      activosData.push({ id: 'a' + Date.now(), nombre: 'Nuevo Activo', categoria: 'Herramientas', cantidad: 1, precioUnit: 0 });
+      if (!document.getElementById('acc-activos').classList.contains('open')) {
+        toggleAccordion('acc-activos');
+      }
+      renderActivos();
+      // Scroll al panel de activos
+      setTimeout(() => { const p = $('activos-panel'); if (p) p.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+    }
+
+    function removeActivo(i) { activosData.splice(i, 1); renderActivos(); }
+
+    function guardarActivos() {
+      localStorage.setItem('bifrost_activos_fijos', JSON.stringify(activosData));
+      _fb_syncActivosToFirebase();
+      _lujo_showToast('✅ Activos fijos guardados correctamente');
+    }
+
+    function cargarActivos() {
+      try {
+        const saved = localStorage.getItem('bifrost_activos_fijos');
+        if (saved) activosData = JSON.parse(saved);
+      } catch(e) { /* usar defaults */ }
+    }
 
     // ──────────────────────────────────────────────────
     // CÁLCULO PRINCIPAL
@@ -2337,6 +2644,32 @@
       }).catch(() => { });
     }
 
+    // ─ Sync activos a Firebase
+    function _fb_syncActivosToFirebase() {
+      const payload = Object.fromEntries(activosData.map(a => [a.id, a]));
+      fetch(`${_FB_BASE}/activos_fijos.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(err => console.warn('Firebase sync activos failed:', err));
+    }
+
+    // ─ Carga activos desde Firebase
+    async function _fb_loadActivosFromFirebase() {
+      try {
+        const res = await fetch(`${_FB_BASE}/activos_fijos.json`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data) return;
+        const fbActivos = Object.values(data).filter(Boolean);
+        if (fbActivos.length > 0) {
+          activosData = fbActivos;
+          localStorage.setItem('bifrost_activos_fijos', JSON.stringify(activosData));
+          renderActivos();
+        }
+      } catch(e) { /* offline — usar localStorage */ }
+    }
+
     // Descarga todas las recetas desde Firebase y las fusiona con localStorage
     async function _fb_loadRecetasFromFirebase() {
       try {
@@ -2608,16 +2941,19 @@
 
     document.addEventListener('DOMContentLoaded', async () => {
       cargarUnitarios();
+      cargarActivos();
       actualizarLote();
       renderUnitarios();
       renderMP();
       renderCIF();
+      renderActivos();
       calcular();
       _lujo_populateSelector();
       renderHistorialLujo();
       _cargarVinosEcommerce();
-      // Sincronizar recetas desde Firebase (en background, no bloquea UI)
+      // Sincronizar desde Firebase (en background, no bloquea UI)
       _fb_loadRecetasFromFirebase();
+      _fb_loadActivosFromFirebase();
 
       // Update historial badge when selector changes
       const sel = document.getElementById('sel-recipe-lujo');

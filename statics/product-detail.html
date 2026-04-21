@@ -156,9 +156,9 @@
       await window.BifrostDB.ready();
 
       const urlParams = new URLSearchParams(window.location.search);
-      const wineId    = parseInt(urlParams.get('id'));
+      const wineId    = urlParams.get('id');
 
-      if (!wineId) {
+      if (!wineId || wineId === 'null') {
         renderNotFound();
         return;
       }
@@ -340,7 +340,7 @@
 
     async function renderRelated(wine, settings) {
       const all     = await window.BifrostDB.getAllWines();
-      const related = all.filter(w => w.id !== wine.id && w.category === wine.category).slice(0, 3);
+      const related = all.filter(w => String(w.id) !== String(wine.id) && w.category === wine.category).slice(0, 3);
       if (related.length === 0) return;
 
       const section = document.getElementById('related-section');

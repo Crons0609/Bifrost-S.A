@@ -342,13 +342,30 @@ class BifrostDB {
     return new Promise((resolve, reject) => {
       if (!this.useIndexedDB) {
         const wines = JSON.parse(localStorage.getItem('bifrost_wines') || '[]');
-        resolve(wines.find(w => w.id === Number(id)) || null);
+        // Use loose equality or String comparison to match both "123" and 123
+        resolve(wines.find(w => String(w.id) === String(id)) || null);
         return;
       }
       const tx = this.db.transaction(STORE_NAME, 'readonly');
       const store = tx.objectStore(STORE_NAME);
-      const request = store.get(Number(id));
-      request.onsuccess = () => resolve(request.result || null);
+      
+      // Try string ID first (new Firebase format)
+      const request = store.get(String(id));
+      request.onsuccess = () => {
+        if (request.result) {
+          resolve(request.result);
+        } else {
+          // Fallback to Number for legacy local data
+          const numId = Number(id);
+          if (!isNaN(numId)) {
+            const req2 = store.get(numId);
+            req2.onsuccess = () => resolve(req2.result || null);
+            req2.onerror = () => resolve(null);
+          } else {
+            resolve(null);
+          }
+        }
+      };
       request.onerror  = () => reject(request.error);
     });
   }
@@ -408,13 +425,14 @@ class BifrostDB {
       }
       const tx = this.db.transaction(STORE_NAME, 'readwrite');
       const store = tx.objectStore(STORE_NAME);
-      // Attempt to delete with exact type first, fallback to Number if it's a numeric string
-      const reqExact = store.delete(id);
-      if (!isNaN(Number(id))) {
-         store.delete(Number(id));
+      // Delete both formats to be safe
+      store.delete(String(id));
+      const numId = Number(id);
+      if (!isNaN(numId)) {
+         store.delete(numId);
       }
-      reqExact.onsuccess = () => resolve();
-      reqExact.onerror  = () => reject(reqExact.error);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
     });
   }
 
@@ -531,16 +549,19 @@ class BifrostDB {
     return new Promise((resolve, reject) => {
       if (!this.useIndexedDB) {
         let sales = JSON.parse(localStorage.getItem('bifrost_sales') || '[]');
-        sales = sales.filter(s => s.id !== Number(id));
+        sales = sales.filter(s => String(s.id) !== String(id));
         localStorage.setItem('bifrost_sales', JSON.stringify(sales));
         resolve();
         return;
       }
       const tx    = this.db.transaction(SALES_STORE, 'readwrite');
       const store = tx.objectStore(SALES_STORE);
-      const req   = store.delete(Number(id));
-      req.onsuccess = () => resolve();
-      req.onerror   = () => reject(req.error);
+      store.delete(String(id));
+      const numId = Number(id);
+      if (!isNaN(numId)) store.delete(numId);
+      
+      tx.oncomplete = () => resolve();
+      tx.onerror   = () => reject(tx.error);
     });
   }
 
@@ -725,7 +746,7 @@ class BifrostDB {
     return new Promise((resolve, reject) => {
       if (!this.useIndexedDB) {
         let admins = JSON.parse(localStorage.getItem('bifrost_admins') || '[]');
-        admins = admins.filter(a => a.id !== Number(id));
+        admins = admins.filter(a => String(a.id) !== String(id));
         localStorage.setItem('bifrost_admins', JSON.stringify(admins));
         _fbRemove(`Administradores/${id}`).catch(() => {});
         resolve();
@@ -733,12 +754,15 @@ class BifrostDB {
       }
       const tx    = this.db.transaction(ADMINS_STORE, 'readwrite');
       const store = tx.objectStore(ADMINS_STORE);
-      const req   = store.delete(Number(id));
-      req.onsuccess = () => {
+      store.delete(String(id));
+      const numId = Number(id);
+      if (!isNaN(numId)) store.delete(numId);
+
+      tx.oncomplete = () => {
         _fbRemove(`Administradores/${id}`).catch(() => {});
         resolve();
       };
-      req.onerror = () => reject(req.error);
+      tx.onerror = () => reject(tx.error);
     });
   }
 
