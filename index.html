@@ -721,34 +721,27 @@
     <div class="bridge-separator" aria-hidden="true"></div>
 
     <!-- ════════════ VINOS DESTACADOS ════════════ -->
-    <section class="featured-section container section" aria-labelledby="featured-heading">
+    <section class="featured-section container section scene-3d" aria-labelledby="featured-heading">
       <div class="section-header">
         <p class="section-label">La Colección</p>
         <h2 class="section-title reveal" id="featured-heading">
           Expresiones Destacadas
         </h2>
         <p class="section-subtitle reveal reveal--delay-1">
-          Seleccionadas de nuestras cosechas más codiciadas. Cada botella narra una historia forjada en la tierra más
-          extraordinaria.
+          Seleccionadas de nuestras cosechas más codiciadas. Cada botella narra una historia forjada en la tierra más extraordinaria.
         </p>
       </div>
 
-      <!-- Grid de destacados -->
+      <!-- Grid de destacados 3D -->
       <div class="featured-grid stagger-parent" id="featured-grid">
         <!-- Esqueletos de carga -->
-        <div class="skeleton-card">
-          <div class="skeleton-img"></div>
-        </div>
-        <div class="skeleton-card">
-          <div class="skeleton-img"></div>
-        </div>
-        <div class="skeleton-card">
-          <div class="skeleton-img"></div>
-        </div>
+        <div class="skeleton-card shimmer"><div class="skeleton-img"></div></div>
+        <div class="skeleton-card shimmer"><div class="skeleton-img"></div></div>
+        <div class="skeleton-card shimmer"><div class="skeleton-img"></div></div>
       </div>
 
       <div style="text-align:center; margin-top:var(--space-10);">
-        <a href="statics/shop.html" class="btn btn--outline btn--lg reveal">Ver Colección Completa</a>
+        <a href="statics/shop.html" class="btn btn--outline btn--lg reveal">Ver Colección Completa →</a>
       </div>
     </section>
 
@@ -759,14 +752,14 @@
     <section class="story-section container" aria-labelledby="story-heading">
       <div class="story-inner">
         <!-- Imagen del viñedo de Nicaragua -->
-        <div class="story-visual reveal scale-in">
+        <div class="story-visual reveal scale-in" data-drift="left" data-drift-intensity="40">
           <img src="assets/images/bg/nicaragua-vineyard.png" alt="Viñedo en Chichigalpa, Nicaragua al atardecer"
             class="story-vineyard-img" loading="lazy">
           <div class="story-vineyard-badge" aria-hidden="true">Chichigalpa, Nicaragua</div>
         </div>
 
-        <!-- Texto fundacional (preservado íntegro según especificación) -->
-        <div class="story-text">
+        <!-- Texto fundacional -->
+        <div class="story-text" data-drift="right" data-drift-intensity="30">
           <p class="section-label">Origen</p>
           <h2 class="reveal" id="story-heading">
             Forjado en el Puente<br>
@@ -1163,16 +1156,26 @@
         if (!grid || !featured.length) return;
 
         const flashPct = settings.flashSaleActive ? (settings.flashSaleDiscount || 0) : 0;
+        // drift alternates: left / right / left
+        const driftDirs = ['left', 'right', 'left'];
+        const driftAmt  = [50, 60, 50];
 
         grid.innerHTML = featured.slice(0, 3).map((wine, i) => {
-          const itemPct = wine.discount || 0;
-          const discPct = Math.max(flashPct, itemPct);
+          const itemPct    = wine.discount || 0;
+          const discPct    = Math.max(flashPct, itemPct);
           const finalPrice = discPct > 0 ? wine.price * (1 - discPct / 100) : wine.price;
           const stockLevel = window.BifrostDB.constructor.stockLevel(wine.stock);
-          const delays = ['', 'reveal--delay-2', 'reveal--delay-4'];
+          const delays     = ['', 'reveal--delay-2', 'reveal--delay-4'];
+          const floatCls   = ['float-3d-1', 'float-3d-2', 'float-3d-3'][i];
+          const desc       = wine.description
+            ? wine.description.substring(0, 110) + (wine.description.length > 110 ? '…' : '')
+            : '';
+          const icon = wine.imageUrl ? '' : (wine.emoji || '🍷');
 
           return `
-            <article class="product-card reveal scale-in ${delays[i]}"
+            <article class="product-card reveal scale-in ${delays[i]} ${floatCls}"
+                     data-drift="${driftDirs[i]}"
+                     data-drift-intensity="${driftAmt[i]}"
                      onclick="window.location.href='statics/product-detail.html?id=${wine.id}'"
                      role="article"
                      aria-label="${wine.name} ${wine.vintage}">
@@ -1180,21 +1183,18 @@
               ${discPct > 0 ? `<div class="discount-badge">−${discPct}% DESC.</div>` : ''}
               <div class="product-card__image-wrap">
                 ${wine.imageUrl
-              ? `<img src="${wine.imageUrl}" alt="${wine.name} ${wine.vintage}" loading="lazy">`
-              : `<div class="product-card__image-placeholder">
-                       <svg width="64" height="64" fill="none" viewBox="0 0 24 24"
-                            stroke="var(--color-gold)" stroke-width="1" opacity="0.4">
-                         <path stroke-linecap="round" stroke-linejoin="round"
-                           d="M9 3v10.5a3.5 3.5 0 003.5 3.5v0a3.5 3.5 0 003.5-3.5V3M9 3h6M9 3H7M15 3h2M12 3v1"/>
-                       </svg>
+                  ? `<img src="${wine.imageUrl}" alt="${wine.name} ${wine.vintage}" loading="lazy">`
+                  : `<div class="product-card__image-placeholder">
+                       <span style="font-size:3.5rem;filter:drop-shadow(0 0 20px rgba(212,175,55,0.5))">${icon}</span>
                      </div>`}
               </div>
               <div class="product-card__overlay">
-                <div class="product-card__vintage">${wine.vintage} · ${wine.category}</div>
+                <div class="product-card__vintage">${wine.vintage}</div>
                 <div class="product-card__name">${wine.name}</div>
+                ${desc ? `<div class="product-card__desc">${desc}</div>` : ''}
                 <div class="product-card__price-row">
-                  <span class="product-card__price">$${finalPrice.toFixed(2)}</span>
-                  ${discPct > 0 ? `<span class="product-card__price-original">$${wine.price.toFixed(2)}</span>` : ''}
+                  <span class="product-card__price">C$${finalPrice.toFixed(2)}</span>
+                  ${discPct > 0 ? `<span class="product-card__price-original">C$${wine.price.toFixed(2)}</span>` : ''}
                   <span class="stock-indicator stock-indicator--${stockLevel}"
                         title="${window.BifrostDB.constructor.stockLabel(wine.stock)}"></span>
                 </div>
@@ -1203,6 +1203,10 @@
         }).join('');
 
         window.reinitReveal?.();
+        // Re-init 3D effects for newly rendered cards
+        if (typeof initScrollDrift === 'function') initScrollDrift();
+        if (typeof init3DTilt     === 'function') init3DTilt();
+        if (typeof initFloatingFeatured === 'function') initFloatingFeatured();
       } catch (err) {
         console.error('Error al cargar vinos destacados:', err);
         const grid = document.getElementById('featured-grid');

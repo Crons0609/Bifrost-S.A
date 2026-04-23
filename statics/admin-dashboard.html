@@ -1016,9 +1016,15 @@
             <input type="text" id="wine-alcohol" class="form-input" placeholder="14.5%">
           </div>
 
-          <!-- ══ Imagen del Vino (Upload + URL) ══ -->
+          <!-- ══ Imagen del Vino (Preset Picker + Upload + URL) ══ -->
           <div class="form-group full-width">
             <label class="form-label">Imagen del Vino</label>
+
+            <!-- Preset image gallery -->
+            <div style="margin-bottom:var(--space-3);">
+              <p style="font-size:0.72rem;color:var(--color-text-muted);margin-bottom:var(--space-2);">Seleccionar imagen del repositorio:</p>
+              <div id="preset-img-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px;margin-bottom:var(--space-3);"></div>
+            </div>
 
             <!-- Preview (oculto hasta que se cargue imagen) -->
             <div id="img-preview-wrap" class="img-preview-wrap" style="display:none; margin-bottom:var(--space-3);">
@@ -1266,38 +1272,8 @@
     // Init sales + users panels when their nav tab is clicked
     let salesInited = false;
     let usersInited = false;
-    document.querySelectorAll('.admin-nav-link[data-panel]').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const panel = btn.dataset.panel;
-        if (panel === 'sales' && !salesInited) {
-          salesInited = true;
-          await window.initSalesPanel?.();
-          // Update sales count badge
-          const badge = document.getElementById('nav-sales-count');
-          if (badge && window.salesCache) badge.textContent = window.salesCache.length;
-        }
-        if (panel === 'admins' && !usersInited) {
-          usersInited = true;
-          await window.initUsersPanel?.();
-        }
-        if (panel === 'produccion') {
-          await window.initProduccionPanel?.();
-        }
-        // Inicializar panel Telegram (lazy)
-        if (panel === 'telegram') {
-          await window.initTelegramPanel?.();
-          // Mostrar botón back en móvil
-          const backBtn = document.getElementById('tg-back-btn');
-          if (backBtn) backBtn.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
-        }
-
-        // Auto-close sidebar on mobile
-        const sidebar = document.querySelector('.admin-sidebar');
-        if (sidebar && sidebar.classList.contains('mobile-open')) {
-          sidebar.classList.remove('mobile-open');
-        }
-      });
-    });
+    // NOTE: Nav link click listeners are already added by admin-crud.js initNavigation().
+    // We hook into switchPanel override below to handle lazy panel init without duplicating listeners.
 
     // also update panel title for new panels
     const origSwitch = window.switchPanel;
@@ -1332,6 +1308,37 @@
           if (iframe && !iframe.src.includes('costos-simple.html')) {
             iframe.src = iframe.dataset.src;
           }
+        }
+
+        // ── Lazy panel inits (previously in duplicate listeners) ──
+        if (panel === 'sales' && !salesInited) {
+          salesInited = true;
+          window.initSalesPanel?.().then(() => {
+            const badge = document.getElementById('nav-sales-count');
+            if (badge && window.salesCache) badge.textContent = window.salesCache.length;
+          });
+        }
+        if (panel === 'admins' && !usersInited) {
+          usersInited = true;
+          window.initUsersPanel?.();
+        }
+        if (panel === 'produccion') {
+          window.initProduccionPanel?.();
+        }
+        if (panel === 'telegram') {
+          window.initTelegramPanel?.().then(() => {
+            const backBtn = document.getElementById('tg-back-btn');
+            if (backBtn) backBtn.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
+          });
+        }
+        if (panel === 'activos') {
+          afRefresh();
+        }
+
+        // Auto-close sidebar on mobile
+        const sidebar = document.querySelector('.admin-sidebar');
+        if (sidebar && sidebar.classList.contains('mobile-open')) {
+          sidebar.classList.remove('mobile-open');
         }
       };
     }
@@ -1653,17 +1660,8 @@
   }
 
   // Cargar activos cuando se navega al panel
-  document.addEventListener('DOMContentLoaded', () => {
-    // Hook into panel navigation to load activos lazily
-    const origShowPanel = window.__origShowPanel;
-    document.querySelectorAll('[data-panel]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (btn.dataset.panel === 'activos') {
-          afRefresh();
-        }
-      });
-    });
-  });
+  // Hook is now inside the switchPanel override — no duplicate [data-panel] listeners needed.
+  // Run afRefresh when activos panel first becomes visible via the switchPanel override.
   </script>
 </body>
 

@@ -3,6 +3,27 @@
    Dashboard CRUD: Wines, Stock, Discounts, Flash Sale
    ============================================================ */
 
+/* ── Preset Wine Images (stored in GitHub repo) ─────────────── */
+// Add more images by placing them in assets/images/wines/ and adding entries here.
+const WINE_PRESET_IMAGES = [
+  { label: 'Botella 1',       file: 'bottles-1.png' },
+  { label: 'Botella 2',       file: 'bottles-2.png' },
+  { label: 'Botella 1 Alt',   file: 'bottles-1.1.0.0.0.png' },
+  { label: 'Botella 2 Alt',   file: 'bottles-2.0.0.0..png' },
+  // Agregar más imágenes aquí cuando se suban al repositorio:
+  // { label: 'Botella 3', file: 'bottles-3.png' },
+  // { label: 'Botella 4', file: 'bottles-4.png' },
+  // { label: 'Botella 5', file: 'bottles-5.png' },
+  // { label: 'Botella 6', file: 'bottles-6.png' },
+];
+
+function _resolveAsset(file) {
+  const base = window.location.pathname.includes('/statics/')
+    ? '../assets/images/wines/'
+    : 'assets/images/wines/';
+  return base + file;
+}
+
 let winesCache    = [];
 let settingsCache = {};
 let editingWineId = null;
@@ -234,7 +255,8 @@ function initNavigation() {
   links.forEach(link => {
     link.addEventListener('click', () => {
       const panel = link.dataset.panel;
-      switchPanel(panel);
+      // Call window.switchPanel so any post-load override (lazy panel init) also fires
+      window.switchPanel(panel);
     });
   });
 
@@ -528,7 +550,8 @@ function initAddWineModal() {
   openBtn?.addEventListener('click', () => {
     editingWineId = null;
     resetWineForm();
-    document.getElementById('wine-modal-title').textContent = 'Add New Wine';
+    renderPresetImagePicker();
+    document.getElementById('wine-modal-title').textContent = 'Agregar Nuevo Vino';
     openModal(modal);
   });
 
@@ -546,9 +569,52 @@ function resetWineForm() {
   const form = document.getElementById('wine-form');
   if (form) form.reset();
   clearImageUpload();
+  renderPresetImagePicker();
 }
 
-/* ── Image Upload ───────────────────────────────────────── */
+/* ── Preset Image Picker ────────────────────────────────────── */
+function renderPresetImagePicker(currentUrl = '') {
+  const grid = document.getElementById('preset-img-grid');
+  if (!grid) return;
+
+  if (WINE_PRESET_IMAGES.length === 0) {
+    grid.innerHTML = '<p style="font-size:0.7rem;color:var(--color-text-muted);">No hay imágenes en el repositorio. Sube imágenes a assets/images/wines/ y agrégalas al array WINE_PRESET_IMAGES en admin-crud.js.</p>';
+    return;
+  }
+
+  grid.innerHTML = WINE_PRESET_IMAGES.map(img => {
+    const url    = _resolveAsset(img.file);
+    const active = currentUrl && (currentUrl.endsWith(img.file)) ? 'border:2px solid var(--color-gold);' : 'border:2px solid transparent;';
+    return `
+      <div onclick="_selectPresetImage('${url}','${img.label}')"
+           title="${img.label}"
+           style="cursor:pointer;border-radius:10px;overflow:hidden;${active}transition:border 0.2s;background:rgba(0,0,0,0.3);aspect-ratio:1/1.3;">
+        <img src="${url}" alt="${img.label}"
+             loading="lazy"
+             onerror="this.parentElement.style.display='none'"
+             style="width:100%;height:100%;object-fit:cover;display:block;">
+      </div>`;
+  }).join('');
+}
+
+window._selectPresetImage = function(url, label) {
+  setImageFinal(url);
+  showImagePreview(url, null);
+  // Deselect all, highlight selected
+  const grid = document.getElementById('preset-img-grid');
+  if (grid) {
+    grid.querySelectorAll('div[onclick]').forEach(d => {
+      d.style.border = '2px solid transparent';
+    });
+    event.currentTarget.style.border = '2px solid var(--color-gold)';
+  }
+  // Clear URL field to avoid conflict
+  const urlInput = document.getElementById('wine-image');
+  if (urlInput) urlInput.value = '';
+  showToast(`Imágen seleccionada: ${label}`, 'success');
+};
+
+/* ── Image Upload ───────────────────────────────────────────── */
 const MAX_IMG_BYTES = 5 * 1024 * 1024; // 5 MB
 
 function initImageUpload() {
@@ -693,6 +759,7 @@ async function openEditWineModal(id) {
 
   // Populate image: show preview if imageUrl exists
   clearImageUpload();
+  renderPresetImagePicker(wine.imageUrl || '');
   if (wine.imageUrl) {
     setImageFinal(wine.imageUrl);
     // If it's a URL (not base64), populate the URL field and show preview

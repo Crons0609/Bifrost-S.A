@@ -281,6 +281,138 @@ function initTypedText() {
   type();
 }
 
+/* ── 3D Mouse Tilt for Cards ─────────────────────────────────── */
+function init3DTilt() {
+  if (window.matchMedia('(hover: none)').matches) return; // skip on touch devices
+
+  function applyTilt(card, e) {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const cx = rect.width  / 2;
+    const cy = rect.height / 2;
+    const rotX = ((y - cy) / cy) * -10;
+    const rotY = ((x - cx) / cx) *  10;
+    card.style.transform =
+      `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(12px) scale(1.03)`;
+    card.style.boxShadow =
+      `0 ${30 + Math.abs(rotX) * 3}px ${70 + Math.abs(rotY) * 4}px rgba(0,0,0,0.55),
+       0 0 ${40 + Math.abs(rotY) * 3}px rgba(212,175,55,${0.1 + Math.abs(rotY) * 0.02})`;
+  }
+
+  function resetTilt(card) {
+    card.style.transform = '';
+    card.style.boxShadow = '';
+  }
+
+  function bindTilt(selector) {
+    document.querySelectorAll(selector).forEach(card => {
+      card.addEventListener('mousemove', e => applyTilt(card, e), { passive: true });
+      card.addEventListener('mouseleave', () => resetTilt(card));
+    });
+  }
+
+  // Bind after dynamic content may load
+  const observe = new MutationObserver(() => {
+    bindTilt('.product-card');
+    bindTilt('.value-card.glass');
+  });
+  observe.observe(document.body, { childList: true, subtree: true });
+
+  bindTilt('.product-card');
+  bindTilt('.value-card.glass');
+}
+
+/* ── Scroll-Driven Horizontal Drift ─────────────────────────── */
+function initScrollDrift() {
+  const driftEls = document.querySelectorAll('[data-drift]');
+  if (!driftEls.length) return;
+
+  let ticking = false;
+
+  function updateDrift() {
+    driftEls.forEach(el => {
+      const rect      = el.getBoundingClientRect();
+      const centerY   = rect.top + rect.height / 2;
+      const vH        = window.innerHeight;
+      // progress: -1 when below viewport, 0 at center, +1 above viewport
+      const progress  = (vH / 2 - centerY) / vH;
+      const dir       = el.dataset.drift === 'right' ? 1 : -1;
+      const intensity = parseFloat(el.dataset.driftIntensity || '55');
+      const drift     = progress * intensity * dir;
+      el.style.transform = `translateX(${drift}px)`;
+    });
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(updateDrift);
+      ticking = true;
+    }
+  }, { passive: true });
+
+  updateDrift(); // initial
+}
+
+/* ── Floating 3D Classes for Featured Cards ──────────────────── */
+function initFloatingFeatured() {
+  // Re-bind whenever the featured grid is updated
+  function assignFloats() {
+    const cards = document.querySelectorAll('#featured-grid .product-card');
+    const floatClasses = ['float-3d-1', 'float-3d-2', 'float-3d-3'];
+    cards.forEach((card, i) => {
+      // Remove existing float classes
+      floatClasses.forEach(c => card.classList.remove(c));
+      card.classList.add(floatClasses[i % 3]);
+    });
+  }
+
+  // Watch for grid content changes (dynamic load)
+  const grid = document.getElementById('featured-grid');
+  if (grid) {
+    const obs = new MutationObserver(assignFloats);
+    obs.observe(grid, { childList: true });
+    assignFloats();
+  }
+}
+
+/* ── Hero Depth Parallax (mouse-based) ───────────────────────── */
+function initHeroDepth() {
+  const hero = document.getElementById('hero');
+  if (!hero || window.matchMedia('(hover: none)').matches) return;
+
+  const logo   = hero.querySelector('.hero__logo-img');
+  const orbG   = hero.querySelector('.vortex-orb--gold');
+  const orbF   = hero.querySelector('.vortex-orb--frost');
+  const orbP   = hero.querySelector('.vortex-orb--purple');
+
+  let af;
+  hero.addEventListener('mousemove', (e) => {
+    if (af) cancelAnimationFrame(af);
+    af = requestAnimationFrame(() => {
+      const rect = hero.getBoundingClientRect();
+      const mx = (e.clientX - rect.left) / rect.width  - 0.5; // -0.5 to 0.5
+      const my = (e.clientY - rect.top)  / rect.height - 0.5;
+
+      if (logo) {
+        logo.style.transform =
+          `translateX(${mx * 18}px) translateY(${my * 10}px) rotateY(${mx * 8}deg)`;
+      }
+      if (orbG) orbG.style.transform = `translate(${mx * 40}px, ${my * 30}px)`;
+      if (orbF) orbF.style.transform = `translate(${mx * -30}px, ${my * 20}px)`;
+      if (orbP) orbP.style.transform = `translate(${mx * 25}px, ${my * -25}px)`;
+    });
+  });
+
+  hero.addEventListener('mouseleave', () => {
+    if (logo) logo.style.transform = '';
+    if (orbG) orbG.style.transform = '';
+    if (orbF) orbF.style.transform = '';
+    if (orbP) orbP.style.transform = '';
+  });
+}
+
 /* ── Init All Effects ───────────────────────────────────────── */
 function initAllEffects() {
   initScrollReveal();
@@ -293,6 +425,11 @@ function initAllEffects() {
   initCursorSpotlight();
   initTypedText();
   dismissLoadingScreen();
+  // ── 3D Premium Effects ──
+  init3DTilt();
+  initScrollDrift();
+  initFloatingFeatured();
+  initHeroDepth();
 }
 
 // Auto-init on DOM ready
@@ -306,4 +443,6 @@ if (document.readyState === 'loading') {
 window.reinitReveal = function() {
   initScrollReveal();
   initParticles();
+  initFloatingFeatured();
+  init3DTilt();
 };
