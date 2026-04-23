@@ -3,17 +3,46 @@
    Scroll Animations, Particles, Ripple Effects
    ============================================================ */
 
+const EFFECTS_STATE = {
+  revealObserver: null,
+  tiltMutationObserver: null,
+  cameraBound: false,
+  depthBound: false,
+  heroBottleBound: false,
+};
+
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
 /* ── Scroll Reveal (Intersection Observer) ──────────────────── */
 function initScrollReveal() {
   const elements = document.querySelectorAll('.reveal');
   if (!elements.length) return;
 
-  const observer = new IntersectionObserver(
+  if (EFFECTS_STATE.revealObserver) {
+    EFFECTS_STATE.revealObserver.disconnect();
+  }
+
+  elements.forEach((el) => {
+    if (!el.dataset.reveal) {
+      if (el.classList.contains('scale-in')) {
+        el.dataset.reveal = 'depth';
+      } else if (el.classList.contains('from-left')) {
+        el.dataset.reveal = 'left-3d';
+      } else if (el.classList.contains('from-right')) {
+        el.dataset.reveal = 'right-3d';
+      }
+    }
+  });
+
+  EFFECTS_STATE.revealObserver = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           entry.target.classList.add('visible');
-          // Don't unobserve if we want re-animation on scroll back
+        } else if (entry.intersectionRatio < 0.04) {
+          entry.target.classList.remove('visible');
         }
       });
     },
@@ -23,7 +52,7 @@ function initScrollReveal() {
     }
   );
 
-  elements.forEach(el => observer.observe(el));
+  elements.forEach(el => EFFECTS_STATE.revealObserver.observe(el));
 }
 
 /* ── Staggered Children Reveal ──────────────────────────────── */
@@ -283,7 +312,7 @@ function initTypedText() {
 
 /* ── 3D Mouse Tilt for Cards ─────────────────────────────────── */
 function init3DTilt() {
-  if (window.matchMedia('(hover: none)').matches) return; // skip on touch devices
+  if (window.matchMedia('(hover: none)').matches || prefersReducedMotion()) return;
 
   function applyTilt(card, e) {
     const rect = card.getBoundingClientRect();
@@ -307,17 +336,21 @@ function init3DTilt() {
 
   function bindTilt(selector) {
     document.querySelectorAll(selector).forEach(card => {
+      if (card.dataset.tiltBound === 'true') return;
+      card.dataset.tiltBound = 'true';
       card.addEventListener('mousemove', e => applyTilt(card, e), { passive: true });
       card.addEventListener('mouseleave', () => resetTilt(card));
     });
   }
 
   // Bind after dynamic content may load
-  const observe = new MutationObserver(() => {
-    bindTilt('.product-card');
-    bindTilt('.value-card.glass');
-  });
-  observe.observe(document.body, { childList: true, subtree: true });
+  if (!EFFECTS_STATE.tiltMutationObserver) {
+    EFFECTS_STATE.tiltMutationObserver = new MutationObserver(() => {
+      bindTilt('.product-card');
+      bindTilt('.value-card.glass');
+    });
+    EFFECTS_STATE.tiltMutationObserver.observe(document.body, { childList: true, subtree: true });
+  }
 
   bindTilt('.product-card');
   bindTilt('.value-card.glass');
@@ -380,9 +413,8 @@ function initFloatingFeatured() {
 /* ── Hero Depth Parallax (mouse-based) ───────────────────────── */
 function initHeroDepth() {
   const hero = document.getElementById('hero');
-  if (!hero || window.matchMedia('(hover: none)').matches) return;
+  if (!hero || window.matchMedia('(hover: none)').matches || prefersReducedMotion()) return;
 
-  const logo   = hero.querySelector('.hero__logo-img');
   const orbG   = hero.querySelector('.vortex-orb--gold');
   const orbF   = hero.querySelector('.vortex-orb--frost');
   const orbP   = hero.querySelector('.vortex-orb--purple');
@@ -395,10 +427,6 @@ function initHeroDepth() {
       const mx = (e.clientX - rect.left) / rect.width  - 0.5; // -0.5 to 0.5
       const my = (e.clientY - rect.top)  / rect.height - 0.5;
 
-      if (logo) {
-        logo.style.transform =
-          `translateX(${mx * 18}px) translateY(${my * 10}px) rotateY(${mx * 8}deg)`;
-      }
       if (orbG) orbG.style.transform = `translate(${mx * 40}px, ${my * 30}px)`;
       if (orbF) orbF.style.transform = `translate(${mx * -30}px, ${my * 20}px)`;
       if (orbP) orbP.style.transform = `translate(${mx * 25}px, ${my * -25}px)`;
@@ -406,11 +434,174 @@ function initHeroDepth() {
   });
 
   hero.addEventListener('mouseleave', () => {
-    if (logo) logo.style.transform = '';
     if (orbG) orbG.style.transform = '';
     if (orbF) orbF.style.transform = '';
     if (orbP) orbP.style.transform = '';
   });
+}
+
+/* ── Hero Bottle Scroll Parallax ────────────────────────────── */
+function initHeroBottleParallax() {
+  if (EFFECTS_STATE.heroBottleBound || prefersReducedMotion()) return;
+
+  const hero = document.getElementById('hero');
+  const bottleL = document.getElementById('hero-bottle-left');
+  const bottleR = document.getElementById('hero-bottle-right');
+  if (!hero || !bottleL || !bottleR) return;
+
+  const TILT_L = -12;
+  const TILT_R = 12;
+  const MAX_SLIDE = 220;
+  let ticking = false;
+
+  function updateBottles() {
+    const heroRect = hero.getBoundingClientRect();
+    const progress = Math.min(Math.max((window.innerHeight - heroRect.top) / (heroRect.height + window.innerHeight * 0.35), 0), 1);
+    const exitProgress = Math.min(Math.max(window.scrollY / Math.max(hero.offsetHeight, 1), 0), 1);
+    const slide = exitProgress * MAX_SLIDE;
+    const lift = progress * 36;
+
+    bottleL.style.transform = `rotate(${TILT_L - exitProgress * 8}deg) translate3d(${-slide}px, ${-lift}px, ${60 + progress * 120}px)`;
+    bottleL.style.opacity = String(Math.max(1 - exitProgress * 0.9, 0.12));
+
+    bottleR.style.transform = `rotate(${TILT_R + exitProgress * 8}deg) translate3d(${slide}px, ${-lift}px, ${60 + progress * 120}px)`;
+    bottleR.style.opacity = String(Math.max(1 - exitProgress * 0.9, 0.12));
+
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(updateBottles);
+      ticking = true;
+    }
+  }, { passive: true });
+
+  window.addEventListener('resize', updateBottles, { passive: true });
+  EFFECTS_STATE.heroBottleBound = true;
+  updateBottles();
+}
+
+/* ── Depth Parallax Layers ──────────────────────────────────── */
+function initDepthParallax() {
+  if (EFFECTS_STATE.depthBound || prefersReducedMotion()) return;
+
+  const layeredEls = Array.from(document.querySelectorAll('[data-depth]'));
+  if (!layeredEls.length) return;
+
+  const hero = document.getElementById('hero');
+  let pointerX = 0;
+  let pointerY = 0;
+  let ticking = false;
+
+  function updateDepth() {
+    layeredEls.forEach((el) => {
+      const depth = parseFloat(el.dataset.depth || '0.1');
+      const rect = el.getBoundingClientRect();
+      const viewportCenter = window.innerHeight / 2;
+      const elementCenter = rect.top + rect.height / 2;
+      const scrollFactor = (viewportCenter - elementCenter) / window.innerHeight;
+      const px = pointerX * depth * 36;
+      const py = pointerY * depth * 28;
+      const pz = (depth * 180) + (scrollFactor * depth * 90);
+      const rx = pointerY * depth * -12;
+      const ry = pointerX * depth * 14;
+
+      el.style.setProperty('--parallax-x', `${px.toFixed(2)}px`);
+      el.style.setProperty('--parallax-y', `${(py + scrollFactor * depth * 28).toFixed(2)}px`);
+      el.style.setProperty('--parallax-z', `${pz.toFixed(2)}px`);
+      el.style.setProperty('--parallax-rx', `${rx.toFixed(2)}deg`);
+      el.style.setProperty('--parallax-ry', `${ry.toFixed(2)}deg`);
+    });
+    ticking = false;
+  }
+
+  function requestDepthUpdate() {
+    if (!ticking) {
+      requestAnimationFrame(updateDepth);
+      ticking = true;
+    }
+  }
+
+  if (hero && !window.matchMedia('(hover: none)').matches) {
+    hero.addEventListener('mousemove', (e) => {
+      const rect = hero.getBoundingClientRect();
+      pointerX = ((e.clientX - rect.left) / rect.width) - 0.5;
+      pointerY = ((e.clientY - rect.top) / rect.height) - 0.5;
+      requestDepthUpdate();
+    });
+
+    hero.addEventListener('mouseleave', () => {
+      pointerX = 0;
+      pointerY = 0;
+      requestDepthUpdate();
+    });
+  }
+
+  window.addEventListener('scroll', requestDepthUpdate, { passive: true });
+  window.addEventListener('resize', requestDepthUpdate, { passive: true });
+  EFFECTS_STATE.depthBound = true;
+  updateDepth();
+}
+
+/* ── Camera Path Animation ──────────────────────────────────── */
+function initCameraPathAnimation() {
+  if (EFFECTS_STATE.cameraBound || prefersReducedMotion()) return;
+
+  const sections = Array.from(document.querySelectorAll('[data-camera-section]'));
+  if (!sections.length) return;
+
+  document.body.classList.add('camera-path-active');
+  let ticking = false;
+
+  function updateCamera() {
+    let backgroundShift = 0;
+
+    sections.forEach((section) => {
+      const rect = section.getBoundingClientRect();
+      const intensity = parseFloat(section.dataset.cameraIntensity || '1');
+      const progress = Math.min(Math.max((window.innerHeight - rect.top) / (window.innerHeight + rect.height), 0), 1);
+      const centered = ((rect.top + rect.height / 2) - window.innerHeight / 2) / window.innerHeight;
+      const distance = Math.abs(centered);
+      const active = distance < 0.72;
+
+      const shiftY = centered * -32 * intensity;
+      const rotateX = centered * -7 * intensity;
+      const rotateY = centered * 9 * intensity;
+      const scale = 1 - Math.min(distance * 0.08, 0.08) + (active ? 0.018 : 0);
+      const saturation = 1 + (active ? 0.14 : 0) - Math.min(distance * 0.12, 0.12);
+      const brightness = 1 + (active ? 0.06 : 0) - Math.min(distance * 0.08, 0.08);
+
+      section.style.setProperty('--camera-progress', progress.toFixed(3));
+      section.style.setProperty('--camera-shift-y', `${shiftY.toFixed(2)}px`);
+      section.style.setProperty('--camera-rotate-x', `${rotateX.toFixed(2)}deg`);
+      section.style.setProperty('--camera-rotate-y', `${rotateY.toFixed(2)}deg`);
+      section.style.setProperty('--camera-scale', scale.toFixed(3));
+      section.style.setProperty('--camera-saturation', saturation.toFixed(3));
+      section.style.setProperty('--camera-brightness', brightness.toFixed(3));
+      section.style.setProperty('--camera-sheen', active ? '1' : '0');
+      section.classList.toggle('camera-active', active);
+
+      if (section.id === 'hero') {
+        backgroundShift = shiftY * 1.35;
+      }
+    });
+
+    document.body.style.setProperty('--camera-background-shift', `${backgroundShift.toFixed(2)}px`);
+    ticking = false;
+  }
+
+  function requestCameraUpdate() {
+    if (!ticking) {
+      requestAnimationFrame(updateCamera);
+      ticking = true;
+    }
+  }
+
+  window.addEventListener('scroll', requestCameraUpdate, { passive: true });
+  window.addEventListener('resize', requestCameraUpdate, { passive: true });
+  EFFECTS_STATE.cameraBound = true;
+  updateCamera();
 }
 
 /* ── Init All Effects ───────────────────────────────────────── */
@@ -426,6 +617,9 @@ function initAllEffects() {
   initTypedText();
   dismissLoadingScreen();
   // ── 3D Premium Effects ──
+  initHeroBottleParallax();
+  initDepthParallax();
+  initCameraPathAnimation();
   init3DTilt();
   initScrollDrift();
   initFloatingFeatured();
@@ -445,4 +639,5 @@ window.reinitReveal = function() {
   initParticles();
   initFloatingFeatured();
   init3DTilt();
+  initCameraPathAnimation();
 };

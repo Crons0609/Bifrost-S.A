@@ -266,41 +266,70 @@
     {
       id: 'qr-stock', label: '📦 Stock',
       build: async () => {
-        const snap = await tgDb.ref('stock_lotes').once('value');
-        if (!snap.exists()) return '📦 En este momento nuestro inventario está siendo actualizado.\nTe confirmaremos disponibilidad en breve. ✅';
-        let msg = '📦 *Inventario Disponible Bifrost S.A.*\n\n';
-        let totalL = 0;
-        snap.forEach(c => {
-          const lote = c.val();
-          const litros   = parseFloat(lote.litros_disponibles) || 0;
-          const botellas = parseInt(lote.botellas_terminadas)  || 0;
-          if (litros > 0 || botellas > 0) {
-            msg += `🔹 *${lote.nombre}*\n`;
-            if (litros   > 0) msg += `   💧 ${litros.toFixed(1)} L en barril\n`;
-            if (botellas > 0) msg += `   🍾 ${botellas} botellas envasadas\n`;
-            msg += '\n';
-            totalL += litros;
-          }
+        const snap = await tgDb.ref('productos_ecommerce').once('value');
+        const products = [];
+        if (snap.exists()) {
+          snap.forEach(c => {
+            const p = c.val() || {};
+            const stock = parseInt(p.stock, 10) || 0;
+            if (stock > 0) {
+              products.push({
+                name: p.name || 'Producto Bifrost',
+                vintage: p.vintage || '',
+                stock
+              });
+            }
+          });
+        }
+        if (!products.length) {
+          return '📦 *Productos en stock actualmente*\n\nEn este momento no tenemos productos disponibles para entrega inmediata.\nSi quieres, puedo avisarte cuando entren nuevas existencias. 🍷';
+        }
+        products.sort((a, b) => a.name.localeCompare(b.name, 'es'));
+        let msg = '📦 *Productos en stock actualmente*\n\n';
+        products.forEach(p => {
+          msg += `🔹 *${p.name}${p.vintage ? ` ${p.vintage}` : ''}*\n`;
+          msg += `   📦 ${p.stock} disponibles\n\n`;
         });
-        msg += `📊 *Total en bodega:* ${totalL.toFixed(1)} L\n\n`;
-        msg += '¿Te interesa alguno? Con gusto te cotizamos. 😊';
+        msg += '🛍️ Tienda online: https://bifrost-s-a.onrender.com/statics/shop.html\n\n';
+        msg += 'Si quieres, también te comparto los precios. 😊';
         return msg;
       }
     },
     {
       id: 'qr-precio', label: '💰 Precios',
       build: async () => {
-        const snap = await tgDb.ref('stock_lotes').once('value');
+        const snap = await tgDb.ref('productos_ecommerce').once('value');
         let msg = '💰 *Precios Bifrost S.A.*\n\n';
-        if (!snap.exists()) return msg + 'Indícanos qué producto te interesa y te cotizamos. 🍷';
-        snap.forEach(c => {
-          const lote   = c.val();
-          const litros = parseFloat(lote.litros_disponibles) || 0;
-          if (litros <= 0) return;
-          msg += `🔹 *${lote.nombre}* — ${litros.toFixed(1)} L disponibles\n`;
-          msg += '   📞 _Consulta precio con nuestro asesor_\n\n';
+        const products = [];
+        if (snap.exists()) {
+          snap.forEach(c => {
+            const p = c.val() || {};
+            const stock = parseInt(p.stock, 10) || 0;
+            if (stock > 0) {
+              const price = parseFloat(p.price) || 0;
+              const discount = parseInt(p.discount, 10) || 0;
+              const finalPrice = discount > 0 ? price * (1 - discount / 100) : price;
+              products.push({
+                name: p.name || 'Producto Bifrost',
+                vintage: p.vintage || '',
+                stock,
+                price,
+                discount,
+                finalPrice
+              });
+            }
+          });
+        }
+        if (!products.length) return msg + 'Ahora mismo no tenemos productos en stock. Revisa luego nuestra tienda: https://bifrost-s-a.onrender.com/statics/shop.html';
+        products.sort((a, b) => a.name.localeCompare(b.name, 'es'));
+        products.forEach(p => {
+          msg += `🔹 *${p.name}${p.vintage ? ` ${p.vintage}` : ''}*\n`;
+          msg += `   📦 ${p.stock} disponibles\n`;
+          if (p.discount > 0) msg += `   💸 C$${p.finalPrice.toFixed(2)} _(antes C$${p.price.toFixed(2)}, ${p.discount}% desc.)_\n\n`;
+          else msg += `   💸 C$${p.finalPrice.toFixed(2)}\n\n`;
         });
-        msg += 'Respóndenos con producto y cantidad para cotizar. ✅';
+        msg += '🛍️ Catálogo completo: https://bifrost-s-a.onrender.com/statics/shop.html\n\n';
+        msg += 'Respóndenos con producto y cantidad para ayudarte a comprar. ✅';
         return msg;
       }
     },

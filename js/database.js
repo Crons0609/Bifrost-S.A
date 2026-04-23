@@ -399,7 +399,7 @@ class BifrostDB {
       try { if (_fbDb) await _fbDb.ref(`productos_ecommerce/${wine.id}`).update(wine); } catch(e) { console.warn('FB update error:', e); }
       if (!this.useIndexedDB) {
         const wines = JSON.parse(localStorage.getItem('bifrost_wines') || '[]');
-        const idx = wines.findIndex(w => w.id === wine.id);
+        const idx = wines.findIndex(w => String(w.id) === String(wine.id));
         if (idx !== -1) wines[idx] = wine;
         localStorage.setItem('bifrost_wines', JSON.stringify(wines));
         resolve(wine);

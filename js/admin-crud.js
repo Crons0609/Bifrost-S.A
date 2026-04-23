@@ -29,6 +29,10 @@ let settingsCache = {};
 let editingWineId = null;
 let currentPanel  = 'inventory'; // 'inventory' | 'discounts'
 
+function idsMatch(left, right) {
+  return String(left) === String(right);
+}
+
 /* ── Bootstrap ───────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', async () => {
   if (!window.AdminAuth?.isLoggedIn()) return; // Guard already handled
@@ -439,7 +443,7 @@ function renderDiscountTable() {
 
 /* ── Stock Controls ──────────────────────────────────────────── */
 async function adjustStock(id, delta) {
-  const wine = winesCache.find(w => w.id === id);
+  const wine = winesCache.find(w => idsMatch(w.id, id));
   if (!wine) return;
 
   const newStock = Math.max(0, wine.stock + delta);
@@ -452,7 +456,7 @@ async function adjustStock(id, delta) {
 async function setStock(id, rawValue) {
   const value = parseInt(rawValue) || 0;
   const newStock = Math.max(0, value);
-  const wine = winesCache.find(w => w.id === id);
+  const wine = winesCache.find(w => idsMatch(w.id, id));
   if (!wine) return;
   await updateWineField(id, { stock: newStock });
   showToast(`${wine.name}: Stock updated to ${newStock}`, 'success');
@@ -468,7 +472,7 @@ async function applyDiscount(id) {
   if (!input) return;
 
   const pct = Math.max(0, Math.min(100, parseInt(input.value) || 0));
-  const wine = winesCache.find(w => w.id === id);
+  const wine = winesCache.find(w => idsMatch(w.id, id));
   if (!wine) return;
 
   await updateWineField(id, { discount: pct });
@@ -479,7 +483,7 @@ async function applyDiscount(id) {
 
 /* ── Shared field update ─────────────────────────────────────── */
 async function updateWineField(id, fields) {
-  const idx = winesCache.findIndex(w => w.id === id);
+  const idx = winesCache.findIndex(w => idsMatch(w.id, id));
   if (idx === -1) return;
 
   const updated = { ...winesCache[idx], ...fields };
@@ -723,7 +727,7 @@ function setImageFinal(value) {
 }
 
 async function openEditWineModal(id) {
-  const wine  = winesCache.find(w => w.id === id);
+  const wine  = winesCache.find(w => idsMatch(w.id, id));
   const modal = document.getElementById('wine-modal');
   if (!wine || !modal) return;
 
@@ -806,7 +810,7 @@ async function saveWine(form, modal) {
     if (editingWineId) {
       wineData.id = editingWineId;
       await window.BifrostDB.updateWine(wineData);
-      const idx = winesCache.findIndex(w => w.id === editingWineId);
+      const idx = winesCache.findIndex(w => idsMatch(w.id, editingWineId));
       if (idx !== -1) winesCache[idx] = wineData;
       showToast(`${wineData.name} updated successfully`, 'success');
     } else {
@@ -831,7 +835,7 @@ async function saveWine(form, modal) {
 
 /* ── Delete Wine ─────────────────────────────────────────────── */
 async function deleteWine(id) {
-  const wine = winesCache.find(w => w.id === id);
+  const wine = winesCache.find(w => idsMatch(w.id, id));
   if (!wine) return;
 
   if (!confirm(`Delete "${wine.name}" (${wine.vintage})? This cannot be undone.`)) return;

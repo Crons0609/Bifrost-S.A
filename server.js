@@ -382,6 +382,42 @@ function detectarIntencion(texto) {
   return null;
 }
 
+async function getEcommerceProductsInStock() {
+  const snap = await db.ref('productos_ecommerce').once('value');
+  if (!snap.exists()) return [];
+
+  const products = [];
+  snap.forEach((child) => {
+    const product = child.val() || {};
+    const stock = parseInt(product.stock, 10) || 0;
+    if (stock > 0) {
+      products.push({
+        id: child.key,
+        name: product.name || 'Producto Bifrost',
+        vintage: product.vintage || '',
+        stock,
+        price: parseFloat(product.price) || 0,
+        discount: parseInt(product.discount, 10) || 0,
+      });
+    }
+  });
+
+  products.sort((a, b) => a.name.localeCompare(b.name, 'es'));
+  return products;
+}
+
+function formatProductPrice(product) {
+  const finalPrice = product.discount > 0
+    ? product.price * (1 - product.discount / 100)
+    : product.price;
+
+  return {
+    finalPrice,
+    originalPrice: product.price,
+    discount: product.discount
+  };
+}
+
 /**
  * Genera respuesta automática basada en datos reales de Firebase.
  * Retorna el texto de la respuesta o null si no aplica auto-respuesta.
@@ -404,83 +440,44 @@ async function generarAutoRespuesta(intencion, userName) {
 
     case 'stock':
     case 'catalogo': {
-      const snap = await db.ref('stock_lotes').once('value');
-      if (!snap.exists()) {
-        return `Hola ${nombre} 👋 En este momento estamos actualizando nuestro inventario.\n` +
-               `Escríbenos y te confirmaremos disponibilidad en breve. ✅`;
-      }
-
-      let respuesta = `¡Hola, ${nombre}! 🍷 Aquí tienes nuestro *inventario disponible* en tiempo real:\n\n`;
-      let totalLitros = 0;
-      let hayStock = false;
-
-      snap.forEach(child => {
-        const lote = child.val();
-        const litros = parseFloat(lote.litros_disponibles) || 0;
-        const botellas = parseInt(lote.botellas_terminadas) || 0;
-
-        if (litros > 0 || botellas > 0) {
-          hayStock = true;
-          respuesta += `🔹 *${lote.nombre}*\n`;
-          if (litros > 0) respuesta += `   💧 ${litros.toFixed(1)} L disponibles en barril\n`;
-          if (botellas > 0) respuesta += `   🍾 ${botellas} botellas envasadas\n`;
-          respuesta += '\n';
-          totalLitros += litros;
-        }
-      });
-
-      if (!hayStock) {
+      const products = await getEcommerceProductsInStock();
+      if (!products.length) {
         return `Hola ${nombre} 👋 Lamentablemente en este momento no contamos con stock disponible.\n` +
                `Déjanos tu contacto y te avisamos cuando tengamos producción lista. 📬`;
       }
 
-      respuesta += `📊 *Total en bodega:* ${totalLitros.toFixed(1)} L\n\n`;
-      respuesta += `_¿Te interesa alguno en particular? Pregunta por precios o cómo hacer tu pedido._ 😊`;
+      let respuesta = `¡Hola, ${nombre}! 🍷 Estos son los *productos que tenemos en stock ahora mismo*:\n\n`;
+      products.forEach((product) => {
+        respuesta += `🔹 *${product.name}${product.vintage ? ` ${product.vintage}` : ''}*\n`;
+        respuesta += `   📦 ${product.stock} disponibles\n\n`;
+      });
+
+      respuesta += `🛍️ Ver tienda: https://bifrost-s-a.onrender.com/statics/shop.html\n\n`;
+      respuesta += `_Si quieres, te paso precios o te ayudo a elegir uno._ 😊`;
       return respuesta;
     }
 
     case 'precio': {
-      const snap = await db.ref('stock_lotes').once('value');
-      const costsSnap = await db.ref('costos_recetas').once('value');
-
-      if (!snap.exists()) {
+      const products = await getEcommerceProductsInStock();
+      if (!products.length) {
         return `Hola ${nombre}! Para enviarte los precios actualizados, ` +
                `por favor escríbenos directamente y un asesor te atenderá. 📞`;
       }
 
-      // Construir mapa de costos por lote
-      const costos = {};
-      if (costsSnap.exists()) {
-        costsSnap.forEach(c => {
-          const v = c.val();
-          if (v.res_costo_litro) costos[c.key] = parseFloat(v.res_costo_litro);
-        });
-      }
-
-      let respuesta = `¡Hola, ${nombre}! 💰 Aquí te presento nuestra *lista de precios* actualizada:\n\n`;
-      let tienePrecios = false;
-
-      snap.forEach(child => {
-        const lote = child.val();
-        const litros = parseFloat(lote.litros_disponibles) || 0;
-        if (litros <= 0) return;
-
-        tienePrecios = true;
-        respuesta += `🔹 *${lote.nombre}*\n`;
-        respuesta += `   💧 Disponible: ${litros.toFixed(1)} L\n`;
-
-        // Usar costo de receta si existe (precio de costo interno)
-        // En producción real, aquí irían los precios de venta
-        respuesta += `   📞 _Precio disponible consultando con asesor_\n\n`;
+      let respuesta = `💰 *Precios Bifrost S.A.*\n\n`;
+      products.forEach((product) => {
+        const { finalPrice, originalPrice, discount } = formatProductPrice(product);
+        respuesta += `🔹 *${product.name}${product.vintage ? ` ${product.vintage}` : ''}*\n`;
+        respuesta += `   📦 ${product.stock} disponibles\n`;
+        if (discount > 0) {
+          respuesta += `   💸 C$${finalPrice.toFixed(2)} _(antes C$${originalPrice.toFixed(2)}, ${discount}% desc.)_\n\n`;
+        } else {
+          respuesta += `   💸 C$${finalPrice.toFixed(2)}\n\n`;
+        }
       });
 
-      if (!tienePrecios) {
-        return `Hola ${nombre}! En este momento no tenemos stock disponible. ` +
-               `Te contactamos cuando tengamos producción lista. 🍷`;
-      }
-
-      respuesta += `Para conocer los precios exactos por volumen y hacer tu pedido, ` +
-                   `responde a este chat y un asesor de Bifrost S.A. te contactará. ✅`;
+      respuesta += `🛍️ Ver catálogo completo: https://bifrost-s-a.onrender.com/statics/shop.html\n\n`;
+      respuesta += `Si me dices cuál te interesa, también te ayudo con la compra. 🍷`;
       return respuesta;
     }
 

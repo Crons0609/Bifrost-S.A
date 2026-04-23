@@ -661,31 +661,37 @@
        SECCIÓN HÉROE
   ════════════════════════════════════════ -->
   <main>
-    <section class="hero" id="hero" aria-label="Héroe principal">
+    <section class="hero scene-3d section-camera" id="hero" aria-label="Héroe principal" data-camera-section
+      data-camera-intensity="1.15">
       <!-- Fondo -->
       <div class="hero__bg" aria-hidden="true">
         <img src="assets/images/bg/hero-vortex.png" alt="" class="hero__bg-img" role="presentation">
+        <div class="hero__nebula-grid"></div>
         <div class="vortex-orb vortex-orb--gold"></div>
         <div class="vortex-orb vortex-orb--frost"></div>
         <div class="vortex-orb vortex-orb--purple"></div>
+        <div class="morph-blob morph-blob--hero-a"></div>
+        <div class="morph-blob morph-blob--hero-b"></div>
+        <div class="morph-ring morph-ring--hero"></div>
         <div class="hero__bg-gradient"></div>
         <div class="particles-layer" data-count="18" aria-hidden="true"></div>
       </div>
 
       <!-- Contenido -->
-      <div class="hero__content">
+      <div class="hero__content" data-depth="0.16">
         <!-- Fila: botella izquierda | logo | botella derecha -->
         <div class="hero__logo-row hero-animate">
           <img id="hero-bottle-left" src="assets/images/wines/bottles-1.png" alt="" aria-hidden="true"
-            class="hero-bottle hero-bottle--left">
-          <img src="assets/images/ui/bifrost-logo.png" alt="Bifrost S.A — Vortex Reserve" class="hero__logo-img">
+            class="hero-bottle hero-bottle--left" data-depth="0.28">
+          <img src="assets/images/ui/bifrost-logo.png" alt="Bifrost S.A — Vortex Reserve" class="hero__logo-img"
+            data-depth="0.34">
           <img id="hero-bottle-right" src="assets/images/wines/bottles-2.png" alt="" aria-hidden="true"
-            class="hero-bottle hero-bottle--right">
+            class="hero-bottle hero-bottle--right" data-depth="0.28">
         </div>
 
-        <p class="hero__eyebrow hero-animate">La Colección Vortex Reserve</p>
+        <p class="hero__eyebrow hero-animate" data-depth="0.1">La Colección Vortex Reserve</p>
 
-        <h1 class="hero__title hero-animate">
+        <h1 class="hero__title hero-animate" data-depth="0.22">
           BIFROST WINES
           <span class="hero__title-line2">
             Donde el Mito se Encuentra con el Viñedo
@@ -694,12 +700,12 @@
 
         <div class="hero__gold-line" aria-hidden="true"></div>
 
-        <p class="hero__subtitle hero-animate">
+        <p class="hero__subtitle hero-animate" data-depth="0.14">
           Seis expresiones legendarias desde Chichigalpa, Nicaragua, hacia las mejores appellation del mundo.
           Cada botella, un portal entre reinos. Cada sorbo, una eternidad.
         </p>
 
-        <div class="hero__cta-group hero-animate">
+        <div class="hero__cta-group hero-animate" data-depth="0.18">
           <a href="statics/shop.html" class="btn btn--primary btn--lg btn-ripple" id="hero-shop-btn">
             Explorar Colección
             <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -711,7 +717,7 @@
       </div>
 
       <!-- Indicador de scroll -->
-      <div class="hero__scroll-hint" aria-hidden="true">
+      <div class="hero__scroll-hint" aria-hidden="true" data-depth="0.08">
         <div class="hero__scroll-line"></div>
         <span>Desplazar</span>
       </div>
@@ -721,13 +727,15 @@
     <div class="bridge-separator" aria-hidden="true"></div>
 
     <!-- ════════════ VINOS DESTACADOS ════════════ -->
-    <section class="featured-section container section scene-3d" aria-labelledby="featured-heading">
+    <section class="featured-section container section scene-3d section-camera" aria-labelledby="featured-heading"
+      data-camera-section data-camera-intensity="0.9">
+      <div class="section-3d-label" aria-hidden="true">Vortex Chamber</div>
       <div class="section-header">
         <p class="section-label">La Colección</p>
-        <h2 class="section-title reveal" id="featured-heading">
+        <h2 class="section-title reveal" id="featured-heading" data-reveal="depth">
           Expresiones Destacadas
         </h2>
-        <p class="section-subtitle reveal reveal--delay-1">
+        <p class="section-subtitle reveal reveal--delay-1" data-reveal="depth">
           Seleccionadas de nuestras cosechas más codiciadas. Cada botella narra una historia forjada en la tierra más extraordinaria.
         </p>
       </div>
@@ -749,10 +757,12 @@
     <div class="bridge-separator" aria-hidden="true"></div>
 
     <!-- ════════════ SECCIÓN HISTORIA ═══════════ -->
-    <section class="story-section container" aria-labelledby="story-heading">
+    <section class="story-section container scene-3d section-camera" aria-labelledby="story-heading"
+      data-camera-section data-camera-intensity="0.75">
+      <div class="section-3d-label" aria-hidden="true">Origin Lens</div>
       <div class="story-inner">
         <!-- Imagen del viñedo de Nicaragua -->
-        <div class="story-visual reveal scale-in" data-drift="left" data-drift-intensity="40">
+        <div class="story-visual reveal scale-in" data-reveal="left-3d" data-drift="left" data-drift-intensity="40">
           <img src="assets/images/bg/nicaragua-vineyard.png" alt="Viñedo en Chichigalpa, Nicaragua al atardecer"
             class="story-vineyard-img" loading="lazy">
           <div class="story-vineyard-badge" aria-hidden="true">Chichigalpa, Nicaragua</div>
@@ -761,17 +771,17 @@
         <!-- Texto fundacional -->
         <div class="story-text" data-drift="right" data-drift-intensity="30">
           <p class="section-label">Origen</p>
-          <h2 class="reveal" id="story-heading">
+          <h2 class="reveal" id="story-heading" data-reveal="right-3d">
             Forjado en el Puente<br>
             <span class="gradient-text-gold">Entre Mundos</span>
           </h2>
-          <span class="gold-divider reveal"></span>
-          <p class="reveal reveal--delay-1">
+          <span class="gold-divider reveal" data-reveal="depth"></span>
+          <p class="reveal reveal--delay-1" data-reveal="right-3d">
             En la mitología nórdica, Bifrost era un puente brillante que conectaba Midgard con Asgard.
             Creemos que los mejores vinos crean la misma conexión: entre la tierra y lo sublime,
             entre la mano del enólogo y tus sentidos.
           </p>
-          <p class="reveal reveal--delay-2">
+          <p class="reveal reveal--delay-2" data-reveal="right-3d">
             Cada botella de nuestra colección Vortex Reserve proviene de viñedos donde lo extraordinario
             de la geología se encuentra con generaciones de maestría. El resultado es un vino que
             trasciende lo ordinario y alcanza lo mítico.
@@ -787,10 +797,12 @@
     <div class="bridge-separator" aria-hidden="true"></div>
 
     <!-- ════════════ VALORES DE MARCA ═══════════ -->
-    <section class="values-section container" aria-labelledby="values-heading">
+    <section class="values-section container scene-3d section-camera" aria-labelledby="values-heading"
+      data-camera-section data-camera-intensity="0.65">
+      <div class="section-3d-label" aria-hidden="true">Vortex Promise</div>
       <div class="section-header">
         <p class="section-label">Por Qué Bifrost</p>
-        <h2 class="section-title reveal" id="values-heading">La Promesa Vortex</h2>
+        <h2 class="section-title reveal" id="values-heading" data-reveal="depth">La Promesa Vortex</h2>
       </div>
       <div class="values-grid stagger-parent">
         <div class="value-card glass stagger-child reveal">
@@ -837,7 +849,13 @@
 
     <!-- ════════════ BANNER CTA ═════════════ -->
     <div class="container section--sm">
-      <div class="cta-banner glass reveal">
+      <div class="cta-banner glass reveal scene-3d section-camera" data-camera-section data-camera-intensity="1"
+        data-reveal="depth">
+        <div class="cta-banner__morph" aria-hidden="true">
+          <div class="morph-blob morph-blob--cta-a"></div>
+          <div class="morph-blob morph-blob--cta-b"></div>
+          <div class="morph-ring morph-ring--cta"></div>
+        </div>
         <div class="cta-banner__content">
           <p class="section-label" style="justify-content:center;">Edición Limitada</p>
           <h2 class="cta-banner__title">
@@ -1072,49 +1090,6 @@
   <script src="js/database.js"></script>
   <script src="js/main.js"></script>
   <script src="js/effects.js"></script>
-
-  <!-- ════════ Parallax Botellas Hero ════════ -->
-  <script>
-    (function () {
-      const bottleL = document.getElementById('hero-bottle-left');
-      const bottleR = document.getElementById('hero-bottle-right');
-      if (!bottleL || !bottleR) return;
-
-      const hero = document.getElementById('hero');
-      const TILT_L = -12;   /* inclinación base izquierda */
-      const TILT_R = 12;   /* inclinación base derecha  */
-      const MAX_SLIDE = 220;  /* px máx de desplazamiento lateral */
-
-      let ticking = false;
-
-      function update() {
-        const heroH = hero.offsetHeight;
-        const scrollY = window.scrollY;
-        /* progress 0 = inicio del hero | 1 = hero completamente scrolleado */
-        const progress = Math.min(Math.max(scrollY / heroH, 0), 1);
-        const slide = progress * MAX_SLIDE;
-
-        /* Las botellas van en flujo (flexbox), solo aplicamos translateX + tilt */
-        bottleL.style.transform = `rotate(${TILT_L - progress * 8}deg) translateX(${-slide}px)`;
-        bottleL.style.opacity = String(Math.max(1 - progress * 0.95, 0));
-
-        bottleR.style.transform = `rotate(${TILT_R + progress * 8}deg) translateX(${slide}px)`;
-        bottleR.style.opacity = String(Math.max(1 - progress * 0.95, 0));
-
-        ticking = false;
-      }
-
-      window.addEventListener('scroll', function () {
-        if (!ticking) {
-          requestAnimationFrame(update);
-          ticking = true;
-        }
-      }, { passive: true });
-
-      /* Estado inicial */
-      update();
-    })();
-  </script>
 
   <script>
     /* ── Widget de Contacto Flotante ────────────────────────── */

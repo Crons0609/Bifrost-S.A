@@ -471,14 +471,14 @@
           <!-- KPIs -->
           <div class="admin-stats-grid" style="margin-bottom:var(--space-6);">
             <div class="admin-stat-card">
-              <div class="admin-stat-card__label">Inversión Total</div>
+              <div class="admin-stat-card__label">Comprado</div>
               <div class="admin-stat-card__value" id="af-kpi-total" style="color:#45A29E;">C$ 0.00</div>
-              <div class="admin-stat-card__sub">Todos los activos</div>
+              <div class="admin-stat-card__sub">Solo activos ya comprados</div>
             </div>
             <div class="admin-stat-card">
-              <div class="admin-stat-card__label">Ítems Registrados</div>
-              <div class="admin-stat-card__value gold" id="af-kpi-count">0</div>
-              <div class="admin-stat-card__sub">Equipos únicos</div>
+              <div class="admin-stat-card__label">Pendiente por Comprar</div>
+              <div class="admin-stat-card__value gold" id="af-kpi-pending-total">C$ 0.00</div>
+              <div class="admin-stat-card__sub">No suma al total actual</div>
             </div>
             <div class="admin-stat-card">
               <div class="admin-stat-card__label">Categorías</div>
@@ -486,9 +486,9 @@
               <div class="admin-stat-card__sub">Tipos de activo</div>
             </div>
             <div class="admin-stat-card">
-              <div class="admin-stat-card__label">Mayor Activo</div>
-              <div class="admin-stat-card__value" id="af-kpi-top" style="font-size:var(--fs-sm);color:var(--color-gold);">—</div>
-              <div class="admin-stat-card__sub">Ítem más costoso</div>
+              <div class="admin-stat-card__label">Total si Compras Todo</div>
+              <div class="admin-stat-card__value" id="af-kpi-top" style="font-size:var(--fs-sm);color:var(--color-gold);">C$ 0.00</div>
+              <div class="admin-stat-card__sub">Comprado + pendiente</div>
             </div>
           </div>
 
@@ -523,6 +523,7 @@
                 <tr>
                   <th>Artículo</th>
                   <th>Categoría</th>
+                  <th style="text-align:center;">Estado</th>
                   <th style="text-align:center;">Cantidad</th>
                   <th style="text-align:right;">Precio Unit. (C$)</th>
                   <th style="text-align:right;">Total (C$)</th>
@@ -530,13 +531,23 @@
                 </tr>
               </thead>
               <tbody id="af-tbody">
-                <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--color-text-muted);">Cargando activos…</td></tr>
+                <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--color-text-muted);">Cargando activos…</td></tr>
               </tbody>
               <tfoot>
                 <tr style="background:rgba(69,162,158,0.07);">
-                  <td colspan="4" style="padding:14px 12px;font-weight:700;color:#45A29E;font-size:0.9rem;">🏆 TOTAL INVERTIDO EN ACTIVOS FIJOS</td>
+                  <td colspan="5" style="padding:14px 12px;font-weight:700;color:#45A29E;font-size:0.9rem;">🏆 TOTAL COMPRADO EN ACTIVOS FIJOS</td>
                   <td id="af-grand-total" style="text-align:right;padding:14px 12px;font-family:monospace;font-weight:700;color:#45A29E;font-size:1rem;border-top:1px solid rgba(69,162,158,0.25);">C$ 0.00</td>
                   <td style="border-top:1px solid rgba(69,162,158,0.25);"></td>
+                </tr>
+                <tr style="background:rgba(212,175,55,0.06);">
+                  <td colspan="5" style="padding:14px 12px;font-weight:700;color:var(--color-gold);font-size:0.9rem;">🛒 TOTAL PENDIENTE POR COMPRAR</td>
+                  <td id="af-pending-total" style="text-align:right;padding:14px 12px;font-family:monospace;font-weight:700;color:var(--color-gold);font-size:1rem;border-top:1px solid rgba(212,175,55,0.25);">C$ 0.00</td>
+                  <td style="border-top:1px solid rgba(212,175,55,0.25);"></td>
+                </tr>
+                <tr style="background:rgba(155,109,217,0.06);">
+                  <td colspan="5" style="padding:14px 12px;font-weight:700;color:#9B6DD9;font-size:0.9rem;">📦 TOTAL PROYECTADO SI COMPRAS TODO</td>
+                  <td id="af-projected-total" style="text-align:right;padding:14px 12px;font-family:monospace;font-weight:700;color:#9B6DD9;font-size:1rem;border-top:1px solid rgba(155,109,217,0.25);">C$ 0.00</td>
+                  <td style="border-top:1px solid rgba(155,109,217,0.25);"></td>
                 </tr>
               </tfoot>
             </table>
@@ -545,7 +556,7 @@
           <!-- Fila de edición inline oculta (se inyecta dinámicamente) -->
           <div id="af-inline-form" style="display:none;margin-top:var(--space-4);padding:var(--space-5);background:rgba(69,162,158,0.05);border:1px solid rgba(69,162,158,0.2);border-radius:var(--radius-lg);">
             <h3 style="font-size:var(--fs-base);color:#45A29E;margin-bottom:var(--space-4);">➕ Nuevo Activo</h3>
-            <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:var(--space-3);margin-bottom:var(--space-4);">
+            <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1.2fr;gap:var(--space-3);margin-bottom:var(--space-4);">
               <div>
                 <label style="font-size:0.75rem;color:var(--color-text-muted);display:block;margin-bottom:4px;">Nombre del activo</label>
                 <input type="text" id="af-new-nombre" class="form-input" placeholder="Ej: Barril de Roble 200L" style="width:100%;">
@@ -569,6 +580,13 @@
                 <label style="font-size:0.75rem;color:var(--color-text-muted);display:block;margin-bottom:4px;">Precio unitario (C$)</label>
                 <input type="number" id="af-new-price" class="form-input" value="0" min="0" step="0.01" style="width:100%;">
               </div>
+              <div>
+                <label style="font-size:0.75rem;color:var(--color-text-muted);display:block;margin-bottom:4px;">Estado</label>
+                <select id="af-new-status" class="form-select" style="width:100%;">
+                  <option value="pendiente" selected>Pendiente por comprar</option>
+                  <option value="comprado">Ya comprado</option>
+                </select>
+              </div>
             </div>
             <div style="display:flex;gap:var(--space-3);justify-content:flex-end;">
               <button class="btn btn--outline" onclick="document.getElementById('af-inline-form').style.display='none'">Cancelar</button>
@@ -577,7 +595,7 @@
           </div>
 
           <div style="margin-top:var(--space-5);padding:var(--space-4);background:rgba(69,162,158,0.05);border-left:3px solid #45A29E;border-radius:0 var(--radius-md) var(--radius-md) 0;font-size:0.82rem;color:var(--color-text-secondary);line-height:1.6;">
-            <strong style="color:#45A29E;">💡 Activos Fijos:</strong> Estas inversiones <strong>no se incluyen</strong> en el Costo de Producción por Lote (CPT). Son compras de capital que se realizan una sola vez y se amortizan a largo plazo. Se sincronizan automáticamente con el Maestro de Costos.
+            <strong style="color:#45A29E;">💡 Activos Fijos:</strong> Estas inversiones <strong>no se incluyen</strong> en el Costo de Producción por Lote (CPT). Ahora puedes registrar activos <strong>pendientes por comprar</strong>: no suman al total invertido hasta marcarlos como <strong>comprados</strong>, pero sí aparecen en el total proyectado.
           </div>
         </div>
 
@@ -1421,10 +1439,41 @@
   let _afData = {};
 
   const _afFmt = (n) => (n || 0).toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const _afNormalizeStatus = (status) => status === 'comprado' ? 'comprado' : 'pendiente';
+  const _afStatusMeta = (status) => {
+    const normalized = _afNormalizeStatus(status);
+    return normalized === 'comprado'
+      ? { label: 'Comprado', color: '#45A29E', bg: 'rgba(69,162,158,0.12)', border: 'rgba(69,162,158,0.35)' }
+      : { label: 'Pendiente', color: '#D4AF37', bg: 'rgba(212,175,55,0.12)', border: 'rgba(212,175,55,0.35)' };
+  };
+
+  function _afSummaries(items) {
+    const summary = {
+      purchasedTotal: 0,
+      pendingTotal: 0,
+      projectedTotal: 0,
+      categories: new Set(),
+      count: items.length,
+    };
+
+    items.forEach((a) => {
+      const qty = parseFloat(a.cantidad) || 0;
+      const price = parseFloat(a.precioUnit) || 0;
+      const total = qty * price;
+      const status = _afNormalizeStatus(a.estado);
+
+      summary.projectedTotal += total;
+      if (status === 'comprado') summary.purchasedTotal += total;
+      else summary.pendingTotal += total;
+      summary.categories.add(a.categoria || 'Otro');
+    });
+
+    return summary;
+  }
 
   async function afRefresh() {
     const tbody = document.getElementById('af-tbody');
-    if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--color-text-muted);">Cargando desde Firebase…</td></tr>';
+    if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--color-text-muted);">Cargando desde Firebase…</td></tr>';
     try {
       const res = await fetch(_AF_FB);
       const data = await res.json();
@@ -1451,19 +1500,21 @@
     const tbody = document.getElementById('af-tbody');
     if (!tbody) return;
 
-    const items = Object.values(_afData).filter(Boolean);
-    let grandTotal = 0;
+    const items = Object.values(_afData).filter(Boolean).map(a => ({
+      ...a,
+      estado: _afNormalizeStatus(a.estado)
+    }));
+    const summary = _afSummaries(items);
     let rows = '';
 
     if (items.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--color-text-muted);">No hay activos registrados. Haz clic en "+ Agregar Activo" para comenzar.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--color-text-muted);">No hay activos registrados. Haz clic en "+ Agregar Activo" para comenzar.</td></tr>';
     } else {
       items.forEach((a) => {
         const qty   = parseFloat(a.cantidad)   || 0;
         const price = parseFloat(a.precioUnit) || 0;
         const total = qty * price;
-        grandTotal += total;
-        const color   = _AF_CATS_COLORS[a.categoria] || '#78909C';
+        const statusMeta = _afStatusMeta(a.estado);
         const catOpts = _afCatsAll.map(c =>
           `<option value="${c}"${c === a.categoria ? ' selected' : ''}>${c}</option>`
         ).join('');
@@ -1480,6 +1531,12 @@
                 style="${_afInputStyle}">
                 ${catOpts}
               </select>
+            </td>
+            <td style="width:145px;text-align:center;">
+              <button onclick="afToggleStatus('${a.id}')"
+                style="padding:0.35rem 0.7rem;border-radius:999px;border:1px solid ${statusMeta.border};background:${statusMeta.bg};color:${statusMeta.color};font-size:0.74rem;font-weight:700;cursor:pointer;min-width:118px;">
+                ${statusMeta.label}
+              </button>
             </td>
             <td style="width:80px;">
               <input id="af-q-${a.id}" type="number" value="${qty}" min="1"
@@ -1498,10 +1555,10 @@
                   onblur="this.style.borderColor='rgba(69,162,158,0.4)'">
               </div>
             </td>
-            <td style="width:130px;text-align:right;font-family:monospace;font-weight:700;font-size:0.95rem;color:#45A29E;" id="af-t-${a.id}">
+            <td style="width:130px;text-align:right;font-family:monospace;font-weight:700;font-size:0.95rem;color:${a.estado === 'comprado' ? '#45A29E' : '#D4AF37'};" id="af-t-${a.id}">
               C$ ${_afFmt(total)}
             </td>
-            <td style="width:130px;text-align:center;white-space:nowrap;">
+            <td style="width:145px;text-align:center;white-space:nowrap;">
               <button onclick="afSaveRow('${a.id}')"
                 style="padding:0.25rem 0.65rem;border-radius:6px;border:1px solid rgba(69,162,158,0.4);background:rgba(69,162,158,0.12);color:#45A29E;font-size:0.72rem;font-weight:600;cursor:pointer;margin-right:4px;"
                 title="Guardar cambios de esta fila">💾 Guardar</button>
@@ -1516,27 +1573,26 @@
 
     // Pie de tabla
     const grandCell = document.getElementById('af-grand-total');
-    if (grandCell) grandCell.textContent = 'C$ ' + _afFmt(grandTotal);
+    const pendingCell = document.getElementById('af-pending-total');
+    const projectedCell = document.getElementById('af-projected-total');
+    if (grandCell) grandCell.textContent = 'C$ ' + _afFmt(summary.purchasedTotal);
+    if (pendingCell) pendingCell.textContent = 'C$ ' + _afFmt(summary.pendingTotal);
+    if (projectedCell) projectedCell.textContent = 'C$ ' + _afFmt(summary.projectedTotal);
 
     // KPIs
     const kpiTotal = document.getElementById('af-kpi-total');
-    const kpiCount = document.getElementById('af-kpi-count');
+    const kpiPending = document.getElementById('af-kpi-pending-total');
     const kpiCats  = document.getElementById('af-kpi-cats');
     const kpiTop   = document.getElementById('af-kpi-top');
     const navBadge = document.getElementById('nav-activos-badge');
 
-    if (kpiTotal) kpiTotal.textContent = 'C$ ' + _afFmt(grandTotal);
-    if (kpiCount) kpiCount.textContent = items.length;
-    if (kpiCats)  kpiCats.textContent  = new Set(items.map(a => a.categoria)).size;
+    if (kpiTotal) kpiTotal.textContent = 'C$ ' + _afFmt(summary.purchasedTotal);
+    if (kpiPending) kpiPending.textContent = 'C$ ' + _afFmt(summary.pendingTotal);
+    if (kpiCats)  kpiCats.textContent  = summary.categories.size;
     if (navBadge) navBadge.textContent  = items.length;
 
-    if (kpiTop && items.length > 0) {
-      const top = items.reduce((best, a) => {
-        const t  = (parseFloat(a.cantidad) || 0) * (parseFloat(a.precioUnit) || 0);
-        const bt = (parseFloat(best.cantidad) || 0) * (parseFloat(best.precioUnit) || 0);
-        return t > bt ? a : best;
-      });
-      kpiTop.textContent = top.nombre || '—';
+    if (kpiTop) {
+      kpiTop.textContent = 'C$ ' + _afFmt(summary.projectedTotal);
     } else if (kpiTop) {
       kpiTop.textContent = '—';
     }
@@ -1547,18 +1603,34 @@
     const qty   = parseFloat(document.getElementById('af-q-' + id)?.value) || 0;
     const price = parseFloat(document.getElementById('af-p-' + id)?.value) || 0;
     const cell  = document.getElementById('af-t-' + id);
-    if (cell) cell.textContent = 'C$ ' + _afFmt(qty * price);
-    // Recalcular gran total
-    let gt = 0;
+    const currentStatus = _afNormalizeStatus(_afData[id]?.estado);
+    if (cell) {
+      cell.textContent = 'C$ ' + _afFmt(qty * price);
+      cell.style.color = currentStatus === 'comprado' ? '#45A29E' : '#D4AF37';
+    }
+    let purchased = 0;
+    let pending = 0;
     Object.values(_afData).filter(Boolean).forEach(a => {
       const q = a.id === id ? qty   : (parseFloat(a.cantidad)   || 0);
       const p = a.id === id ? price : (parseFloat(a.precioUnit) || 0);
-      gt += q * p;
+      const total = q * p;
+      const status = _afNormalizeStatus(a.id === id ? currentStatus : a.estado);
+      if (status === 'comprado') purchased += total;
+      else pending += total;
     });
     const gc = document.getElementById('af-grand-total');
+    const pc = document.getElementById('af-pending-total');
+    const pt = document.getElementById('af-projected-total');
     const kt = document.getElementById('af-kpi-total');
-    if (gc) gc.textContent = 'C$ ' + _afFmt(gt);
-    if (kt) kt.textContent = 'C$ ' + _afFmt(gt);
+    const kp = document.getElementById('af-kpi-pending-total');
+    const ktop = document.getElementById('af-kpi-top');
+    const projected = purchased + pending;
+    if (gc) gc.textContent = 'C$ ' + _afFmt(purchased);
+    if (pc) pc.textContent = 'C$ ' + _afFmt(pending);
+    if (pt) pt.textContent = 'C$ ' + _afFmt(projected);
+    if (kt) kt.textContent = 'C$ ' + _afFmt(purchased);
+    if (kp) kp.textContent = 'C$ ' + _afFmt(pending);
+    if (ktop) ktop.textContent = 'C$ ' + _afFmt(projected);
   }
 
   // Guarda los cambios de una fila individual a Firebase y localStorage
@@ -1567,10 +1639,11 @@
     const categoria = document.getElementById('af-c-' + id)?.value  || 'Otro';
     const cantidad  = parseFloat(document.getElementById('af-q-' + id)?.value) || 0;
     const precioUnit= parseFloat(document.getElementById('af-p-' + id)?.value) || 0;
+    const estado    = _afNormalizeStatus(_afData[id]?.estado);
 
     if (!nombre) { window.showToast?.('El nombre no puede estar vacío', 'error'); return; }
 
-    _afData[id] = { ..._afData[id], id, nombre, categoria, cantidad, precioUnit };
+    _afData[id] = { ..._afData[id], id, nombre, categoria, cantidad, precioUnit, estado };
 
     try {
       await fetch(_AF_FB, {
@@ -1582,21 +1655,34 @@
 
     localStorage.setItem('bifrost_activos_fijos', JSON.stringify(Object.values(_afData)));
     window.showToast?.('✅ Activo guardado: ' + nombre, 'success');
-    // Actualizar KPIs sin re-renderizar la tabla (para no perder foco)
-    const items = Object.values(_afData).filter(Boolean);
-    const gt = items.reduce((s, a) => s + (parseFloat(a.cantidad)||0)*(parseFloat(a.precioUnit)||0), 0);
-    const kpiTotal = document.getElementById('af-kpi-total');
-    const kpiTop   = document.getElementById('af-kpi-top');
-    const navBadge = document.getElementById('nav-activos-badge');
-    if (kpiTotal) kpiTotal.textContent = 'C$ ' + _afFmt(gt);
-    if (navBadge) navBadge.textContent  = items.length;
-    if (kpiTop && items.length > 0) {
-      const top = items.reduce((b, a) => {
-        return ((parseFloat(a.cantidad)||0)*(parseFloat(a.precioUnit)||0)) >
-               ((parseFloat(b.cantidad)||0)*(parseFloat(b.precioUnit)||0)) ? a : b;
+    afRender();
+  }
+
+  async function afToggleStatus(id) {
+    if (!_afData[id]) return;
+
+    const nextStatus = _afNormalizeStatus(_afData[id].estado) === 'comprado'
+      ? 'pendiente'
+      : 'comprado';
+
+    _afData[id] = { ..._afData[id], estado: nextStatus };
+
+    try {
+      await fetch(_AF_FB, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(_afData)
       });
-      kpiTop.textContent = top.nombre || '—';
-    }
+    } catch(e) { console.warn('Firebase activos toggle status:', e); }
+
+    localStorage.setItem('bifrost_activos_fijos', JSON.stringify(Object.values(_afData)));
+    afRender();
+    window.showToast?.(
+      nextStatus === 'comprado'
+        ? 'Activo marcado como comprado: ahora suma al total invertido'
+        : 'Activo marcado como pendiente: se movió al total por comprar',
+      'success'
+    );
   }
 
   function afAddRow() {
@@ -1612,11 +1698,12 @@
     const cat     = document.getElementById('af-new-cat')?.value || 'Otro';
     const qty     = parseFloat(document.getElementById('af-new-qty')?.value) || 1;
     const price   = parseFloat(document.getElementById('af-new-price')?.value) || 0;
+    const status  = _afNormalizeStatus(document.getElementById('af-new-status')?.value);
 
     if (!nombre) { window.showToast?.('Ingresa un nombre para el activo', 'error'); return; }
 
     const id = 'a' + Date.now();
-    const item = { id, nombre, categoria: cat, cantidad: qty, precioUnit: price };
+    const item = { id, nombre, categoria: cat, cantidad: qty, precioUnit: price, estado: status };
 
     _afData[id] = item;
 
@@ -1636,10 +1723,16 @@
     document.getElementById('af-new-nombre').value = '';
     document.getElementById('af-new-qty').value = '1';
     document.getElementById('af-new-price').value = '0';
+    document.getElementById('af-new-status').value = 'pendiente';
     document.getElementById('af-inline-form').style.display = 'none';
 
     afRender();
-    window.showToast?.('✅ Activo guardado correctamente', 'success');
+    window.showToast?.(
+      status === 'comprado'
+        ? '✅ Activo comprado guardado correctamente'
+        : '✅ Activo pendiente guardado correctamente',
+      'success'
+    );
   }
 
   async function afDelete(id) {
@@ -1658,6 +1751,8 @@
     afRender();
     window.showToast?.('Activo eliminado', 'info');
   }
+
+  window.afToggleStatus = afToggleStatus;
 
   // Cargar activos cuando se navega al panel
   // Hook is now inside the switchPanel override — no duplicate [data-panel] listeners needed.
