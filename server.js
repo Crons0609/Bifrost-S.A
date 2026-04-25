@@ -83,6 +83,11 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Compatibilidad con enlaces antiguos o absolutos a /index.html
+app.get('/index.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 // ── 2. CONFIGURACIÓN TELEGRAM BOT ──
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const ADMIN_ID = process.env.ADMIN_TELEGRAM_ID;

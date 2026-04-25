@@ -264,6 +264,131 @@
       background: linear-gradient(to bottom, var(--color-gold), transparent);
     }
 
+    .hero-pour-scene {
+      position: absolute;
+      right: clamp(1rem, 3vw, 2.5rem);
+      bottom: clamp(3rem, 7vh, 5.5rem);
+      width: clamp(180px, 18vw, 270px);
+      height: clamp(320px, 42vw, 520px);
+      z-index: 3;
+      pointer-events: none;
+      opacity: calc(0.3 + var(--glass-appear, 0) * 0.7);
+      transform: translate3d(0, calc((1 - var(--glass-appear, 0)) * 42px), 0);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .hero-pour__stage {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+    }
+
+    .hero-pour-bottle {
+      position: absolute;
+      top: 0;
+      left: 12%;
+      width: clamp(84px, 9vw, 124px);
+      filter:
+        drop-shadow(0 16px 32px rgba(0, 0, 0, 0.52))
+        drop-shadow(0 0 26px rgba(212, 175, 55, 0.18));
+      transform-origin: 68% 86%;
+      transform:
+        translate3d(calc(var(--pour-progress, 0) * -24px), calc(var(--pour-progress, 0) * 12px), 0)
+        rotate(calc(-8deg - var(--pour-progress, 0) * 54deg));
+      transition: transform 0.18s linear, opacity 0.25s ease;
+      opacity: calc(0.82 + var(--pour-progress, 0) * 0.18);
+    }
+
+    .hero-pour-stream {
+      position: absolute;
+      left: 42%;
+      top: 30%;
+      width: 8px;
+      height: 31%;
+      border-radius: 999px;
+      background:
+        linear-gradient(180deg,
+          rgba(245, 224, 184, 0.15) 0%,
+          rgba(189, 35, 48, 0.9) 18%,
+          rgba(95, 8, 19, 0.95) 100%);
+      box-shadow:
+        0 0 10px rgba(159, 16, 30, 0.35),
+        0 0 24px rgba(212, 175, 55, 0.18);
+      opacity: calc(var(--stream-opacity, 0) * 0.95);
+      transform-origin: top center;
+      transform:
+        translate3d(0, calc((1 - var(--stream-opacity, 0)) * -24px), 0)
+        scaleY(var(--stream-opacity, 0))
+        rotate(12deg);
+      transition: opacity 0.18s linear, transform 0.18s linear;
+      overflow: hidden;
+    }
+
+    .hero-pour-stream::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.4), transparent 40%);
+      mix-blend-mode: screen;
+      opacity: 0.65;
+    }
+
+    .hero-pour-glass {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 64%;
+      aspect-ratio: 220 / 360;
+      transform:
+        translate3d(calc((1 - var(--glass-appear, 0)) * 18px), calc((1 - var(--glass-appear, 0)) * 20px), 0)
+        scale(calc(0.84 + var(--glass-appear, 0) * 0.16));
+      opacity: calc(0.18 + var(--glass-appear, 0) * 0.82);
+      transition: transform 0.25s ease, opacity 0.25s ease;
+      filter: drop-shadow(0 16px 40px rgba(0, 0, 0, 0.42));
+    }
+
+    .hero-pour-glass svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .hero-pour-fill-rect {
+      transform-box: fill-box;
+      transform-origin: center bottom;
+      transform: translateY(calc((1 - var(--wine-fill, 0)) * 122px));
+      transition: transform 0.18s linear;
+    }
+
+    .hero-pour-glow {
+      position: absolute;
+      right: 6%;
+      bottom: 8%;
+      width: 48%;
+      height: 24%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(212, 175, 55, 0.22) 0%, rgba(132, 10, 24, 0.15) 45%, transparent 78%);
+      opacity: calc(var(--wine-fill, 0) * 0.65);
+      transform: scale(calc(0.75 + var(--wine-fill, 0) * 0.45));
+      filter: blur(18px);
+      transition: opacity 0.2s linear, transform 0.2s linear;
+    }
+
+    .hero-pour-copy {
+      position: absolute;
+      right: 4%;
+      bottom: -1.4rem;
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(240, 222, 188, 0.78);
+      opacity: calc(var(--wine-fill, 0) * 0.95);
+      transform: translateY(calc((1 - var(--wine-fill, 0)) * 16px));
+      transition: opacity 0.2s linear, transform 0.2s linear;
+      white-space: nowrap;
+    }
+
     /* ── Featured Section ── */
     .featured-section {
       position: relative;
@@ -551,8 +676,53 @@
     }
 
     @media (max-width: 768px) {
+      .hero {
+        min-height: auto;
+        padding-top: var(--navbar-height);
+      }
+
+      .hero__content {
+        padding-top: var(--space-8);
+        padding-bottom: var(--space-16);
+      }
+
+      .hero__logo-row {
+        margin-bottom: var(--space-5);
+      }
+
+      .hero__eyebrow {
+        letter-spacing: 0.2em;
+        gap: var(--space-2);
+      }
+
+      .hero__eyebrow::before,
+      .hero__eyebrow::after {
+        width: 24px;
+      }
+
+      .hero__subtitle {
+        margin-bottom: var(--space-8);
+      }
+
+      .hero__cta-group {
+        width: 100%;
+      }
+
+      .hero__cta-group .btn {
+        width: min(100%, 360px);
+      }
+
       .featured-grid {
         grid-template-columns: 1fr;
+      }
+
+      .story-vineyard-badge {
+        right: 12px;
+        bottom: 12px;
+      }
+
+      .cta-banner {
+        padding: var(--space-12) var(--space-5);
       }
 
       .contact-widget {
@@ -562,6 +732,37 @@
     }
 
     @media (max-width: 640px) {
+      .hero__logo-img {
+        width: clamp(140px, 42vw, 220px);
+      }
+
+      .hero__scroll-hint {
+        display: none;
+      }
+
+      .hero-pour-scene {
+        display: none;
+      }
+
+      .story-text,
+      .cta-banner__content {
+        text-align: left;
+      }
+
+      .story-vineyard-badge {
+        position: static;
+        margin-top: var(--space-4);
+        width: fit-content;
+      }
+
+      .contact-widget__menu {
+        max-width: calc(100vw - 2rem);
+      }
+
+      .contact-btn {
+        width: 100%;
+      }
+
       .values-grid {
         grid-template-columns: 1fr;
       }
@@ -1121,61 +1322,129 @@
     })();
 
     /* ── Render Vinos Destacados ────────────────────────────── */
-    document.addEventListener('DOMContentLoaded', async () => {
-      await window.BifrostDB.ready();
+    function getHomepageFallbackWines() {
+      return [
+        {
+          id: 'fallback-1',
+          name: 'Vortex Nebula',
+          vintage: 2019,
+          description: 'Selección de portada mientras sincronizamos el inventario real de la bodega.',
+          price: 189,
+          discount: 0,
+          stock: 12,
+          featured: true,
+          category: 'Vino Tinto',
+          imageUrl: 'assets/images/wines/bottles-1.png',
+          emoji: '🍷',
+        },
+        {
+          id: 'fallback-2',
+          name: 'Bifrost Aurora',
+          vintage: 2021,
+          description: 'Etiqueta destacada para mantener la colección visible en todos los dispositivos.',
+          price: 142,
+          discount: 0,
+          stock: 9,
+          featured: true,
+          category: 'Vino Blanco',
+          imageUrl: 'assets/images/wines/bottles-2.png',
+          emoji: '🥂',
+        },
+        {
+          id: 'fallback-3',
+          name: 'Vortex Eclipse',
+          vintage: 2020,
+          description: 'Producto de relleno temporal hasta que entren los vinos más vendidos por ventas reales.',
+          price: 245,
+          discount: 10,
+          stock: 7,
+          featured: true,
+          category: 'Vino Tinto',
+          imageUrl: 'assets/images/wines/bottles-1.png',
+          emoji: '🍾',
+        }
+      ];
+    }
+
+    function selectHomepageWines(allWines) {
+      const inStock = (allWines || []).filter(wine => Number(wine.stock ?? 0) > 0);
+      const featuredInStock = inStock.filter(wine => wine.featured);
+      const nonFeaturedInStock = inStock.filter(wine => !wine.featured);
+      const selected = [...featuredInStock, ...nonFeaturedInStock].slice(0, 3);
+
+      if (selected.length >= 3) return selected;
+
+      const usedIds = new Set(selected.map(wine => String(wine.id)));
+      const fallbackExtras = getHomepageFallbackWines()
+        .filter(wine => !usedIds.has(String(wine.id)))
+        .slice(0, 3 - selected.length);
+
+      const finalSelection = [...selected, ...fallbackExtras];
+      return finalSelection.length ? finalSelection : getHomepageFallbackWines();
+    }
+
+    function buildHomepageWineCards(wines, settings) {
+      const flashPct = settings.flashSaleActive ? (settings.flashSaleDiscount || 0) : 0;
+      const driftDirs = ['left', 'right', 'left'];
+      const driftAmt  = [50, 60, 50];
+
+      return wines.map((wine, i) => {
+        const itemPct    = wine.discount || 0;
+        const discPct    = Math.max(flashPct, itemPct);
+        const finalPrice = discPct > 0 ? wine.price * (1 - discPct / 100) : wine.price;
+        const stockLevel = window.BifrostDB.constructor.stockLevel(wine.stock);
+        const delays     = ['', 'reveal--delay-2', 'reveal--delay-4'];
+        const floatCls   = ['float-3d-1', 'float-3d-2', 'float-3d-3'][i];
+        const desc       = wine.description
+          ? wine.description.substring(0, 110) + (wine.description.length > 110 ? '…' : '')
+          : '';
+        const icon = wine.imageUrl ? '' : (wine.emoji || '🍷');
+        const imageSrc = window.getWineImageUrl(wine);
+        const fallbackSrc = window.normalizeAssetUrl(window.getWineFallbackAsset(wine));
+        const targetHref = String(wine.id).startsWith('fallback-')
+          ? 'statics/shop.html'
+          : `statics/product-detail.html?id=${wine.id}`;
+
+        return `
+          <article class="product-card reveal scale-in ${delays[i]} ${floatCls}"
+                   data-drift="${driftDirs[i]}"
+                   data-drift-intensity="${driftAmt[i]}"
+                   onclick="window.location.href='${targetHref}'"
+                   role="article"
+                   aria-label="${wine.name} ${wine.vintage}">
+            <div class="vortex-bg" aria-hidden="true"></div>
+            ${discPct > 0 ? `<div class="discount-badge">−${discPct}% DESC.</div>` : ''}
+            <div class="product-card__image-wrap">
+              ${wine.imageUrl
+                ? `<img src="${imageSrc}" alt="${wine.name} ${wine.vintage}" loading="lazy" onerror="this.onerror=null;this.src='${fallbackSrc}'">`
+                : `<div class="product-card__image-placeholder">
+                     <span style="font-size:3.5rem;filter:drop-shadow(0 0 20px rgba(212,175,55,0.5))">${icon}</span>
+                   </div>`}
+            </div>
+            <div class="product-card__overlay">
+              <div class="product-card__vintage">${wine.vintage}</div>
+              <div class="product-card__name">${wine.name}</div>
+              ${desc ? `<div class="product-card__desc">${desc}</div>` : ''}
+              <div class="product-card__price-row">
+                <span class="product-card__price">C$${finalPrice.toFixed(2)}</span>
+                ${discPct > 0 ? `<span class="product-card__price-original">C$${wine.price.toFixed(2)}</span>` : ''}
+                <span class="stock-indicator stock-indicator--${stockLevel}"
+                      title="${window.BifrostDB.constructor.stockLabel(wine.stock)}"></span>
+              </div>
+            </div>
+          </article>`;
+      }).join('');
+    }
+
+    async function renderHomepageFeatured() {
+      const grid = document.getElementById('featured-grid');
+      if (!grid) return;
 
       try {
-        const featured = await window.BifrostDB.getFeaturedWines();
+        const allWines = await window.BifrostDB.getAllWines();
+        const selected = selectHomepageWines(allWines);
         const settings = await window.BifrostDB.getSettings() || {};
-        const grid = document.getElementById('featured-grid');
-        if (!grid || !featured.length) return;
-
-        const flashPct = settings.flashSaleActive ? (settings.flashSaleDiscount || 0) : 0;
-        // drift alternates: left / right / left
-        const driftDirs = ['left', 'right', 'left'];
-        const driftAmt  = [50, 60, 50];
-
-        grid.innerHTML = featured.slice(0, 3).map((wine, i) => {
-          const itemPct    = wine.discount || 0;
-          const discPct    = Math.max(flashPct, itemPct);
-          const finalPrice = discPct > 0 ? wine.price * (1 - discPct / 100) : wine.price;
-          const stockLevel = window.BifrostDB.constructor.stockLevel(wine.stock);
-          const delays     = ['', 'reveal--delay-2', 'reveal--delay-4'];
-          const floatCls   = ['float-3d-1', 'float-3d-2', 'float-3d-3'][i];
-          const desc       = wine.description
-            ? wine.description.substring(0, 110) + (wine.description.length > 110 ? '…' : '')
-            : '';
-          const icon = wine.imageUrl ? '' : (wine.emoji || '🍷');
-
-          return `
-            <article class="product-card reveal scale-in ${delays[i]} ${floatCls}"
-                     data-drift="${driftDirs[i]}"
-                     data-drift-intensity="${driftAmt[i]}"
-                     onclick="window.location.href='statics/product-detail.html?id=${wine.id}'"
-                     role="article"
-                     aria-label="${wine.name} ${wine.vintage}">
-              <div class="vortex-bg" aria-hidden="true"></div>
-              ${discPct > 0 ? `<div class="discount-badge">−${discPct}% DESC.</div>` : ''}
-              <div class="product-card__image-wrap">
-                ${wine.imageUrl
-                  ? `<img src="${wine.imageUrl}" alt="${wine.name} ${wine.vintage}" loading="lazy">`
-                  : `<div class="product-card__image-placeholder">
-                       <span style="font-size:3.5rem;filter:drop-shadow(0 0 20px rgba(212,175,55,0.5))">${icon}</span>
-                     </div>`}
-              </div>
-              <div class="product-card__overlay">
-                <div class="product-card__vintage">${wine.vintage}</div>
-                <div class="product-card__name">${wine.name}</div>
-                ${desc ? `<div class="product-card__desc">${desc}</div>` : ''}
-                <div class="product-card__price-row">
-                  <span class="product-card__price">C$${finalPrice.toFixed(2)}</span>
-                  ${discPct > 0 ? `<span class="product-card__price-original">C$${wine.price.toFixed(2)}</span>` : ''}
-                  <span class="stock-indicator stock-indicator--${stockLevel}"
-                        title="${window.BifrostDB.constructor.stockLabel(wine.stock)}"></span>
-                </div>
-              </div>
-            </article>`;
-        }).join('');
+        grid.innerHTML = buildHomepageWineCards(selected, settings);
 
         window.reinitReveal?.();
         // Re-init 3D effects for newly rendered cards
@@ -1184,13 +1453,18 @@
         if (typeof initFloatingFeatured === 'function') initFloatingFeatured();
       } catch (err) {
         console.error('Error al cargar vinos destacados:', err);
-        const grid = document.getElementById('featured-grid');
-        if (grid) {
-          grid.innerHTML = `<p style="color:var(--color-text-muted); grid-column:1/-1; text-align:center; padding:40px;">
-            No se pudieron cargar los vinos destacados.
-          </p>`;
-        }
+        const settings = await window.BifrostDB.getSettings().catch(() => ({})) || {};
+        grid.innerHTML = buildHomepageWineCards(getHomepageFallbackWines(), settings);
       }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await window.BifrostDB.ready();
+      await renderHomepageFeatured();
+    });
+
+    window.addEventListener('wines-updated', () => {
+      renderHomepageFeatured().catch(err => console.warn('featured refresh error:', err));
     });
   </script>
 </body>

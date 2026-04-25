@@ -1074,11 +1074,40 @@
       .sim-grid {
         grid-template-columns: 1fr;
       }
+
+      .topbar {
+        flex-wrap: wrap;
+        gap: 0.9rem;
+        padding: 1rem 1.25rem;
+      }
+
+      .topbar__actions {
+        width: 100%;
+        flex-wrap: wrap;
+      }
+
+      .sidebar {
+        padding: 1.25rem;
+      }
     }
 
     @media (max-width: 640px) {
       .topbar {
         padding: 0.8rem 1rem;
+        align-items: flex-start;
+      }
+
+      .topbar__brand {
+        min-width: 0;
+      }
+
+      .topbar__actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .topbar__actions .btn {
+        width: 100%;
       }
 
       .cascade-grid {
@@ -1091,6 +1120,32 @@
 
       .pvp-badge {
         text-align: left;
+      }
+
+      .sidebar,
+      .content {
+        padding-inline: 1rem;
+      }
+
+      .sb-table-wrap,
+      .table-wrap,
+      .resumen-table-wrap,
+      .history-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .card {
+        padding: 1rem;
+      }
+
+      .card__header {
+        flex-wrap: wrap;
+        gap: 0.6rem;
+      }
+
+      .chart-wrap {
+        height: 180px;
       }
     }
 

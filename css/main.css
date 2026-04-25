@@ -145,12 +145,6 @@ html {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-*, *::before, *::after {
-  transition-property: background-color, border-color, color, box-shadow;
-  transition-duration: 0.25s;
-  transition-timing-function: ease;
-}
-
 /* ── Theme Toggle Button ───────────────────────────────────── */
 .theme-toggle-btn {
   display: inline-flex;
@@ -210,6 +204,7 @@ body {
   background-color: var(--color-bg-primary);
   overflow-x: hidden;
   min-height: 100vh;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* Scrollbar */
@@ -369,7 +364,6 @@ input, select, textarea {
   background: rgba(14, 14, 22, 0.95);
   border: 1px solid var(--color-glass-border);
   border-radius: var(--radius-lg);
-  backdrop-filter: blur(20px);
   color: var(--color-text-primary);
   font-size: var(--fs-sm);
   font-weight: 500;
@@ -401,7 +395,6 @@ input, select, textarea {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(8px);
   z-index: var(--z-overlay);
   opacity: 0;
   pointer-events: none;
@@ -468,8 +461,46 @@ input, select, textarea {
 @media (max-width: 768px) {
   :root {
     --navbar-height: 64px;
+    --container-pad: clamp(0.9rem, 4.5vw, 1.5rem);
+    --fs-base: 0.975rem;
+    --fs-md: 1.05rem;
+    --fs-lg: 1.15rem;
   }
   
   .section { padding-block: var(--space-16); }
   .section--lg { padding-block: var(--space-20); }
+
+  .section-label {
+    gap: var(--space-2);
+    letter-spacing: 0.14em;
+    flex-wrap: wrap;
+  }
+
+  .toast-container {
+    right: var(--space-4);
+    left: var(--space-4);
+    bottom: var(--space-4);
+  }
+
+  .toast {
+    width: 100%;
+    max-width: none;
+    padding: var(--space-4);
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --space-16: 3rem;
+    --space-20: 4rem;
+    --space-24: 4.75rem;
+    --fs-2xl: 1.75rem;
+    --fs-3xl: 2.1rem;
+    --fs-4xl: 2.7rem;
+  }
+
+  .section-label::before,
+  .section-label::after {
+    width: 18px;
+  }
 }

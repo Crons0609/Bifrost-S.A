@@ -20,6 +20,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   initQuickViewModal();
 });
 
+window.addEventListener('wines-updated', async () => {
+  try {
+    await loadWines();
+  } catch (err) {
+    console.warn('wines-updated reload error:', err);
+  }
+});
+
 /* ── Load & Render ───────────────────────────────────────────── */
 async function loadWines() {
   try {
@@ -98,6 +106,8 @@ function buildCard(wine, settings, index) {
 
   const stockLevel  = window.BifrostDB.constructor.stockLevel(wine.stock);
   const stockLabel  = window.BifrostDB.constructor.stockLabel(wine.stock);
+  const imageSrc    = window.getWineImageUrl(wine);
+  const fallbackSrc = window.normalizeAssetUrl(window.getWineFallbackAsset(wine));
 
   const delayClass  = index < 9 ? `reveal--delay-${(index % 5) + 1}` : '';
 
@@ -130,7 +140,7 @@ function buildCard(wine, settings, index) {
       <!-- Image -->
       <div class="product-card__image-wrap">
         ${wine.imageUrl
-          ? `<img src="${wine.imageUrl}" alt="${wine.name}" loading="lazy">`
+          ? `<img src="${imageSrc}" alt="${wine.name}" loading="lazy" onerror="this.onerror=null;this.src='${fallbackSrc}'">`
           : `<div class="product-card__image-placeholder">
                <span class="placeholder-icon">${wine.emoji || '🍷'}</span>
              </div>`
@@ -235,6 +245,8 @@ async function openQuickView(e, id) {
 
   const stockLevel = window.BifrostDB.constructor.stockLevel(wine.stock);
   const stockLabel = window.BifrostDB.constructor.stockLabel(wine.stock);
+  const imageSrc = window.getWineImageUrl(wine);
+  const fallbackSrc = window.normalizeAssetUrl(window.getWineFallbackAsset(wine));
 
   const panel = quickViewModal.querySelector('.modal__panel');
   panel.innerHTML = `
@@ -247,7 +259,7 @@ async function openQuickView(e, id) {
     <div class="quick-view-grid">
       <div class="quick-view-image">
         ${wine.imageUrl
-          ? `<img src="${wine.imageUrl}" alt="${wine.name}">`
+          ? `<img src="${imageSrc}" alt="${wine.name}" onerror="this.onerror=null;this.src='${fallbackSrc}'">`
           : `<svg width="80" height="80" fill="none" viewBox="0 0 24 24" stroke="var(--color-gold)" stroke-width="1" opacity="0.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3v10.5a3.5 3.5 0 003.5 3.5v0a3.5 3.5 0 003.5-3.5V3M9 3h6M9 3H7M15 3h2M12 3v1"/></svg>`}
       </div>
       <div class="quick-view-info">

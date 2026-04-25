@@ -18,12 +18,12 @@
   <!-- ════════════ NAVBAR ════════════ -->
   <header class="navbar" id="main-navbar">
     <div class="container navbar__inner">
-      <a href="../index.html" class="navbar__logo">
+      <a href="/" class="navbar__logo">
         <span class="navbar__logo-primary">BIFROST</span>
         <span class="navbar__logo-sub">Vortex Reserve</span>
       </a>
       <nav class="navbar__nav" aria-label="Main navigation">
-        <a href="../index.html" class="navbar__link">Home</a>
+        <a href="/" class="navbar__link">Home</a>
         <a href="shop.html" class="navbar__link">Collection</a>
         <a href="about.html" class="navbar__link">About</a>
         <a href="admin-login.html" class="navbar__link">Admin</a>
@@ -44,7 +44,7 @@
   </header>
 
   <nav class="mobile-menu" id="mobile-menu" aria-label="Mobile navigation">
-    <a href="../index.html" class="mobile-menu__link">Home</a>
+    <a href="/" class="mobile-menu__link">Home</a>
     <a href="shop.html" class="mobile-menu__link">Collection</a>
     <a href="about.html" class="mobile-menu__link">About</a>
     <a href="admin-login.html" class="mobile-menu__link">Admin</a>
@@ -77,7 +77,7 @@
     <div class="container">
       <!-- Breadcrumb -->
       <nav class="product-breadcrumb reveal" aria-label="Breadcrumb">
-        <a href="../index.html">Home</a>
+        <a href="/">Home</a>
         <span class="product-breadcrumb__sep">›</span>
         <a href="shop.html">Collection</a>
         <span class="product-breadcrumb__sep">›</span>
@@ -209,6 +209,8 @@
 
       const stars = '★★★★★';
       const reviewCount = Math.floor(Math.random() * 80 + 20);
+      const imageSrc = window.getWineImageUrl(wine);
+      const fallbackSrc = window.normalizeAssetUrl(window.getWineFallbackAsset(wine));
 
       content.innerHTML = `
         <!-- Gallery -->
@@ -217,7 +219,7 @@
             <div class="product-gallery__vortex-bg" aria-hidden="true"></div>
             <div class="product-gallery__main-inner">
               ${wine.imageUrl
-                ? `<img src="${wine.imageUrl}" alt="${wine.name}">`
+                ? `<img src="${imageSrc}" alt="${wine.name}" onerror="this.onerror=null;this.src='${fallbackSrc}'">`
                 : `<div class="product-gallery__emoji" role="img" aria-label="${wine.name}">${wine.emoji || '🍷'}</div>`}
             </div>
           </div>
@@ -356,6 +358,8 @@
         const finalPrice = discPct > 0 ? w.price * (1 - discPct/100) : w.price;
         const stockLevel = window.BifrostDB.constructor.stockLevel(w.stock);
         const delays     = ['', 'reveal--delay-2', 'reveal--delay-3'];
+        const imageSrc   = window.getWineImageUrl(w);
+        const fallbackSrc = window.normalizeAssetUrl(window.getWineFallbackAsset(w));
 
         return `
           <article class="product-card reveal scale-in ${delays[i]}"
@@ -365,7 +369,7 @@
             ${discPct > 0 ? `<div class="discount-badge">−${discPct}% OFF</div>` : ''}
             <div class="product-card__image-wrap">
               ${w.imageUrl
-                ? `<img src="${w.imageUrl}" alt="${w.name}" loading="lazy">`
+                ? `<img src="${imageSrc}" alt="${w.name}" loading="lazy" onerror="this.onerror=null;this.src='${fallbackSrc}'">`
                 : `<div class="product-card__image-placeholder">
                      <span class="placeholder-icon">${w.emoji || '🍷'}</span>
                    </div>`}

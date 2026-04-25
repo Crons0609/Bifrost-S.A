@@ -214,7 +214,35 @@
       .contact-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 640px) {
+      .about-hero {
+        padding-top: calc(var(--navbar-height) + var(--space-12));
+        padding-bottom: var(--space-12);
+      }
+      .timeline {
+        padding-left: var(--space-6);
+      }
+      .timeline-item::before {
+        left: calc(-1 * var(--space-6) - 4px);
+      }
+      .stats-row { grid-template-columns: 1fr; }
       .team-grid { grid-template-columns: 1fr; }
+      .contact-info-item,
+      .social-btn-large {
+        padding-inline: var(--space-4);
+      }
+      .social-btn-large {
+        gap: var(--space-3);
+      }
+      .contact-widget {
+        left: var(--space-4);
+        bottom: var(--space-5);
+      }
+      .contact-widget__menu {
+        max-width: calc(100vw - 2rem);
+      }
+      .contact-btn {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -225,12 +253,12 @@
   <!-- BARRA DE NAVEGACIÓN -->
   <header class="navbar" id="main-navbar">
     <div class="container navbar__inner">
-      <a href="../index.html" class="navbar__logo" aria-label="Bifrost S.A — Inicio">
+      <a href="/" class="navbar__logo" aria-label="Bifrost S.A — Inicio">
         <img src="../assets/images/ui/bifrost-logo.png" alt="Bifrost S.A"
              style="height:42px; width:auto; filter:drop-shadow(0 0 10px rgba(212,175,55,0.3));">
       </a>
       <nav class="navbar__nav" aria-label="Navegación principal">
-        <a href="../index.html" class="navbar__link">Inicio</a>
+        <a href="/" class="navbar__link">Inicio</a>
         <a href="shop.html" class="navbar__link">Colección</a>
         <a href="about.html" class="navbar__link active">Nosotros</a>
         <a href="#contacto" class="navbar__link">Contacto</a>
@@ -246,7 +274,7 @@
   </header>
 
   <nav class="mobile-menu" id="mobile-menu" aria-label="Navegación móvil">
-    <a href="../index.html" class="mobile-menu__link">Inicio</a>
+    <a href="/" class="mobile-menu__link">Inicio</a>
     <a href="shop.html" class="mobile-menu__link">Colección</a>
     <a href="about.html" class="mobile-menu__link">Nosotros</a>
     <a href="#contacto" class="mobile-menu__link">Contacto</a>

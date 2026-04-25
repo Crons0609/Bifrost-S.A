@@ -6,13 +6,44 @@
 const EFFECTS_STATE = {
   revealObserver: null,
   tiltMutationObserver: null,
+  floatingMutationObserver: null,
   cameraBound: false,
   depthBound: false,
   heroBottleBound: false,
+  heroDepthBound: false,
+  parallaxBound: false,
+  rippleBound: false,
+  navbarScrollBound: false,
+  cursorSpotlightBound: false,
+  scrollDriftBound: false,
+  performanceMode: null,
 };
 
 function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function detectPerformanceMode() {
+  if (EFFECTS_STATE.performanceMode) return EFFECTS_STATE.performanceMode;
+
+  const nav = navigator;
+  const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
+  const coarsePointer = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+  const reducedMotion = prefersReducedMotion();
+  const lowCores = typeof nav.hardwareConcurrency === 'number' && nav.hardwareConcurrency <= 4;
+  const lowMemory = typeof nav.deviceMemory === 'number' && nav.deviceMemory <= 4;
+  const saveData = Boolean(connection?.saveData);
+  const smallViewport = Math.min(window.innerWidth, window.innerHeight) < 900;
+
+  const lite = reducedMotion || coarsePointer || lowCores || lowMemory || saveData || smallViewport;
+  EFFECTS_STATE.performanceMode = lite ? 'lite' : 'full';
+  document.documentElement.dataset.effectsMode = EFFECTS_STATE.performanceMode;
+  document.body.classList.toggle('effects-lite', lite);
+  return EFFECTS_STATE.performanceMode;
+}
+
+function isLiteMode() {
+  return detectPerformanceMode() === 'lite';
 }
 
 /* ── Scroll Reveal (Intersection Observer) ──────────────────── */
@@ -69,6 +100,7 @@ function initStaggerReveal(containerSelector = '.stagger-parent', childSelector 
 
 /* ── Particles Generator ────────────────────────────────────── */
 function initParticles(layerSelector = '.particles-layer') {
+  if (isLiteMode()) return;
   const layers = document.querySelectorAll(layerSelector);
 
   layers.forEach(layer => {
@@ -102,6 +134,7 @@ function initParticles(layerSelector = '.particles-layer') {
 
 /* ── Ripple Button Effect ───────────────────────────────────── */
 function initRipple() {
+  if (EFFECTS_STATE.rippleBound) return;
   document.addEventListener('click', function(e) {
     const btn = e.target.closest('.btn-ripple');
     if (!btn) return;
@@ -124,10 +157,12 @@ function initRipple() {
     btn.appendChild(wave);
     setTimeout(() => wave.remove(), 700);
   });
+  EFFECTS_STATE.rippleBound = true;
 }
 
 /* ── Parallax Micro Effect ──────────────────────────────────── */
 function initParallax() {
+  if (EFFECTS_STATE.parallaxBound || isLiteMode()) return;
   const parallaxEls = document.querySelectorAll('[data-parallax]');
   if (!parallaxEls.length) return;
 
@@ -149,6 +184,7 @@ function initParallax() {
   }
 
   window.addEventListener('scroll', onScroll, { passive: true });
+  EFFECTS_STATE.parallaxBound = true;
 }
 
 /* ── Hero Text Animated Entrance ────────────────────────────── */
@@ -163,6 +199,7 @@ function initHeroEntrance() {
 
 /* ── Navbar Scroll Behavior ─────────────────────────────────── */
 function initNavbarScroll() {
+  if (EFFECTS_STATE.navbarScrollBound) return;
   const navbar = document.querySelector('.navbar');
   if (!navbar) return;
 
@@ -197,14 +234,17 @@ function initNavbarScroll() {
 
   window.addEventListener('scroll', handleScroll, { passive: true });
   handleScroll();
+  EFFECTS_STATE.navbarScrollBound = true;
 }
 
 /* ── Cursor Spotlight (luxury feel) ────────────────────────── */
 function initCursorSpotlight() {
+  if (EFFECTS_STATE.cursorSpotlightBound || isLiteMode()) return;
   // Only on pointer devices
   if (window.matchMedia('(hover: none)').matches) return;
 
   const spotlight = document.createElement('div');
+  spotlight.className = 'cursor-spotlight';
   spotlight.style.cssText = `
     position: fixed;
     width: 320px; height: 320px;
@@ -231,6 +271,7 @@ function initCursorSpotlight() {
   document.addEventListener('mouseleave', () => {
     spotlight.style.opacity = '0';
   });
+  EFFECTS_STATE.cursorSpotlightBound = true;
 }
 
 /* ── Number Counter Animation ───────────────────────────────── */
@@ -264,7 +305,7 @@ function dismissLoadingScreen() {
   setTimeout(() => {
     screen.classList.add('hidden');
     document.body.style.overflow = '';
-  }, 1600);
+  }, isLiteMode() ? 450 : 900);
 }
 
 /* ── Typed Text Effect ──────────────────────────────────────── */
@@ -312,7 +353,7 @@ function initTypedText() {
 
 /* ── 3D Mouse Tilt for Cards ─────────────────────────────────── */
 function init3DTilt() {
-  if (window.matchMedia('(hover: none)').matches || prefersReducedMotion()) return;
+  if (window.matchMedia('(hover: none)').matches || prefersReducedMotion() || isLiteMode()) return;
 
   function applyTilt(card, e) {
     const rect = card.getBoundingClientRect();
@@ -358,6 +399,7 @@ function init3DTilt() {
 
 /* ── Scroll-Driven Horizontal Drift ─────────────────────────── */
 function initScrollDrift() {
+  if (EFFECTS_STATE.scrollDriftBound || isLiteMode()) return;
   const driftEls = document.querySelectorAll('[data-drift]');
   if (!driftEls.length) return;
 
@@ -386,10 +428,12 @@ function initScrollDrift() {
   }, { passive: true });
 
   updateDrift(); // initial
+  EFFECTS_STATE.scrollDriftBound = true;
 }
 
 /* ── Floating 3D Classes for Featured Cards ──────────────────── */
 function initFloatingFeatured() {
+  if (isLiteMode()) return;
   // Re-bind whenever the featured grid is updated
   function assignFloats() {
     const cards = document.querySelectorAll('#featured-grid .product-card');
@@ -404,14 +448,18 @@ function initFloatingFeatured() {
   // Watch for grid content changes (dynamic load)
   const grid = document.getElementById('featured-grid');
   if (grid) {
-    const obs = new MutationObserver(assignFloats);
-    obs.observe(grid, { childList: true });
+    if (!EFFECTS_STATE.floatingMutationObserver) {
+      EFFECTS_STATE.floatingMutationObserver = new MutationObserver(assignFloats);
+      EFFECTS_STATE.floatingMutationObserver.observe(grid, { childList: true });
+    }
     assignFloats();
   }
 }
 
 /* ── Hero Depth Parallax (mouse-based) ───────────────────────── */
 function initHeroDepth() {
+  if (EFFECTS_STATE.heroDepthBound || isLiteMode()) return;
+
   const hero = document.getElementById('hero');
   if (!hero || window.matchMedia('(hover: none)').matches || prefersReducedMotion()) return;
 
@@ -438,11 +486,12 @@ function initHeroDepth() {
     if (orbF) orbF.style.transform = '';
     if (orbP) orbP.style.transform = '';
   });
+  EFFECTS_STATE.heroDepthBound = true;
 }
 
 /* ── Hero Bottle Scroll Parallax ────────────────────────────── */
 function initHeroBottleParallax() {
-  if (EFFECTS_STATE.heroBottleBound || prefersReducedMotion()) return;
+  if (EFFECTS_STATE.heroBottleBound || prefersReducedMotion() || isLiteMode()) return;
 
   const hero = document.getElementById('hero');
   const bottleL = document.getElementById('hero-bottle-left');
@@ -484,7 +533,7 @@ function initHeroBottleParallax() {
 
 /* ── Depth Parallax Layers ──────────────────────────────────── */
 function initDepthParallax() {
-  if (EFFECTS_STATE.depthBound || prefersReducedMotion()) return;
+  if (EFFECTS_STATE.depthBound || prefersReducedMotion() || isLiteMode()) return;
 
   const layeredEls = Array.from(document.querySelectorAll('[data-depth]'));
   if (!layeredEls.length) return;
@@ -546,7 +595,7 @@ function initDepthParallax() {
 
 /* ── Camera Path Animation ──────────────────────────────────── */
 function initCameraPathAnimation() {
-  if (EFFECTS_STATE.cameraBound || prefersReducedMotion()) return;
+  if (EFFECTS_STATE.cameraBound || prefersReducedMotion() || isLiteMode()) return;
 
   const sections = Array.from(document.querySelectorAll('[data-camera-section]'));
   if (!sections.length) return;
@@ -606,6 +655,7 @@ function initCameraPathAnimation() {
 
 /* ── Init All Effects ───────────────────────────────────────── */
 function initAllEffects() {
+  detectPerformanceMode();
   initScrollReveal();
   initStaggerReveal();
   initParticles();

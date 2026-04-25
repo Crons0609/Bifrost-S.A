@@ -133,6 +133,27 @@
       border-radius: var(--radius-full);
     }
 
+    @media (max-width: 768px) {
+      .af-inline-form-grid {
+        grid-template-columns: 1fr 1fr !important;
+      }
+
+      .af-inline-form-actions {
+        flex-wrap: wrap;
+        justify-content: stretch !important;
+      }
+
+      .af-inline-form-actions .btn {
+        flex: 1 1 180px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .af-inline-form-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
     /* URL fallback separator */
     .url-separator {
       display: flex;
@@ -556,7 +577,7 @@
           <!-- Fila de edición inline oculta (se inyecta dinámicamente) -->
           <div id="af-inline-form" style="display:none;margin-top:var(--space-4);padding:var(--space-5);background:rgba(69,162,158,0.05);border:1px solid rgba(69,162,158,0.2);border-radius:var(--radius-lg);">
             <h3 style="font-size:var(--fs-base);color:#45A29E;margin-bottom:var(--space-4);">➕ Nuevo Activo</h3>
-            <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1.2fr;gap:var(--space-3);margin-bottom:var(--space-4);">
+            <div class="af-inline-form-grid" style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1.2fr;gap:var(--space-3);margin-bottom:var(--space-4);">
               <div>
                 <label style="font-size:0.75rem;color:var(--color-text-muted);display:block;margin-bottom:4px;">Nombre del activo</label>
                 <input type="text" id="af-new-nombre" class="form-input" placeholder="Ej: Barril de Roble 200L" style="width:100%;">
@@ -588,7 +609,7 @@
                 </select>
               </div>
             </div>
-            <div style="display:flex;gap:var(--space-3);justify-content:flex-end;">
+            <div class="af-inline-form-actions" style="display:flex;gap:var(--space-3);justify-content:flex-end;">
               <button class="btn btn--outline" onclick="document.getElementById('af-inline-form').style.display='none'">Cancelar</button>
               <button class="btn btn--primary" onclick="afSaveNew()">💾 Guardar Activo</button>
             </div>

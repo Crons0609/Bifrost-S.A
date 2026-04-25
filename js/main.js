@@ -36,7 +36,7 @@ const Cart = {
         vintage:  wine.vintage,
         price:    wine.finalPrice || wine.price,
         emoji:    wine.emoji || '🍷',
-        imageUrl: wine.imageUrl || '',
+        imageUrl: window.normalizeAssetUrl(wine.imageUrl || ''),
         stock:    maxStock,
         qty:      Math.min(quantity, maxStock),
       });
@@ -178,7 +178,7 @@ function renderCartSidebar() {
   itemsEl.innerHTML = items.map(item => `
     <div class="cart-item" data-id="${item.id}">
       <div class="cart-item__image">
-        ${item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.name}" loading="lazy">` : item.emoji || '🍷'}
+        ${item.imageUrl ? `<img src="${window.normalizeAssetUrl(item.imageUrl)}" alt="${item.name}" loading="lazy">` : item.emoji || '🍷'}
       </div>
       <div class="cart-item__info">
         <div class="cart-item__name">${item.name}</div>
@@ -283,6 +283,30 @@ window.resolvePath = function(path) {
   return isStatics ? `../${path}` : path;
 };
 
+window.normalizeAssetUrl = function(path) {
+  if (!path || typeof path !== 'string') return '';
+  if (/^(?:[a-z]+:)?\/\//i.test(path) || /^(?:data:|blob:|\/)/i.test(path)) return path;
+
+  const isStatics = window.location.pathname.includes('/statics/');
+  const cleaned = path.replace(/^(\.\.?\/)+/, '');
+  return isStatics ? `../${cleaned}` : cleaned;
+};
+
+window.getWineFallbackAsset = function(wine = {}) {
+  const category = String(wine.category || '').toLowerCase();
+  const numericId = Number(wine.id);
+  const useSecondBottle = Number.isFinite(numericId)
+    ? numericId % 2 === 0
+    : /(blanco|rosado|postre)/.test(category);
+
+  return useSecondBottle ? 'assets/images/wines/bottles-2.png' : 'assets/images/wines/bottles-1.png';
+};
+
+window.getWineImageUrl = function(wine = {}) {
+  const candidate = typeof wine.imageUrl === 'string' ? wine.imageUrl.trim() : '';
+  return window.normalizeAssetUrl(candidate || window.getWineFallbackAsset(wine));
+};
+
 /* ── Checkout Flow con Backend ──────────────────────────────── */
 window.submitBifrostCheckout = async function(event) {
   event.preventDefault();
@@ -313,7 +337,7 @@ window.submitBifrostCheckout = async function(event) {
     // Resolvemos el path relativo si estamos en statics/
     const baseUrl = window.location.pathname.includes('/statics/') ? '../' : '';
     // Como baseUrl puede ser '' desde index, agregamos la barra a la API
-    const apiUrl = baseUrl ? \`\${baseUrl}/api/checkout\` : '/api/checkout';
+    const apiUrl = baseUrl ? `${baseUrl}/api/checkout` : '/api/checkout';
 
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -330,16 +354,16 @@ window.submitBifrostCheckout = async function(event) {
       window.showToast("¡Pedido recibido exitosamente!", "success");
       
       // Mostrar modal final de agradecimiento
-      const successModalHtml = \`
+      const successModalHtml = `
         <div class="overlay-backdrop active" id="success-modal" style="z-index: 10000; display:flex; align-items:center; justify-content:center; opacity:0; animation: fadeIn 0.3s forwards;">
           <div class="glass" style="padding: 2.5rem 2rem; max-width: 400px; width: 90%; text-align: center; position: relative;">
             <div style="color: #4CAF50; margin-bottom: 1rem;"><svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
             <h3 style="font-family: var(--font-heading); font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--color-gold);">Pedido Confirmado</h3>
-            <p style="color: var(--color-text-muted); font-size: 0.95rem; line-height:1.5; margin-bottom:1.5rem;">Tu pedido ha sido recibido exitosamente (ID: #\${data.pedidoId || 'N/A'}). Un sumiller se pondrá en contacto pronto para gestionar tu orden.</p>
+            <p style="color: var(--color-text-muted); font-size: 0.95rem; line-height:1.5; margin-bottom:1.5rem;">Tu pedido ha sido recibido exitosamente (ID: #${data.pedidoId || 'N/A'}). Un sumiller se pondrá en contacto pronto para gestionar tu orden.</p>
             <button onclick="document.getElementById('success-modal').remove()" class="btn btn--primary" style="width:100%; justify-content:center;">Cerrar</button>
           </div>
         </div>
-      \`;
+      `;
       document.body.insertAdjacentHTML('beforeend', successModalHtml);
     } else {
       throw new Error(data.error || "Error del servidor");
@@ -356,7 +380,7 @@ function showCheckoutModal() {
   const existing = document.getElementById('checkout-modal');
   if(existing) existing.remove();
 
-  const modalHtml = \`
+  const modalHtml = `
     <div class="overlay-backdrop active" id="checkout-modal" style="z-index: 10000; display:flex; align-items:center; justify-content:center; opacity:0; animation: fadeIn 0.3s forwards;">
       <div class="glass" style="padding: 2.5rem 2rem; max-width: 420px; width: 90%; text-align: left; position: relative;">
         <button onclick="document.getElementById('checkout-modal').remove()" aria-label="Cerrar" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--color-text-muted); cursor: pointer; padding:0.5rem;">
@@ -380,12 +404,12 @@ function showCheckoutModal() {
           </div>
           
           <div style="margin-top: 0.5rem;">
-            <button type="submit" class="btn btn--primary" style="width:100%; justify-content:center;">Enviar Pedido • \${window.formatPrice(window.Cart.total)}</button>
+            <button type="submit" class="btn btn--primary" style="width:100%; justify-content:center;">Enviar Pedido • ${window.formatPrice(window.Cart.total)}</button>
           </div>
         </form>
       </div>
     </div>
-  \`;
+  `;
   document.body.insertAdjacentHTML('beforeend', modalHtml);
 }
 

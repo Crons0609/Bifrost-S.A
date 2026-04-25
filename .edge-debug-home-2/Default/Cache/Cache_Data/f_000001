@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Bifrost S.A — La Colección Vortex Reserve. Vinos de cosecha premium elaborados con inspiración nórdica y raíces nicaragüenses. Chichigalpa, Nicaragua.">
+  <meta name="keywords"
+    content="vinos premium, Nicaragua, Chichigalpa, Vortex Reserve, vinos de lujo, colección especial">
+  <meta name="theme-color" content="#0A0A0B">
+  <meta property="og:title" content="Bifrost S.A — La Colección Vortex Reserve">
+  <meta property="og:description"
+    content="Donde el mito se encuentra con el viñedo. Vinos de cosecha premium desde Chichigalpa, Nicaragua.">
+  <meta property="og:type" content="website">
+  <title>Bifrost S.A — La Colección Vortex Reserve</title>
+
+  <!-- ══ Hojas de estilo ══ -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/effects.css">
+  <link rel="stylesheet" href="css/components.css">
+
+  <style>
+    /* ── Variables de contacto / redes sociales ──────────────────
+       Configura aquí los enlaces de cada plataforma.
+       El equipo puede modificar estos valores libremente.
+    ─────────────────────────────────────────────────────────────*/
+    :root {
+      --link-whatsapp: "https://wa.me/50576060334";
+      /* Reemplazar con la URL real */
+      --link-telegram: "https://t.me/Young_plague_FTP";
+      /* Reemplazar con la URL real */
+      --link-facebook: "https://facebook.com/bifrostwines";
+      /* Reemplazar con la URL real */
+      --link-instagram: "https://instagram.com/bifrostwines";
+      /* Reemplazar con la URL real */
+      --link-phone1: "tel:+50576060334";
+      --link-phone2: "tel:+50588666717";
+    }
+
+    /* ── Hero ─────────────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .hero__bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .hero__bg-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.22;
+      filter: saturate(0.7) brightness(0.8);
+    }
+
+    .hero__bg-gradient {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 30% 30%, rgba(212, 175, 55, 0.12) 0%, transparent 55%),
+        radial-gradient(ellipse at 70% 70%, rgba(69, 162, 158, 0.09) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 100%, rgba(10, 10, 11, 0.98) 0%, transparent 50%);
+    }
+
+    .hero__content {
+      position: relative;
+      z-index: 2;
+      padding-top: var(--navbar-height);
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding-inline: var(--container-pad);
+      padding-bottom: var(--space-20);
+    }
+
+    .hero__logo-img {
+      width: clamp(180px, 28vw, 340px);
+      height: auto;
+      flex-shrink: 0;
+      filter: drop-shadow(0 0 30px rgba(212, 175, 55, 0.3));
+      animation: floatY 6s ease-in-out infinite;
+    }
+
+    .hero__eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: var(--fs-xs);
+      font-weight: 700;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--color-gold);
+      margin-bottom: var(--space-5);
+    }
+
+    .hero__eyebrow::before,
+    .hero__eyebrow::after {
+      content: '';
+      width: 40px;
+      height: 1px;
+      background: var(--color-gold);
+      opacity: 0.6;
+      display: block;
+    }
+
+    .hero__title {
+      font-family: var(--font-heading);
+      font-size: var(--fs-hero);
+      font-weight: 900;
+      line-height: 1.0;
+      letter-spacing: -0.025em;
+      color: var(--color-text-primary);
+      margin-bottom: var(--space-3);
+    }
+
+    .hero__title-line2 {
+      display: block;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 0.52em;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.06em;
+      margin-top: var(--space-3);
+    }
+
+    .hero__gold-line {
+      width: 200px;
+      height: 2px;
+      background: var(--gradient-gold);
+      margin: var(--space-6) auto;
+      border-radius: var(--radius-full);
+      animation: goldLine 1.2s var(--ease-silk) 0.8s both;
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+    }
+
+    .hero__subtitle {
+      font-size: var(--fs-md);
+      color: var(--color-text-muted);
+      max-width: 560px;
+      line-height: 1.7;
+      margin-bottom: var(--space-10);
+    }
+
+    .hero__cta-group {
+      display: flex;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* ── Fila logo + botellas ────────────────────────────── */
+    .hero__logo-row {
+      display: flex;
+      align-items: flex-end;
+      /* botellas alineadas al pie del logo */
+      justify-content: center;
+      gap: 0;
+      margin-bottom: var(--space-6);
+      width: 100%;
+      /* permite que las botellas sobresalgan sin afectar el layout del contenido */
+      overflow: visible;
+    }
+
+    /* ── Hero Bottles (parallax, en flujo dentro de hero__logo-row) ── */
+    .hero-bottle {
+      width: clamp(220px, 28vw, 400px);
+      height: auto;
+      pointer-events: none;
+      flex-shrink: 0;
+      will-change: transform;
+      filter:
+        drop-shadow(0 20px 40px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 24px rgba(212, 175, 55, 0.22));
+    }
+
+    .hero-bottle--left {
+      transform: rotate(-12deg);
+      margin-bottom: -10px;
+      margin-right: -36px;
+    }
+
+    .hero-bottle--right {
+      transform: rotate(12deg);
+      margin-bottom: -10px;
+      margin-left: -36px;
+    }
+
+    /* Tablet */
+    @media (max-width: 1100px) {
+      .hero-bottle {
+        width: clamp(170px, 22vw, 280px);
+      }
+    }
+
+    /* Móvil */
+    @media (max-width: 768px) {
+      .hero-bottle {
+        width: clamp(130px, 28vw, 190px);
+      }
+
+      .hero-bottle--left {
+        margin-right: -18px;
+      }
+
+      .hero-bottle--right {
+        margin-left: -18px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .hero-bottle {
+        width: clamp(105px, 26vw, 150px);
+      }
+    }
+
+    @keyframes floatYCenter {
+
+      0%,
+      100% {
+        transform: translate(-50%, 0);
+      }
+
+      50% {
+        transform: translate(-50%, -10px);
+      }
+    }
+
+    .hero__scroll-hint {
+      position: absolute;
+      bottom: var(--space-2);
+      /* LOWERED the position significantly */
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-3);
+      color: var(--color-text-muted);
+      font-size: var(--fs-xs);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      z-index: 2;
+      animation: floatYCenter 2s ease-in-out infinite;
+    }
+
+    .hero__scroll-hint span {
+      margin-left: 0.15em;
+      /* Compensate for the right letter-spacing to truly center visual text */
+    }
+
+    .hero__scroll-line {
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(to bottom, var(--color-gold), transparent);
+    }
+
+    /* ── Featured Section ── */
+    .featured-section {
+      position: relative;
+      padding-block: var(--space-20) var(--space-24);
+    }
+
+    .featured-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-6);
+      margin-top: var(--space-12);
+    }
+
+    /* ── Story Section ── */
+    .story-section {
+      padding-block: var(--space-20);
+      position: relative;
+    }
+
+    .story-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-20);
+      align-items: center;
+    }
+
+    .story-visual {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .story-vineyard-img {
+      width: 100%;
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--color-glass-border);
+      box-shadow: var(--shadow-card), var(--shadow-gold);
+      filter: brightness(0.85) saturate(1.2);
+      transition: transform var(--transition-slow);
+    }
+
+    .story-vineyard-img:hover {
+      transform: scale(1.02);
+    }
+
+    .story-vineyard-badge {
+      position: absolute;
+      bottom: -16px;
+      right: -16px;
+      background: var(--gradient-gold);
+      color: #000;
+      font-family: var(--font-heading);
+      font-size: var(--fs-xs);
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      padding: var(--space-3) var(--space-5);
+      border-radius: var(--radius-md);
+      text-transform: uppercase;
+      box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
+    }
+
+    .story-text {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+    }
+
+    .story-text h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.15;
+    }
+
+    /* ── Brand Values ── */
+    .values-section {
+      padding-block: var(--space-16) var(--space-20);
+    }
+
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-5);
+      margin-top: var(--space-12);
+    }
+
+    .value-card {
+      padding: var(--space-6);
+      border-radius: var(--radius-xl);
+      text-align: center;
+      transition: transform var(--transition-base);
+    }
+
+    .value-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .value-card__icon-img {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto var(--space-4);
+      display: block;
+      filter: sepia(1) saturate(3) hue-rotate(5deg) brightness(0.9);
+      opacity: 0.85;
+    }
+
+    .value-card__icon-svg {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto var(--space-4);
+      display: block;
+      color: var(--color-gold);
+      opacity: 0.75;
+    }
+
+    .value-card__title {
+      font-family: var(--font-heading);
+      font-size: var(--fs-md);
+      font-weight: 700;
+      margin-bottom: var(--space-2);
+    }
+
+    .value-card__desc {
+      font-size: var(--fs-sm);
+      color: var(--color-text-muted);
+      line-height: 1.6;
+    }
+
+    /* ── CTA Banner ── */
+    .cta-banner {
+      margin-block: var(--space-8) var(--space-20);
+      padding: var(--space-16) var(--space-12);
+      border-radius: var(--radius-xl);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-banner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.07) 0%, rgba(69, 162, 158, 0.05) 100%);
+    }
+
+    .cta-banner__content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-banner__title {
+      font-family: var(--font-heading);
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 900;
+      margin-bottom: var(--space-4);
+    }
+
+    /* ── Floating Contact Widget ──────────────────────────────── */
+    .contact-widget {
+      position: fixed;
+      bottom: var(--space-8);
+      left: var(--space-5);
+      z-index: var(--z-dropdown);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      align-items: flex-start;
+    }
+
+    .contact-widget__toggle {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-full);
+      background: var(--gradient-gold);
+      color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(212, 175, 55, 0.5);
+      transition: all var(--transition-base);
+      border: none;
+    }
+
+    .contact-widget__toggle:hover {
+      transform: scale(1.08);
+      box-shadow: 0 8px 32px rgba(212, 175, 55, 0.6);
+    }
+
+    .contact-widget__toggle svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .contact-widget__menu {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: all var(--transition-base);
+      pointer-events: none;
+    }
+
+    .contact-widget__menu.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+
+    .contact-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-2) var(--space-4) var(--space-2) var(--space-2);
+      border-radius: var(--radius-full);
+      font-size: var(--fs-xs);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      transition: all var(--transition-base);
+      white-space: nowrap;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(10, 10, 18, 0.85);
+      color: var(--color-text-primary);
+    }
+
+    .contact-btn:hover {
+      transform: translateX(4px);
+      border-color: var(--contact-color, var(--color-gold));
+      box-shadow: 0 0 16px var(--contact-color, rgba(212, 175, 55, 0.3));
+      color: var(--color-text-primary);
+    }
+
+    .contact-btn__icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-full);
+      background: var(--contact-color, var(--color-gold));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .contact-btn__icon svg {
+      width: 18px;
+      height: 18px;
+      color: #fff;
+    }
+
+    /* Color per network */
+    .contact-btn--whatsapp {
+      --contact-color: #25D366;
+    }
+
+    .contact-btn--telegram {
+      --contact-color: #2AABEE;
+    }
+
+    .contact-btn--facebook {
+      --contact-color: #1877F2;
+    }
+
+    .contact-btn--instagram {
+      --contact-color: #E1306C;
+    }
+
+    .contact-btn--phone {
+      --contact-color: var(--color-gold);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .values-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .story-inner {
+        grid-template-columns: 1fr;
+        gap: var(--space-10);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero {
+        min-height: auto;
+        padding-top: var(--navbar-height);
+      }
+
+      .hero__content {
+        padding-top: var(--space-8);
+        padding-bottom: var(--space-16);
+      }
+
+      .hero__logo-row {
+        margin-bottom: var(--space-5);
+      }
+
+      .hero__eyebrow {
+        letter-spacing: 0.2em;
+        gap: var(--space-2);
+      }
+
+      .hero__eyebrow::before,
+      .hero__eyebrow::after {
+        width: 24px;
+      }
+
+      .hero__subtitle {
+        margin-bottom: var(--space-8);
+      }
+
+      .hero__cta-group {
+        width: 100%;
+      }
+
+      .hero__cta-group .btn {
+        width: min(100%, 360px);
+      }
+
+      .featured-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .story-vineyard-badge {
+        right: 12px;
+        bottom: 12px;
+      }
+
+      .cta-banner {
+        padding: var(--space-12) var(--space-5);
+      }
+
+      .contact-widget {
+        bottom: var(--space-6);
+        left: var(--space-4);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .hero__logo-img {
+        width: clamp(140px, 42vw, 220px);
+      }
+
+      .hero__scroll-hint {
+        display: none;
+      }
+
+      .story-text,
+      .cta-banner__content {
+        text-align: left;
+      }
+
+      .story-vineyard-badge {
+        position: static;
+        margin-top: var(--space-4);
+        width: fit-content;
+      }
+
+      .contact-widget__menu {
+        max-width: calc(100vw - 2rem);
+      }
+
+      .contact-btn {
+        width: 100%;
+      }
+
+      .values-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Pantalla de Carga -->
+  <div id="loading-screen">
+    <img src="assets/images/ui/bifrost-logo.png" alt="Bifrost S.A" class="loader-logo"
+      style="width:200px; height:auto; filter:drop-shadow(0 0 20px rgba(212,175,55,0.4));">
+    <div class="loader-bar">
+      <div class="loader-bar__fill"></div>
+    </div>
+  </div>
+
+  <!-- Aurora de fondo -->
+  <div class="aurora-bg" aria-hidden="true"></div>
+
+  <!-- Telón de fondo (carrito, menú móvil) -->
+  <div class="overlay-backdrop" aria-hidden="true"></div>
+
+  <!-- ════════════════════════════════════════
+       BARRA DE NAVEGACIÓN
+  ════════════════════════════════════════ -->
+  <header class="navbar" id="main-navbar">
+    <div class="container navbar__inner">
+      <!-- Logo -->
+      <a href="index.html" class="navbar__logo" aria-label="Bifrost S.A — Inicio">
+        <img src="assets/images/ui/bifrost-logo.png" alt="Bifrost S.A"
+          style="height:44px; width:auto; filter:drop-shadow(0 0 12px rgba(212,175,55,0.3));">
+      </a>
+
+      <!-- Navegación escritorio -->
+      <nav class="navbar__nav" aria-label="Navegación principal">
+        <a href="index.html" class="navbar__link active">Inicio</a>
+        <a href="statics/shop.html" class="navbar__link">Colección</a>
+        <a href="statics/about.html" class="navbar__link">Nosotros</a>
+        <a href="#contacto" class="navbar__link"
+          onclick="document.querySelector('.contact-widget__toggle').click(); return false;">Contacto</a>
+      </nav>
+
+      <!-- Acciones -->
+      <div class="navbar__actions">
+        <button class="navbar__icon-btn" data-cart-toggle id="cart-toggle-btn" aria-label="Abrir carrito">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <span class="cart-badge" id="cart-badge" aria-label="Artículos en el carrito"></span>
+        </button>
+        <button class="navbar__hamburger" id="hamburger" aria-label="Abrir menú" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Menú Móvil -->
+  <nav class="mobile-menu" id="mobile-menu" aria-label="Navegación móvil">
+    <a href="index.html" class="mobile-menu__link">Inicio</a>
+    <a href="statics/shop.html" class="mobile-menu__link">Colección</a>
+    <a href="statics/about.html" class="mobile-menu__link">Nosotros</a>
+    <a href="statics/about.html#contacto" class="mobile-menu__link">Contacto</a>
+    <a href="statics/shop.html" class="btn btn--primary btn--lg" style="margin-top:1rem">Explorar Colección</a>
+  </nav>
+
+  <!-- ════════════════════════════════════════
+       CARRITO LATERAL
+  ════════════════════════════════════════ -->
+  <aside class="cart-sidebar" id="cart-sidebar" aria-label="Carrito de compras">
+    <div class="cart-sidebar__header">
+      <h2 class="cart-sidebar__title">Tu Cava</h2>
+      <button class="cart-sidebar__close" id="cart-close" aria-label="Cerrar carrito">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <div class="cart-sidebar__items" id="cart-items"></div>
+    <div class="cart-sidebar__footer">
+      <div class="cart-total-row">
+        <span class="cart-total-label">Subtotal</span>
+        <span class="cart-total-value" id="cart-total">$0.00</span>
+      </div>
+      <button class="btn btn--primary btn--lg btn-ripple" style="width:100%" data-checkout id="checkout-btn">
+        Enviar Consulta
+      </button>
+      <p style="font-size:0.7rem; color:var(--color-text-muted); text-align:center; margin-top:12px;">
+        Envío internacional gratuito en pedidos superiores a $500
+      </p>
+    </div>
+  </aside>
+
+  <!-- ════════════════════════════════════════
+       SECCIÓN HÉROE
+  ════════════════════════════════════════ -->
+  <main>
+    <section class="hero scene-3d section-camera" id="hero" aria-label="Héroe principal" data-camera-section
+      data-camera-intensity="1.15">
+      <!-- Fondo -->
+      <div class="hero__bg" aria-hidden="true">
+        <img src="assets/images/bg/hero-vortex.png" alt="" class="hero__bg-img" role="presentation">
+        <div class="hero__nebula-grid"></div>
+        <div class="vortex-orb vortex-orb--gold"></div>
+        <div class="vortex-orb vortex-orb--frost"></div>
+        <div class="vortex-orb vortex-orb--purple"></div>
+        <div class="morph-blob morph-blob--hero-a"></div>
+        <div class="morph-blob morph-blob--hero-b"></div>
+        <div class="morph-ring morph-ring--hero"></div>
+        <div class="hero__bg-gradient"></div>
+        <div class="particles-layer" data-count="18" aria-hidden="true"></div>
+      </div>
+
+      <!-- Contenido -->
+      <div class="hero__content" data-depth="0.16">
+        <!-- Fila: botella izquierda | logo | botella derecha -->
+        <div class="hero__logo-row hero-animate">
+          <img id="hero-bottle-left" src="assets/images/wines/bottles-1.png" alt="" aria-hidden="true"
+            class="hero-bottle hero-bottle--left" data-depth="0.28">
+          <img src="assets/images/ui/bifrost-logo.png" alt="Bifrost S.A — Vortex Reserve" class="hero__logo-img"
+            data-depth="0.34">
+          <img id="hero-bottle-right" src="assets/images/wines/bottles-2.png" alt="" aria-hidden="true"
+            class="hero-bottle hero-bottle--right" data-depth="0.28">
+        </div>
+
+        <p class="hero__eyebrow hero-animate" data-depth="0.1">La Colección Vortex Reserve</p>
+
+        <h1 class="hero__title hero-animate" data-depth="0.22">
+          BIFROST WINES
+          <span class="hero__title-line2">
+            Donde el Mito se Encuentra con el Viñedo
+          </span>
+        </h1>
+
+        <div class="hero__gold-line" aria-hidden="true"></div>
+
+        <p class="hero__subtitle hero-animate" data-depth="0.14">
+          Seis expresiones legendarias desde Chichigalpa, Nicaragua, hacia las mejores appellation del mundo.
+          Cada botella, un portal entre reinos. Cada sorbo, una eternidad.
+        </p>
+
+        <div class="hero__cta-group hero-animate" data-depth="0.18">
+          <a href="statics/shop.html" class="btn btn--primary btn--lg btn-ripple" id="hero-shop-btn">
+            Explorar Colección
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </a>
+          <a href="statics/about.html" class="btn btn--outline btn--lg">Nuestra Historia</a>
+        </div>
+      </div>
+
+      <!-- Indicador de scroll -->
+      <div class="hero__scroll-hint" aria-hidden="true" data-depth="0.08">
+        <div class="hero__scroll-line"></div>
+        <span>Desplazar</span>
+      </div>
+    </section>
+
+    <!-- Separador Puente -->
+    <div class="bridge-separator" aria-hidden="true"></div>
+
+    <!-- ════════════ VINOS DESTACADOS ════════════ -->
+    <section class="featured-section container section scene-3d section-camera" aria-labelledby="featured-heading"
+      data-camera-section data-camera-intensity="0.9">
+      <div class="section-3d-label" aria-hidden="true">Vortex Chamber</div>
+      <div class="section-header">
+        <p class="section-label">La Colección</p>
+        <h2 class="section-title reveal" id="featured-heading" data-reveal="depth">
+          Expresiones Destacadas
+        </h2>
+        <p class="section-subtitle reveal reveal--delay-1" data-reveal="depth">
+          Seleccionadas de nuestras cosechas más codiciadas. Cada botella narra una historia forjada en la tierra más extraordinaria.
+        </p>
+      </div>
+
+      <!-- Grid de destacados 3D -->
+      <div class="featured-grid stagger-parent" id="featured-grid">
+        <!-- Esqueletos de carga -->
+        <div class="skeleton-card shimmer"><div class="skeleton-img"></div></div>
+        <div class="skeleton-card shimmer"><div class="skeleton-img"></div></div>
+        <div class="skeleton-card shimmer"><div class="skeleton-img"></div></div>
+      </div>
+
+      <div style="text-align:center; margin-top:var(--space-10);">
+        <a href="statics/shop.html" class="btn btn--outline btn--lg reveal">Ver Colección Completa →</a>
+      </div>
+    </section>
+
+    <!-- Separador Puente -->
+    <div class="bridge-separator" aria-hidden="true"></div>
+
+    <!-- ════════════ SECCIÓN HISTORIA ═══════════ -->
+    <section class="story-section container scene-3d section-camera" aria-labelledby="story-heading"
+      data-camera-section data-camera-intensity="0.75">
+      <div class="section-3d-label" aria-hidden="true">Origin Lens</div>
+      <div class="story-inner">
+        <!-- Imagen del viñedo de Nicaragua -->
+        <div class="story-visual reveal scale-in" data-reveal="left-3d" data-drift="left" data-drift-intensity="40">
+          <img src="assets/images/bg/nicaragua-vineyard.png" alt="Viñedo en Chichigalpa, Nicaragua al atardecer"
+            class="story-vineyard-img" loading="lazy">
+          <div class="story-vineyard-badge" aria-hidden="true">Chichigalpa, Nicaragua</div>
+        </div>
+
+        <!-- Texto fundacional -->
+        <div class="story-text" data-drift="right" data-drift-intensity="30">
+          <p class="section-label">Origen</p>
+          <h2 class="reveal" id="story-heading" data-reveal="right-3d">
+            Forjado en el Puente<br>
+            <span class="gradient-text-gold">Entre Mundos</span>
+          </h2>
+          <span class="gold-divider reveal" data-reveal="depth"></span>
+          <p class="reveal reveal--delay-1" data-reveal="right-3d">
+            En la mitología nórdica, Bifrost era un puente brillante que conectaba Midgard con Asgard.
+            Creemos que los mejores vinos crean la misma conexión: entre la tierra y lo sublime,
+            entre la mano del enólogo y tus sentidos.
+          </p>
+          <p class="reveal reveal--delay-2" data-reveal="right-3d">
+            Cada botella de nuestra colección Vortex Reserve proviene de viñedos donde lo extraordinario
+            de la geología se encuentra con generaciones de maestría. El resultado es un vino que
+            trasciende lo ordinario y alcanza lo mítico.
+          </p>
+          <a href="statics/about.html" class="btn btn--outline reveal reveal--delay-3" style="width:fit-content">
+            Nuestra Filosofía
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Separador Puente -->
+    <div class="bridge-separator" aria-hidden="true"></div>
+
+    <!-- ════════════ VALORES DE MARCA ═══════════ -->
+    <section class="values-section container scene-3d section-camera" aria-labelledby="values-heading"
+      data-camera-section data-camera-intensity="0.65">
+      <div class="section-3d-label" aria-hidden="true">Vortex Promise</div>
+      <div class="section-header">
+        <p class="section-label">Por Qué Bifrost</p>
+        <h2 class="section-title reveal" id="values-heading" data-reveal="depth">La Promesa Vortex</h2>
+      </div>
+      <div class="values-grid stagger-parent">
+        <div class="value-card glass stagger-child reveal">
+          <svg class="value-card__icon-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
+            aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064" />
+          </svg>
+          <h3 class="value-card__title">Terroir Seleccionado</h3>
+          <p class="value-card__desc">Solo los viñedos con carácter geológico excepcional integran la selección Vortex.
+          </p>
+        </div>
+        <div class="value-card glass stagger-child reveal reveal--delay-1">
+          <svg class="value-card__icon-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
+            aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h3 class="value-card__title">Cosechas con Potencial</h3>
+          <p class="value-card__desc">Nuestros vinos están diseñados para evolucionar y mejorar durante décadas en tu
+            cava.</p>
+        </div>
+        <div class="value-card glass stagger-child reveal reveal--delay-2">
+          <svg class="value-card__icon-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
+            aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+          </svg>
+          <h3 class="value-card__title">Maestros Sumilleres</h3>
+          <p class="value-card__desc">Nuestro equipo cuenta con seis certificaciones de Master Sommelier en cuatro
+            continentes.</p>
+        </div>
+        <div class="value-card glass stagger-child reveal reveal--delay-3">
+          <svg class="value-card__icon-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
+            aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+          <h3 class="value-card__title">Envío Climatizado</h3>
+          <p class="value-card__desc">Cada botella llega a tu puerta en condiciones perfectas, con garantía total de
+            cadena de frío.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════ BANNER CTA ═════════════ -->
+    <div class="container section--sm">
+      <div class="cta-banner glass reveal scene-3d section-camera" data-camera-section data-camera-intensity="1"
+        data-reveal="depth">
+        <div class="cta-banner__morph" aria-hidden="true">
+          <div class="morph-blob morph-blob--cta-a"></div>
+          <div class="morph-blob morph-blob--cta-b"></div>
+          <div class="morph-ring morph-ring--cta"></div>
+        </div>
+        <div class="cta-banner__content">
+          <p class="section-label" style="justify-content:center;">Edición Limitada</p>
+          <h2 class="cta-banner__title">
+            El Vortex Singularity<br>
+            <span class="gradient-text-gold">Solo 3 Botellas Disponibles</span>
+          </h2>
+          <p
+            style="color:var(--color-text-muted); max-width:480px; margin:0 auto var(--space-8); font-size:var(--fs-sm);">
+            Nuestra expresión más escasa. Un Sauternes de cosecha tardía 2017 del château más venerado de Burdeos.
+            Cuando se agote, no habrá más.
+          </p>
+          <a href="statics/product-detail.html?id=6" class="btn btn--primary btn--lg btn-ripple">
+            Asegura tu Botella — $480
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ════════════════════════════════════════
+       PIE DE PÁGINA
+  ════════════════════════════════════════ -->
+  <footer class="footer" id="contacto" aria-label="Pie de página">
+    <div class="container">
+      <div class="footer__grid">
+        <!-- Marca -->
+        <div>
+          <img src="assets/images/ui/bifrost-logo.png" alt="Bifrost S.A"
+            style="height:52px; width:auto; margin-bottom:var(--space-4); filter:drop-shadow(0 0 8px rgba(212,175,55,0.25));">
+          <p class="footer__tagline">
+            Vinos de cosecha premium inspirados en la mitología nórdica.
+            Forjados desde Chichigalpa, Nicaragua, hacia el mundo.
+          </p>
+          <!-- Redes Sociales -->
+          <div class="footer__social" style="margin-top:var(--space-5);">
+            <!-- ╔═══════════════════════════════════════════════════╗
+                 ║  CONFIGURACIÓN DE REDES SOCIALES                 ║
+                 ║  Actualiza los href con las URLs reales          ║
+                 ╚═══════════════════════════════════════════════════╝ -->
+            <a href="https://wa.me/50576060334" class="footer__social-link" target="_blank" rel="noopener"
+              aria-label="WhatsApp" data-social="whatsapp">
+              <svg fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+                <path
+                  d="M12.004 2C6.477 2 2 6.477 2 12.004a9.965 9.965 0 001.367 5.02L2 22l5.134-1.345A9.97 9.97 0 0012.004 22C17.53 22 22 17.523 22 12.004S17.53 2 12.004 2zm0 18.163a8.155 8.155 0 01-4.154-1.134l-.298-.177-3.05.799.814-2.972-.194-.306A8.147 8.147 0 013.84 12.004c0-4.512 3.67-8.182 8.164-8.182 4.494 0 8.163 3.67 8.163 8.182 0 4.513-3.669 8.159-8.163 8.159z" />
+              </svg>
+            </a>
+            <a href="https://t.me/Young_plague_FTP" class="footer__social-link" target="_blank" rel="noopener"
+              aria-label="Telegram" data-social="telegram">
+              <svg fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+              </svg>
+            </a>
+            <a href="https://facebook.com/bifrostwines" class="footer__social-link" target="_blank" rel="noopener"
+              aria-label="Facebook" data-social="facebook">
+              <svg fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+              </svg>
+            </a>
+            <a href="https://instagram.com/bifrostwines" class="footer__social-link" target="_blank" rel="noopener"
+              aria-label="Instagram" data-social="instagram">
+              <svg fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="footer__heading">Colección</h3>
+          <ul class="footer__links">
+            <li><a href="statics/shop.html" class="footer__link">Vortex Reserve</a></li>
+            <li><a href="statics/shop.html" class="footer__link">Vinos Tintos</a></li>
+            <li><a href="statics/shop.html" class="footer__link">Vinos Blancos</a></li>
+            <li><a href="statics/shop.html" class="footer__link">Rosados</a></li>
+            <li><a href="statics/shop.html" class="footer__link">Vinos de Postre</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="footer__heading">Empresa</h3>
+          <ul class="footer__links">
+            <li><a href="statics/about.html" class="footer__link">Nuestra Historia</a></li>
+            <li><a href="statics/about.html#equipo" class="footer__link">El Equipo</a></li>
+            <li><a href="statics/about.html#filosofia" class="footer__link">Filosofía</a></li>
+          </ul>
+        </div>
+
+        <!-- Contacto -->
+        <div>
+          <h3 class="footer__heading">Contacto</h3>
+          <ul class="footer__links">
+            <li style="display:flex; align-items:flex-start; gap:8px; margin-bottom:8px;">
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="var(--color-gold)" stroke-width="2"
+                style="flex-shrink:0; margin-top:3px;">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span class="footer__link" style="cursor:default; line-height:1.5;">Chichigalpa, Nicaragua</span>
+            </li>
+            <li style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="var(--color-gold)" stroke-width="2"
+                style="flex-shrink:0;">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+              <a href="tel:+50576060334" class="footer__link">+505 7606 0334</a>
+            </li>
+            <li style="display:flex; align-items:center; gap:8px;">
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="var(--color-gold)" stroke-width="2"
+                style="flex-shrink:0;">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+              <a href="tel:+50588666717" class="footer__link">+505 8866 6717</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <p class="footer__copy">
+          © 2024 <span>Bifrost S.A</span>. Todos los derechos reservados.
+          Chichigalpa, Nicaragua. Bebe con responsabilidad.
+        </p>
+        <div style="font-size:var(--fs-xs); color:var(--color-text-muted);">
+          Solo para mayores de 18 años
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ════════════════════════════════════════
+       WIDGET DE CONTACTO FLOTANTE
+       ─────────────────────────────────────
+       CONFIGURACIÓN DE URLs:
+       Actualiza los href de cada enlace con
+       las URLs reales de cada plataforma.
+  ════════════════════════════════════════ -->
+  <div class="contact-widget" role="complementary" aria-label="Contacto rápido">
+    <!-- Botones de redes (aparecen al expandir) -->
+    <div class="contact-widget__menu" id="contact-menu" role="list">
+      <!-- WhatsApp ─ Actualizar href →  https://wa.me/[NUMERO] -->
+      <a href="https://wa.me/50576060334" class="contact-btn contact-btn--whatsapp" target="_blank" rel="noopener"
+        role="listitem" aria-label="Contactar por WhatsApp">
+        <span class="contact-btn__icon" aria-hidden="true">
+          <svg fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z M12.004 2C6.477 2 2 6.477 2 12.004a9.965 9.965 0 001.367 5.02L2 22l5.134-1.345A9.97 9.97 0 0012.004 22C17.53 22 22 17.523 22 12.004S17.53 2 12.004 2z" />
+          </svg>
+        </span>
+        WhatsApp
+      </a>
+
+      <!-- Telegram ─ Actualizar href → https://t.me/[USUARIO_O_NUMERO] -->
+      <a href="https://t.me/bifrostwines" class="contact-btn contact-btn--telegram" target="_blank" rel="noopener"
+        role="listitem" aria-label="Contactar por Telegram">
+        <span class="contact-btn__icon" aria-hidden="true">
+          <svg fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+          </svg>
+        </span>
+        Telegram
+      </a>
+
+      <!-- Facebook ─ Actualizar href → https://facebook.com/[PAGINA] -->
+      <a href="https://facebook.com/bifrostwines" class="contact-btn contact-btn--facebook" target="_blank"
+        rel="noopener" role="listitem" aria-label="Visitar Facebook">
+        <span class="contact-btn__icon" aria-hidden="true">
+          <svg fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+          </svg>
+        </span>
+        Facebook
+      </a>
+
+      <!-- Instagram ─ Actualizar href → https://instagram.com/[USUARIO] -->
+      <a href="https://instagram.com/bifrostwines" class="contact-btn contact-btn--instagram" target="_blank"
+        rel="noopener" role="listitem" aria-label="Visitar Instagram">
+        <span class="contact-btn__icon" aria-hidden="true">
+          <svg fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+          </svg>
+        </span>
+        Instagram
+      </a>
+
+      <!-- Teléfono 1 ─ Actualizar href → tel:+[NUMERO_COMPLETO] -->
+      <a href="tel:+50576060334" class="contact-btn contact-btn--phone" role="listitem"
+        aria-label="Llamar al +505 7606 0334">
+        <span class="contact-btn__icon" aria-hidden="true">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+          </svg>
+        </span>
+        +505 7606 0334
+      </a>
+
+      <!-- Teléfono 2 -->
+      <a href="tel:+50588666717" class="contact-btn contact-btn--phone" role="listitem"
+        aria-label="Llamar al +505 8866 6717">
+        <span class="contact-btn__icon" aria-hidden="true">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+          </svg>
+        </span>
+        +505 8866 6717
+      </a>
+    </div>
+
+    <!-- Botón de apertura del widget -->
+    <button class="contact-widget__toggle btn-ripple" id="contact-toggle" aria-expanded="false"
+      aria-controls="contact-menu" aria-label="Abrir opciones de contacto">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- ════════════ SCRIPTS ════════════ -->
+  <script src="js/database.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/effects.js"></script>
+
+  <script>
+    /* ── Widget de Contacto Flotante ────────────────────────── */
+    (function () {
+      const toggle = document.getElementById('contact-toggle');
+      const menu = document.getElementById('contact-menu');
+      if (!toggle || !menu) return;
+
+      let isOpen = false;
+
+      toggle.addEventListener('click', () => {
+        isOpen = !isOpen;
+        menu.classList.toggle('open', isOpen);
+        toggle.setAttribute('aria-expanded', isOpen);
+
+        // Rotar ícono cuando está abierto
+        toggle.style.transform = isOpen ? 'rotate(45deg) scale(1.05)' : '';
+      });
+
+      // Cerrar al hacer clic fuera
+      document.addEventListener('click', (e) => {
+        if (isOpen && !toggle.contains(e.target) && !menu.contains(e.target)) {
+          isOpen = false;
+          menu.classList.remove('open');
+          toggle.setAttribute('aria-expanded', 'false');
+          toggle.style.transform = '';
+        }
+      });
+    })();
+
+    /* ── Render Vinos Destacados ────────────────────────────── */
+    function getHomepageFallbackWines() {
+      return [
+        {
+          id: 'fallback-1',
+          name: 'Vortex Nebula',
+          vintage: 2019,
+          description: 'Selección de portada mientras sincronizamos el inventario real de la bodega.',
+          price: 189,
+          discount: 0,
+          stock: 12,
+          featured: true,
+          category: 'Vino Tinto',
+          imageUrl: 'assets/images/wines/bottles-1.png',
+          emoji: '🍷',
+        },
+        {
+          id: 'fallback-2',
+          name: 'Bifrost Aurora',
+          vintage: 2021,
+          description: 'Etiqueta destacada para mantener la colección visible en todos los dispositivos.',
+          price: 142,
+          discount: 0,
+          stock: 9,
+          featured: true,
+          category: 'Vino Blanco',
+          imageUrl: 'assets/images/wines/bottles-2.png',
+          emoji: '🥂',
+        },
+        {
+          id: 'fallback-3',
+          name: 'Vortex Eclipse',
+          vintage: 2020,
+          description: 'Producto de relleno temporal hasta que entren los vinos más vendidos por ventas reales.',
+          price: 245,
+          discount: 10,
+          stock: 7,
+          featured: true,
+          category: 'Vino Tinto',
+          imageUrl: 'assets/images/wines/bottles-1.png',
+          emoji: '🍾',
+        }
+      ];
+    }
+
+    function selectHomepageWines(allWines) {
+      const inStock = (allWines || []).filter(wine => Number(wine.stock ?? 0) > 0);
+      const featuredInStock = inStock.filter(wine => wine.featured);
+      const nonFeaturedInStock = inStock.filter(wine => !wine.featured);
+      const selected = [...featuredInStock, ...nonFeaturedInStock].slice(0, 3);
+
+      if (selected.length >= 3) return selected;
+
+      const usedIds = new Set(selected.map(wine => String(wine.id)));
+      const fallbackExtras = getHomepageFallbackWines()
+        .filter(wine => !usedIds.has(String(wine.id)))
+        .slice(0, 3 - selected.length);
+
+      const finalSelection = [...selected, ...fallbackExtras];
+      return finalSelection.length ? finalSelection : getHomepageFallbackWines();
+    }
+
+    function buildHomepageWineCards(wines, settings) {
+      const flashPct = settings.flashSaleActive ? (settings.flashSaleDiscount || 0) : 0;
+      const driftDirs = ['left', 'right', 'left'];
+      const driftAmt  = [50, 60, 50];
+
+      return wines.map((wine, i) => {
+        const itemPct    = wine.discount || 0;
+        const discPct    = Math.max(flashPct, itemPct);
+        const finalPrice = discPct > 0 ? wine.price * (1 - discPct / 100) : wine.price;
+        const stockLevel = window.BifrostDB.constructor.stockLevel(wine.stock);
+        const delays     = ['', 'reveal--delay-2', 'reveal--delay-4'];
+        const floatCls   = ['float-3d-1', 'float-3d-2', 'float-3d-3'][i];
+        const desc       = wine.description
+          ? wine.description.substring(0, 110) + (wine.description.length > 110 ? '…' : '')
+          : '';
+        const icon = wine.imageUrl ? '' : (wine.emoji || '🍷');
+        const imageSrc = window.getWineImageUrl(wine);
+        const fallbackSrc = window.normalizeAssetUrl(window.getWineFallbackAsset(wine));
+        const targetHref = String(wine.id).startsWith('fallback-')
+          ? 'statics/shop.html'
+          : `statics/product-detail.html?id=${wine.id}`;
+
+        return `
+          <article class="product-card reveal scale-in ${delays[i]} ${floatCls}"
+                   data-drift="${driftDirs[i]}"
+                   data-drift-intensity="${driftAmt[i]}"
+                   onclick="window.location.href='${targetHref}'"
+                   role="article"
+                   aria-label="${wine.name} ${wine.vintage}">
+            <div class="vortex-bg" aria-hidden="true"></div>
+            ${discPct > 0 ? `<div class="discount-badge">−${discPct}% DESC.</div>` : ''}
+            <div class="product-card__image-wrap">
+              ${wine.imageUrl
+                ? `<img src="${imageSrc}" alt="${wine.name} ${wine.vintage}" loading="lazy" onerror="this.onerror=null;this.src='${fallbackSrc}'">`
+                : `<div class="product-card__image-placeholder">
+                     <span style="font-size:3.5rem;filter:drop-shadow(0 0 20px rgba(212,175,55,0.5))">${icon}</span>
+                   </div>`}
+            </div>
+            <div class="product-card__overlay">
+              <div class="product-card__vintage">${wine.vintage}</div>
+              <div class="product-card__name">${wine.name}</div>
+              ${desc ? `<div class="product-card__desc">${desc}</div>` : ''}
+              <div class="product-card__price-row">
+                <span class="product-card__price">C$${finalPrice.toFixed(2)}</span>
+                ${discPct > 0 ? `<span class="product-card__price-original">C$${wine.price.toFixed(2)}</span>` : ''}
+                <span class="stock-indicator stock-indicator--${stockLevel}"
+                      title="${window.BifrostDB.constructor.stockLabel(wine.stock)}"></span>
+              </div>
+            </div>
+          </article>`;
+      }).join('');
+    }
+
+    async function renderHomepageFeatured() {
+      const grid = document.getElementById('featured-grid');
+      if (!grid) return;
+
+      try {
+        const allWines = await window.BifrostDB.getAllWines();
+        const selected = selectHomepageWines(allWines);
+        const settings = await window.BifrostDB.getSettings() || {};
+        grid.innerHTML = buildHomepageWineCards(selected, settings);
+
+        window.reinitReveal?.();
+        // Re-init 3D effects for newly rendered cards
+        if (typeof initScrollDrift === 'function') initScrollDrift();
+        if (typeof init3DTilt     === 'function') init3DTilt();
+        if (typeof initFloatingFeatured === 'function') initFloatingFeatured();
+      } catch (err) {
+        console.error('Error al cargar vinos destacados:', err);
+        const settings = await window.BifrostDB.getSettings().catch(() => ({})) || {};
+        grid.innerHTML = buildHomepageWineCards(getHomepageFallbackWines(), settings);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await window.BifrostDB.ready();
+      await renderHomepageFeatured();
+    });
+
+    window.addEventListener('wines-updated', () => {
+      renderHomepageFeatured().catch(err => console.warn('featured refresh error:', err));
+    });
+  </script>
+</body>
+
+</html>

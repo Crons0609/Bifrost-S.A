@@ -6,24 +6,35 @@
 /* ── Glass Panel Base ───────────────────────────────────────── */
 .glass {
   background: var(--color-bg-card);
-  backdrop-filter: blur(12px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
   border: 1px solid var(--color-glass-border);
   border-radius: var(--radius-lg);
 }
 
 .glass--strong {
   background: rgba(10, 10, 18, 0.75);
-  backdrop-filter: blur(24px) saturate(200%);
-  -webkit-backdrop-filter: blur(24px) saturate(200%);
   border: 1px solid rgba(212, 175, 55, 0.12);
 }
 
 .glass--light {
   background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass {
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+  }
+
+  .glass--strong {
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+  }
+
+  .glass--light {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
 }
 
 /* ── Glow Effects ───────────────────────────────────────────── */
@@ -340,7 +351,6 @@
 .vortex-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
   animation: floatY 8s ease-in-out infinite;
   pointer-events: none;
   will-change: transform;
@@ -722,7 +732,6 @@ button, a, [role="button"] {
 }
 
 .morph-blob {
-  filter: blur(18px);
   opacity: 0.55;
   animation: blobMorph 14s ease-in-out infinite;
 }
@@ -968,4 +977,39 @@ body.camera-path-active .aurora-bg::before {
     transform: none !important;
     filter: none !important;
   }
+}
+
+html[data-effects-mode="lite"] .particles-layer,
+html[data-effects-mode="lite"] .cursor-spotlight,
+html[data-effects-mode="lite"] .morph-blob,
+html[data-effects-mode="lite"] .morph-ring,
+html[data-effects-mode="lite"] .hero__nebula-grid,
+html[data-effects-mode="lite"] .vortex-orb,
+html[data-effects-mode="lite"] .vortex-bg,
+html[data-effects-mode="lite"] .product-card__desc,
+html[data-effects-mode="lite"] .section-camera::after {
+  display: none !important;
+}
+
+html[data-effects-mode="lite"] .section-camera,
+html[data-effects-mode="lite"] .hero [data-depth],
+html[data-effects-mode="lite"] .product-card,
+html[data-effects-mode="lite"] .value-card,
+html[data-effects-mode="lite"] .drift-left,
+html[data-effects-mode="lite"] .drift-right,
+html[data-effects-mode="lite"] .hero-bottle,
+html[data-effects-mode="lite"] .float-3d-1,
+html[data-effects-mode="lite"] .float-3d-2,
+html[data-effects-mode="lite"] .float-3d-3 {
+  animation: none !important;
+  transition: opacity 0.2s ease, transform 0.2s ease !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+html[data-effects-mode="lite"] .glass,
+html[data-effects-mode="lite"] .glass--strong,
+html[data-effects-mode="lite"] .glass--light {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
