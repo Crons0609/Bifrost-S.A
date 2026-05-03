@@ -3,8 +3,6 @@
    Session Guard & Login Logic
    ============================================================ */
 
-const ADMIN_USER     = 'bifrost@admin';
-const ADMIN_PASS     = 'vortex2024';
 const SESSION_KEY    = 'bifrost_admin_session';
 const SESSION_USER   = 'bifrost_admin_user';
 const SESSION_ROLE   = 'bifrost_admin_role';
@@ -13,11 +11,6 @@ const SESSION_ROLE   = 'bifrost_admin_role';
 const AdminAuth = {
   isLoggedIn() {
     return localStorage.getItem(SESSION_KEY) === 'authenticated';
-  },
-
-  // Sync fallback (initial superadmin)
-  _syncCheck(username, password) {
-    return username === ADMIN_USER && password === ADMIN_PASS;
   },
 
   async loginAsync(username, password) {
@@ -34,14 +27,6 @@ const AdminAuth = {
         }
       }
     } catch (e) { /* fallthrough */ }
-
-    // 2. Fallback: hardcoded superadmin
-    if (this._syncCheck(username, password)) {
-      localStorage.setItem(SESSION_KEY, 'authenticated');
-      localStorage.setItem(SESSION_USER, username);
-      localStorage.setItem(SESSION_ROLE, 'superadmin');
-      return true;
-    }
     return false;
   },
 

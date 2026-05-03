@@ -5,13 +5,39 @@
 
 let adminsCache = [];
 
+function getUniqueAdmins(admins = []) {
+  const byUsername = new Map();
+  (Array.isArray(admins) ? admins : [])
+    .filter(a => a && typeof a === 'object' && a.username)
+    .forEach(admin => {
+      const username = String(admin.username).trim();
+      if (!username || username === 'bifrost@admin') return;
+
+      const existing = byUsername.get(username);
+      if (!existing) {
+        byUsername.set(username, { ...admin, username });
+        return;
+      }
+
+      const existingCreated = new Date(existing.createdAt || 0).getTime() || 0;
+      const currentCreated = new Date(admin.createdAt || 0).getTime() || 0;
+      const existingId = Number(existing.id) || 0;
+      const currentId = Number(admin.id) || 0;
+      if (currentCreated > existingCreated || currentId > existingId) {
+        byUsername.set(username, { ...admin, username });
+      }
+    });
+
+  return Array.from(byUsername.values());
+}
+
 /* ── Bootstrap ───────────────────────────────────────────────── */
 async function initUsersPanel() {
   const tbody = document.querySelector('#admins-table tbody');
   try {
     if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--color-text-muted);">Conectando a Firebase...</td></tr>';
     await window.BifrostDB.ready();
-    adminsCache = await window.BifrostDB.getAllAdmins();
+    adminsCache = getUniqueAdmins(await window.BifrostDB.getAllAdmins());
     renderAdminsTable();
     initUserModal();
   } catch (err) {
@@ -40,7 +66,7 @@ async function initUsersPanel() {
   }
 
   window.addEventListener('admins-updated', async () => {
-    adminsCache = await window.BifrostDB.getAllAdmins();
+    adminsCache = getUniqueAdmins(await window.BifrostDB.getAllAdmins());
     renderAdminsTable();
   });
 }
@@ -52,7 +78,7 @@ function renderAdminsTable() {
 
   const currentUser = window.AdminAuth?.getUser() || '';
 
-  const validAdmins = adminsCache.filter(a => a && typeof a === 'object' && a.username);
+  const validAdmins = getUniqueAdmins(adminsCache);
 
   if (validAdmins.length === 0) {
     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--color-text-muted);">
@@ -69,7 +95,6 @@ function renderAdminsTable() {
   tbody.innerHTML = validAdmins.map(admin => {
     const rc      = roleColors[admin.role] || roleColors.admin;
     const isSelf    = currentUser && admin.username === currentUser;
-    const isRootAdmin = admin.username === 'bifrost@admin'; // El superadmin raíz nunca se puede eliminar
     const dateStr = admin.createdAt
       ? new Date(admin.createdAt).toLocaleDateString('es-NI', { day:'2-digit', month:'short', year:'numeric' })
       : '—';
@@ -123,7 +148,7 @@ function renderAdminsTable() {
                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
             </svg>
           </button>
-          ${(!isSelf && !isRootAdmin) ? `
+          ${!isSelf ? `
             <button class="btn btn--sm btn--danger" onclick="deleteAdminUser(${admin.id})" title="Eliminar">
               <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -145,10 +170,6 @@ async function toggleAdminActive(id) {
   }
   const admin = adminsCache.find(a => a.id === id);
   if (!admin) return;
-  if (admin.username === 'bifrost@admin') {
-    showToast('No puedes modificar al administrador raíz', 'warning');
-    return;
-  }
 
   admin.active = !admin.active;
   await window.BifrostDB.updateAdmin(admin);
@@ -167,10 +188,6 @@ async function deleteAdminUser(id) {
   }
   const admin = adminsCache.find(a => a.id === id);
   if (!admin) return;
-  if (admin.username === 'bifrost@admin') {
-    showToast('No puedes eliminar el administrador raíz del sistema', 'warning');
-    return;
-  }
   if (!confirm(`¿Eliminar al administrador "${admin.username}"? Esta acción no se puede deshacer.`)) return;
 
   try {

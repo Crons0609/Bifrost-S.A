@@ -9,6 +9,7 @@ const STORE_NAME = 'wines';
 const SETTINGS_STORE = 'settings';
 const SALES_STORE    = 'sales';
 const ADMINS_STORE   = 'admins';
+const LEGACY_ROOT_ADMIN = 'bifrost@admin';
 
 /* ── Firebase Web SDK (modo compat CDN) ───────────────────────── */
 const FB_CONFIG = {
@@ -328,11 +329,7 @@ class BifrostDB {
             await this.saveSettings(DEFAULT_SETTINGS);
           }
 
-          // Seed default superadmin if no admins exist
-          const adminCount = await this._countStore(ADMINS_STORE);
-          if (adminCount === 0) {
-            await this._seedDefaultAdmin();
-          }
+          await this._sanitizeAdminsEverywhere();
 
           this._startAdminSync();
           this._startWinesSync();
@@ -360,11 +357,7 @@ class BifrostDB {
       localStorage.setItem('bifrost_sales', '[]');
     }
     if (!localStorage.getItem('bifrost_admins')) {
-      localStorage.setItem('bifrost_admins', JSON.stringify([{
-        id: 1, username: 'bifrost@admin', password: 'vortex2024',
-        role: 'superadmin', active: true,
-        createdAt: new Date().toISOString()
-      }]));
+      localStorage.setItem('bifrost_admins', '[]');
     }
   }
 
@@ -651,14 +644,76 @@ class BifrostDB {
      ADMINISTRADORES
   ═══════════════════════════════════════════════════ */
 
-  async _seedDefaultAdmin() {
-    await this.addAdmin({
-      username:  'bifrost@admin',
-      password:  'vortex2024',
-      role:      'superadmin',
-      active:    true,
-      createdAt: new Date().toISOString(),
-    });
+  _normalizeAdminsList(admins = []) {
+    const byUsername = new Map();
+
+    (Array.isArray(admins) ? admins : [])
+      .filter(admin => admin && typeof admin === 'object' && admin.username)
+      .forEach(admin => {
+        const username = String(admin.username).trim();
+        if (!username || username === LEGACY_ROOT_ADMIN) return;
+
+        const normalized = { ...admin, username };
+        const existing = byUsername.get(username);
+
+        if (!existing) {
+          byUsername.set(username, normalized);
+          return;
+        }
+
+        const existingCreated = new Date(existing.createdAt || 0).getTime() || 0;
+        const currentCreated = new Date(normalized.createdAt || 0).getTime() || 0;
+        const existingId = Number(existing.id) || 0;
+        const currentId = Number(normalized.id) || 0;
+
+        if (currentCreated > existingCreated || currentId > existingId) {
+          byUsername.set(username, normalized);
+        }
+      });
+
+    return Array.from(byUsername.values());
+  }
+
+  async _sanitizeAdminsEverywhere() {
+    await _fbReady;
+
+    if (_fbDb) {
+      try {
+        const snap = await _fbDb.ref('Administradores').get();
+        if (snap.exists()) {
+          const rawAdmins = Object.values(snap.val()).filter(Boolean);
+          const normalizedAdmins = this._normalizeAdminsList(rawAdmins);
+          const normalizedMap = Object.fromEntries(
+            normalizedAdmins.map(admin => [String(admin.id), admin])
+          );
+          await _fbDb.ref('Administradores').set(normalizedMap);
+        }
+      } catch (e) {
+        console.warn('No se pudo sanear administradores en Firebase:', e.message);
+      }
+    }
+
+    const localAdmins = JSON.parse(localStorage.getItem('bifrost_admins') || '[]');
+    localStorage.setItem('bifrost_admins', JSON.stringify(this._normalizeAdminsList(localAdmins)));
+
+    if (this.useIndexedDB && this.db) {
+      const admins = await new Promise((resolve) => {
+        const tx = this.db.transaction(ADMINS_STORE, 'readonly');
+        const req = tx.objectStore(ADMINS_STORE).getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => resolve([]);
+      });
+
+      const normalizedAdmins = this._normalizeAdminsList(admins);
+      await new Promise((resolve, reject) => {
+        const tx = this.db.transaction(ADMINS_STORE, 'readwrite');
+        const store = tx.objectStore(ADMINS_STORE);
+        store.clear();
+        normalizedAdmins.forEach(admin => store.put(admin));
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      }).catch(() => {});
+    }
   }
 
   _countStore(storeName) {
@@ -676,11 +731,12 @@ class BifrostDB {
       if (!_fbDb) return;
       _fbDb.ref('Administradores').on('value', (snap) => {
         if (!snap.exists()) return;
-        const fbAdmins = Object.values(snap.val()).filter(Boolean);
+        const fbAdmins = this._normalizeAdminsList(Object.values(snap.val()).filter(Boolean));
         
         if (this.useIndexedDB) {
            const tx = this.db.transaction(ADMINS_STORE, 'readwrite');
            const store = tx.objectStore(ADMINS_STORE);
+           store.clear();
            fbAdmins.forEach(a => store.put(a));
         } else {
            localStorage.setItem('bifrost_admins', JSON.stringify(fbAdmins));
@@ -720,63 +776,35 @@ class BifrostDB {
         try {
           const snap = await _fbDb.ref('Administradores').get();
           if (snap.exists()) {
-            const fbAdmins = Object.values(snap.val()).filter(Boolean);
-            // Make sure root superadmin is always in the list
-            const hasRoot = fbAdmins.some(a => a.username === 'bifrost@admin');
-            if (!hasRoot) {
-              // Seed root admin to Firebase silently
-              const root = {
-                id: 1, username: 'bifrost@admin', password: 'vortex2024',
-                role: 'superadmin', active: true,
-                createdAt: new Date().toISOString()
-              };
-              fbAdmins.unshift(root);
-              _fbSet('Administradores/1', root).catch(() => {});
-            }
+            const fbAdmins = this._normalizeAdminsList(Object.values(snap.val()).filter(Boolean));
             if (this.useIndexedDB) {
                const tx = this.db.transaction(ADMINS_STORE, 'readwrite');
                const store = tx.objectStore(ADMINS_STORE);
+               store.clear();
                fbAdmins.forEach(a => store.put(a));
             } else {
                localStorage.setItem('bifrost_admins', JSON.stringify(fbAdmins));
             }
             return resolve(fbAdmins);
           } else {
-            // Firebase node doesn't exist yet — seed root admin and return it
-            const root = {
-              id: 1, username: 'bifrost@admin', password: 'vortex2024',
-              role: 'superadmin', active: true,
-              createdAt: new Date().toISOString()
-            };
-            _fbSet('Administradores/1', root).catch(() => {});
-            if (!this.useIndexedDB) {
-              const local = JSON.parse(localStorage.getItem('bifrost_admins') || '[]');
-              const hasLocal = local.some(a => a.username === 'bifrost@admin');
-              if (!hasLocal) local.unshift(root);
-              localStorage.setItem('bifrost_admins', JSON.stringify(local));
-              return resolve(local);
-            }
-            return resolve([root]);
+            const local = this._normalizeAdminsList(JSON.parse(localStorage.getItem('bifrost_admins') || '[]'));
+            localStorage.setItem('bifrost_admins', JSON.stringify(local));
+            return resolve(local);
           }
         } catch(e) { console.warn('Peticion de admins a Firebase fallo, usando cache local', e.message); }
       }
 
       // Fallback: local storage / IndexedDB
       if (!this.useIndexedDB) {
-        const local = JSON.parse(localStorage.getItem('bifrost_admins') || '[]');
-        const hasRoot = local.some(a => a.username === 'bifrost@admin');
-        if (!hasRoot) {
-          local.unshift({ id: 1, username: 'bifrost@admin', password: 'vortex2024',
-            role: 'superadmin', active: true, createdAt: new Date().toISOString() });
-          localStorage.setItem('bifrost_admins', JSON.stringify(local));
-        }
+        const local = this._normalizeAdminsList(JSON.parse(localStorage.getItem('bifrost_admins') || '[]'));
+        localStorage.setItem('bifrost_admins', JSON.stringify(local));
         resolve(local);
         return;
       }
       const tx    = this.db.transaction(ADMINS_STORE, 'readonly');
       const store = tx.objectStore(ADMINS_STORE);
       const req   = store.getAll();
-      req.onsuccess = () => resolve(req.result);
+      req.onsuccess = () => resolve(this._normalizeAdminsList(req.result));
       req.onerror   = () => reject(req.error);
     });
   }
@@ -784,11 +812,15 @@ class BifrostDB {
   addAdmin(admin) {
     return new Promise((resolve, reject) => {
       admin.createdAt = admin.createdAt || new Date().toISOString();
+      if (String(admin.username).trim() === LEGACY_ROOT_ADMIN) {
+        reject(new Error('Legacy root admin is disabled'));
+        return;
+      }
       if (!this.useIndexedDB) {
-        const admins = JSON.parse(localStorage.getItem('bifrost_admins') || '[]');
+        const admins = this._normalizeAdminsList(JSON.parse(localStorage.getItem('bifrost_admins') || '[]'));
         admin.id = Date.now();
         admins.push(admin);
-        localStorage.setItem('bifrost_admins', JSON.stringify(admins));
+        localStorage.setItem('bifrost_admins', JSON.stringify(this._normalizeAdminsList(admins)));
         // Sync to Firebase bajo 'Administradores'
         _fbSet(`Administradores/${admin.id}`, { ...admin }).catch(() => {});
         resolve(admin);
@@ -836,7 +868,7 @@ class BifrostDB {
         const admins = JSON.parse(localStorage.getItem('bifrost_admins') || '[]');
         const idx    = admins.findIndex(a => a.id === admin.id);
         if (idx !== -1) admins[idx] = admin;
-        localStorage.setItem('bifrost_admins', JSON.stringify(admins));
+        localStorage.setItem('bifrost_admins', JSON.stringify(this._normalizeAdminsList(admins)));
         _fbUpdate(`Administradores/${admin.id}`, { ...admin }).catch(() => {});
         resolve(admin);
         return;
@@ -857,7 +889,7 @@ class BifrostDB {
       try {
         const snap = await _fbDb.ref('Administradores').get();
         if (snap.exists()) {
-           const fbAdmins = Object.values(snap.val()).filter(Boolean);
+           const fbAdmins = this._normalizeAdminsList(Object.values(snap.val()).filter(Boolean));
            if (this.useIndexedDB) {
               const tx = this.db.transaction(ADMINS_STORE, 'readwrite');
               const store = tx.objectStore(ADMINS_STORE);

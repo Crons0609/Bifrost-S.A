@@ -1904,6 +1904,14 @@
                   <td>🏆 PVP Sugerido al Público</td>
                   <td id="r-pvp-final">0 NIO</td>
                 </tr>
+                <tr>
+                  <td>🧾 Venta total del lote (todas las botellas)</td>
+                  <td id="r-venta-total-lote">0 NIO</td>
+                </tr>
+                <tr class="total-row subtotal-row" style="color:var(--teal);">
+                  <td>💸 Ganancia total del lote (si se vende completo)</td>
+                  <td id="r-ganancia-total-lote">0 NIO</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -2405,7 +2413,7 @@
         const zeroFields = ['r-litros-brutos', 'r-litros-angel', 'r-litros-lias', 'r-litros-netos',
           'r-botellas', 'r-cpt', 'r-costo-litro', 'r-costo-vino', 'r-envasado', 'r-caja-prorr',
           'r-ex-works', 'r-mkt', 'r-costo-com', 'r-pvp-antes', 'r-isc', 'r-iva-item',
-          'r-costo-total-sin-pvp', 'r-pvp-final', 'r-pvp-usd', 'eq-botellas-min',
+          'r-costo-total-sin-pvp', 'r-pvp-final', 'r-venta-total-lote', 'r-ganancia-total-lote', 'r-pvp-usd', 'eq-botellas-min',
           'eq-botellas-total', 'eq-botellas-util'];
         zeroFields.forEach(id => { if ($(id)) $(id).textContent = '0'; });
         if ($('r-litros-brutos')) $('r-litros-brutos').textContent = fmt(litroBrutos, 1) + ' L';
@@ -2442,6 +2450,8 @@
       pvpReal = pvpFinal;
       const pvpUSD = pvpFinal / tc;
       const margenReal = pvpFinal > 0 ? ((pvpFinal - exWorks) / pvpFinal * 100) : 0;
+      const ventaTotalLote = pvpFinal * totalBotellas;
+      const gananciaTotalLote = ventaTotalLote - CPT;
 
       // ─ PUNTO DE EQUILIBRIO ─
       const varUnit = exWorks;
@@ -2483,6 +2493,8 @@
 
       if ($('r-costo-total-sin-pvp')) $('r-costo-total-sin-pvp').textContent = fmt(costoCom) + ' NIO';
       if ($('r-pvp-final')) $('r-pvp-final').textContent = fmt(pvpFinal) + ' NIO';
+      if ($('r-venta-total-lote')) $('r-venta-total-lote').textContent = fmt(ventaTotalLote) + ' NIO';
+      if ($('r-ganancia-total-lote')) $('r-ganancia-total-lote').textContent = fmt(gananciaTotalLote) + ' NIO';
 
       if ($('hero-pvp-nio')) $('hero-pvp-nio').textContent = fmt(pvpFinal) + ' NIO';
       if ($('hero-pvp-usd')) $('hero-pvp-usd').textContent = '≈ USD $' + fmt(pvpUSD);
