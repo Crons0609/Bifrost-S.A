@@ -883,16 +883,22 @@ function initMobileMenu() {
   const sidebar   = document.querySelector('.admin-sidebar');
 
   if (!toggleBtn || !sidebar) return;
+  if (toggleBtn.dataset.mobileMenuBound === 'true') return;
 
-  toggleBtn.addEventListener('click', () => {
+  toggleBtn.dataset.mobileMenuBound = 'true';
+
+  toggleBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     sidebar.classList.toggle('mobile-open');
   });
 
   // Close on outside click
   document.addEventListener('click', (e) => {
+    const clickedToggle = e.target instanceof Element && e.target.closest('#sidebar-toggle');
     if (sidebar.classList.contains('mobile-open') &&
         !sidebar.contains(e.target) &&
-        e.target !== toggleBtn) {
+        !clickedToggle) {
       sidebar.classList.remove('mobile-open');
     }
   });

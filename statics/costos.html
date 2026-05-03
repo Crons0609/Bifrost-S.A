@@ -223,12 +223,22 @@
     .topbar__logo {
       width: 36px;
       height: 36px;
-      background: var(--gold-dim);
-      border-radius: 50%;
+      background: rgba(212, 175, 55, 0.08);
+      border-radius: 10px;
+      border: 1px solid rgba(212, 175, 55, 0.18);
+      padding: 0.35rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.2rem;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .topbar__logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
     }
 
     .topbar__title {
@@ -1151,19 +1161,180 @@
 
     /* ── Print ── */
     @media print {
+      @page {
+        size: A4 portrait;
+        margin: 12mm;
+      }
 
       #auth-gate,
-      .topbar__actions {
+      .topbar__actions,
+      .sidebar {
         display: none !important;
       }
 
+      html,
       body {
         background: #fff;
         color: #000;
+        overflow: visible !important;
+      }
+
+      body::before {
+        display: none !important;
+      }
+
+      #app {
+        display: block;
+      }
+
+      .topbar {
+        position: static;
+        top: auto;
+        z-index: auto;
+        padding: 0 0 10mm;
+        margin: 0 0 8mm;
+        border-bottom: 1px solid #d7d7d7;
+        background: #fff;
+        backdrop-filter: none;
+        page-break-after: avoid;
+        break-after: avoid-page;
+      }
+
+      .topbar__logo {
+        width: 56px;
+        height: 56px;
+        padding: 0.45rem;
+        background: #fff8e1;
+        border: 1px solid rgba(212, 175, 55, 0.35);
+      }
+
+      .topbar__title {
+        color: #b48811;
+        font-size: 1.35rem;
+      }
+
+      .topbar__subtitle {
+        color: #4b4b4b;
+        font-size: 0.84rem;
+      }
+
+      .main-grid {
+        display: block;
+        min-height: auto;
+      }
+
+      .content {
+        display: block;
+        padding: 0;
+        overflow: visible !important;
+      }
+
+      .animate-in {
+        animation: none !important;
+        transform: none !important;
+        opacity: 1 !important;
       }
 
       .card {
-        border: 1px solid #ccc;
+        background: #fff;
+        border: 1px solid #d6d6d6;
+        break-inside: avoid-page;
+        page-break-inside: avoid;
+        box-shadow: none;
+        margin-bottom: 8mm;
+      }
+
+      .card__header,
+      .pvp-hero,
+      .cascade-grid,
+      .table-responsive,
+      .chart-wrap,
+      .eq-summary {
+        break-inside: avoid-page;
+        page-break-inside: avoid;
+      }
+
+      .cost-block,
+      .pvp-badge {
+        background: #fff !important;
+        border: 1px solid #e1e1e1;
+        break-inside: avoid-page;
+        page-break-inside: avoid;
+      }
+
+      .card__title,
+      .cost-block__label,
+      .section-label {
+        color: #4c4c4c !important;
+      }
+
+      .cost-block__sub,
+      .pvp-hero__desc,
+      .tag,
+      .text-muted {
+        color: #666 !important;
+      }
+
+      .breakdown-table,
+      .sb-table,
+      .activos-registry-table {
+        width: 100%;
+      }
+
+      .breakdown-table tr,
+      .sb-table tr,
+      .activos-registry-table tr,
+      .breakdown-table td,
+      .sb-table td,
+      .activos-registry-table td,
+      .breakdown-table th,
+      .sb-table th,
+      .activos-registry-table th {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .breakdown-table thead,
+      .sb-table thead,
+      .activos-registry-table thead {
+        display: table-header-group;
+      }
+
+      .breakdown-table tbody,
+      .sb-table tbody,
+      .activos-registry-table tbody {
+        display: table-row-group;
+      }
+
+      .pvp-hero {
+        grid-template-columns: 1fr auto;
+        background: #fffaf0;
+        border: 1px solid rgba(212, 175, 55, 0.35);
+      }
+
+      .chart-wrap canvas {
+        max-height: 170mm !important;
+      }
+
+      .sb-block,
+      .sb-save-sticky {
+        display: none !important;
+      }
+
+      a,
+      a:visited {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .topbar,
+      .card,
+      .pvp-hero,
+      .cascade-grid,
+      .breakdown-table,
+      .table-responsive {
+        orphans: 3;
+        widows: 3;
       }
     }
 
@@ -1395,7 +1566,9 @@
     <!-- Topbar -->
     <header class="topbar">
       <div class="topbar__brand">
-        <div class="topbar__logo">🍷</div>
+        <div class="topbar__logo">
+          <img src="../assets/images/ui/bifrost-logo.png" alt="Bifrost logo">
+        </div>
         <div>
           <div class="topbar__title">Maestro de Costos Bifrost</div>
           <div class="topbar__subtitle">Sistema ERP Contable · Bodega de Lujo</div>
@@ -1407,7 +1580,7 @@
           <span class="theme-icon"></span>
           <span class="theme-label" style="font-size:0.72rem;">Modo Claro</span>
         </button>
-        <button class="btn btn--outline" onclick="window.print()">🖨️ Exportar PDF</button>
+        <button class="btn btn--outline" onclick="exportCostosPDF()">🖨️ Exportar PDF</button>
         <a href="admin-dashboard.html" class="btn btn--outline">← Dashboard</a>
       </div>
     </header>
@@ -1425,7 +1598,9 @@
             <span class="sb-block__badge" id="sb-receta-badge">Cargar receta</span>
           </div>
           <div class="sb-load-row">
-            <select id="sel-recipe-lujo" class="sb-select"></select>
+            <select id="sel-recipe-lujo" class="sb-select">
+              <option value="">— Cargando historial —</option>
+            </select>
             <button class="btn btn--gold btn--sm" onclick="cargarRecetaLujo()">
               <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -2741,9 +2916,9 @@
     async function _fb_loadRecetasFromFirebase() {
       try {
         const res = await fetch(`${_FB_BASE}/recetas_lujo.json`);
-        if (!res.ok) return;
+        if (!res.ok) return false;
         const data = await res.json();
-        if (!data) return;
+        if (!data) return false;
 
         const fbRecetas = Object.values(data).filter(Boolean);
 
@@ -2755,7 +2930,11 @@
         localStorage.setItem(_LUJO_KEY, JSON.stringify(merged));
         _lujo_populateSelector();
         renderHistorialLujo();
-      } catch (e) { /* offline — usar localStorage */ }
+        return true;
+      } catch (e) {
+        console.warn('No se pudo cargar historial desde Firebase:', e);
+        return false;
+      }
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -2856,10 +3035,16 @@
       if (!sel) return;
       const lujos = _lujo_getRecetas().map(r => `<option value="l_${r.id}">👑 ${r.nombre} (${r.fecha || '?'})</option>`);
       const simples = _simple_getRecetas().map(s => `<option value="s_${s.id}">📝 ${s.nombre} (Simplificado)</option>`);
+      const hasAny = lujos.length > 0 || simples.length > 0;
+
+      if (!hasAny) {
+        sel.innerHTML = '<option value="">— No hay historial guardado —</option>';
+        return;
+      }
 
       sel.innerHTML = '<option value="">— Seleccionar —</option>' +
-        '<optgroup label="Proyectos Bifrost">' + lujos.join('') + '</optgroup>' +
-        '<optgroup label="Recetas Simplificadas">' + simples.join('') + '</optgroup>';
+        (lujos.length ? '<optgroup label="Proyectos Bifrost">' + lujos.join('') + '</optgroup>' : '') +
+        (simples.length ? '<optgroup label="Recetas Simplificadas">' + simples.join('') + '</optgroup>' : '');
     }
 
     function cargarRecetaLujo() {
@@ -3007,20 +3192,35 @@
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
-      cargarUnitarios();
-      cargarActivos();
-      actualizarLote();
-      renderUnitarios();
-      renderMP();
-      renderCIF();
-      renderActivos();
-      calcular();
       _lujo_populateSelector();
       renderHistorialLujo();
-      _cargarVinosEcommerce();
-      // Sincronizar desde Firebase (en background, no bloquea UI)
-      _fb_loadRecetasFromFirebase();
-      _fb_loadActivosFromFirebase();
+
+      const safeRun = (label, fn) => {
+        try {
+          return fn();
+        } catch (e) {
+          console.warn(`Init step failed: ${label}`, e);
+          return null;
+        }
+      };
+
+      safeRun('cargarUnitarios', () => cargarUnitarios());
+      safeRun('cargarActivos', () => cargarActivos());
+      safeRun('actualizarLote', () => actualizarLote());
+      safeRun('renderUnitarios', () => renderUnitarios());
+      safeRun('renderMP', () => renderMP());
+      safeRun('renderCIF', () => renderCIF());
+      safeRun('renderActivos', () => renderActivos());
+      safeRun('calcular', () => calcular());
+
+      await Promise.allSettled([
+        safeRun('cargarVinosEcommerce', () => _cargarVinosEcommerce()),
+        safeRun('fb_loadActivosFromFirebase', () => _fb_loadActivosFromFirebase()),
+        safeRun('fb_loadRecetasFromFirebase', () => _fb_loadRecetasFromFirebase())
+      ]);
+
+      safeRun('postPopulateSelector', () => _lujo_populateSelector());
+      safeRun('postRenderHistorial', () => renderHistorialLujo());
 
       // Update historial badge when selector changes
       const sel = document.getElementById('sel-recipe-lujo');
@@ -3041,7 +3241,11 @@
       if (!block) return;
       block.classList.toggle('open');
     }
+
+    window.cargarRecetaLujo = cargarRecetaLujo;
+    window.renderHistorialLujo = renderHistorialLujo;
   </script>
+  <script src="../js/costos-export.js"></script>
 </body>
 
 </html>
