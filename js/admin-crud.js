@@ -255,6 +255,11 @@ async function _autoSyncDeProduccionAInventario() {
 
 /* ── Navigation ──────────────────────────────────────────────── */
 function initNavigation() {
+  const adminsLink = document.querySelector('.admin-nav-link[data-panel="admins"]');
+  if (adminsLink && !window.AdminAuth?.canAccessAdminsPanel?.()) {
+    adminsLink.style.display = 'none';
+  }
+
   const links = document.querySelectorAll('.admin-nav-link[data-panel]');
   links.forEach(link => {
     link.addEventListener('click', () => {
@@ -269,6 +274,11 @@ function initNavigation() {
 }
 
 function switchPanel(panel) {
+  if (panel === 'admins' && !window.AdminAuth?.canAccessAdminsPanel?.()) {
+    showToast('Solo los superadministradores pueden entrar al apartado de Administradores', 'warning');
+    panel = 'inventory';
+  }
+
   currentPanel = panel;
 
   document.querySelectorAll('.admin-nav-link[data-panel]').forEach(l => {

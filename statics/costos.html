@@ -2832,6 +2832,8 @@
 
       const exw = $('r-ex-works')?.textContent || '—';
       const cpt = $('r-cpt')?.textContent || '—';
+      const ventaTotalLote = $('r-venta-total-lote')?.textContent || '—';
+      const gananciaTotalLote = $('r-ganancia-total-lote')?.textContent || '—';
 
       const recetas = _lujo_getRecetas();
       const existIdx = recetas.findIndex(r => r.nombre === nombre);
@@ -2847,6 +2849,8 @@
         res_exw: exw,
         res_bots: bots,
         res_cpt: cpt,
+        res_venta_total_lote: ventaTotalLote,
+        res_ganancia_total_lote: gananciaTotalLote,
       };
 
       if (existIdx !== -1) { recetas[existIdx] = receta; }

@@ -653,7 +653,12 @@ class BifrostDB {
         const username = String(admin.username).trim();
         if (!username || username === LEGACY_ROOT_ADMIN) return;
 
-        const normalized = { ...admin, username };
+        const rawInvestment = Number(admin.investmentNio ?? admin.inversionNio ?? admin.aporteNio ?? 0);
+        const normalized = {
+          ...admin,
+          username,
+          investmentNio: Number.isFinite(rawInvestment) ? rawInvestment : 0,
+        };
         const existing = byUsername.get(username);
 
         if (!existing) {

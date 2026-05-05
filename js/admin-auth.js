@@ -20,6 +20,13 @@ const AdminAuth = {
         await window.BifrostDB.ready();
         const admin = await window.BifrostDB.verifyAdmin(username, password);
         if (admin) {
+          try {
+            admin.lastLogin = new Date().toISOString();
+            await window.BifrostDB.updateAdmin(admin);
+          } catch (updateErr) {
+            console.warn('No se pudo actualizar el último acceso del admin:', updateErr);
+          }
+
           localStorage.setItem(SESSION_KEY, 'authenticated');
           localStorage.setItem(SESSION_USER, admin.username);
           localStorage.setItem(SESSION_ROLE, admin.role || 'admin');
@@ -60,6 +67,10 @@ const AdminAuth = {
 
   isSuperAdmin() {
     return this.getRole() === 'superadmin';
+  },
+
+  canAccessAdminsPanel() {
+    return this.isSuperAdmin();
   }
 };
 

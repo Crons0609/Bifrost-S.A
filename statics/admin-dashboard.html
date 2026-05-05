@@ -799,7 +799,7 @@
             <div>
               <h2 class="admin-panel__title">Administradores</h2>
               <p style="color:var(--color-text-muted);font-size:var(--fs-sm);margin-top:4px;">
-                Solo superadministradores pueden agregar o eliminar accesos.
+                Solo superadministradores pueden agregar o eliminar accesos. Aquí también se controla el capital aportado y la participación accionaria en NIO.
               </p>
             </div>
             <div class="admin-panel__actions">
@@ -818,6 +818,9 @@
                 <tr>
                   <th>Usuario</th>
                   <th>Rol</th>
+                  <th>Inversión</th>
+                  <th>Acciones</th>
+                  <th>Ganancia Est.</th>
                   <th>Creado</th>
                   <th>Estado</th>
                   <th>Último acceso</th>
@@ -826,10 +829,74 @@
               </thead>
               <tbody>
                 <tr>
-                  <td colspan="6" style="text-align:center;padding:40px;color:var(--color-text-muted);">Cargando…</td>
+                  <td colspan="9" style="text-align:center;padding:40px;color:var(--color-text-muted);">Cargando…</td>
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <div id="admins-finance-board" style="margin-top:var(--space-6);display:grid;gap:var(--space-6);">
+            <div class="admin-stats-grid">
+              <div class="admin-stat-card">
+                <div class="admin-stat-card__label">Capital Total Aportado</div>
+                <div class="admin-stat-card__value gold" id="admins-total-investment">C$ 0.00</div>
+                <div class="admin-stat-card__sub">Suma de aportes registrados por administrador</div>
+              </div>
+              <div class="admin-stat-card">
+                <div class="admin-stat-card__label">Socios con Aporte</div>
+                <div class="admin-stat-card__value success" id="admins-investors-count">0</div>
+                <div class="admin-stat-card__sub">Administradores con inversión mayor a cero</div>
+              </div>
+              <div class="admin-stat-card">
+                <div class="admin-stat-card__label">Utilidad Maestro de Costos</div>
+                <div class="admin-stat-card__value" id="admins-master-profit" style="color:#45A29E;">C$ 0.00</div>
+                <div class="admin-stat-card__sub">Utilidad proyectada de lotes guardados</div>
+              </div>
+              <div class="admin-stat-card">
+                <div class="admin-stat-card__label">Utilidad a Repartir</div>
+                <div class="admin-stat-card__value" id="admins-profit-pool-kpi" style="color:#9B6DD9;">C$ 0.00</div>
+                <div class="admin-stat-card__sub">Base usada para distribuir acciones y ganancias</div>
+              </div>
+            </div>
+
+            <div class="admin-panel">
+              <div class="admin-panel__header">
+                <div>
+                  <h3 class="admin-panel__title">Calculadora de Acciones y Ganancia</h3>
+                  <p id="admins-finance-note" style="color:var(--color-text-muted);font-size:var(--fs-sm);margin-top:4px;">
+                    La distribución se calcula con base en el capital aportado por cada administrador.
+                  </p>
+                </div>
+                <div class="admin-panel__actions" style="align-items:flex-end;gap:var(--space-3);">
+                  <div class="form-group" style="margin:0;min-width:240px;">
+                    <label class="form-label" for="admin-profit-pool">Utilidad a repartir (NIO)</label>
+                    <input type="number" id="admin-profit-pool" class="form-input" min="0" step="0.01" placeholder="0.00">
+                  </div>
+                  <button id="admin-profit-sync-btn" type="button" class="btn btn--outline">Usar utilidad del maestro</button>
+                </div>
+              </div>
+
+              <div class="admin-table-wrap">
+                <table class="admin-table" id="admins-shares-table" aria-label="Distribución de acciones y ganancia">
+                  <thead>
+                    <tr>
+                      <th>Administrador</th>
+                      <th>Capital</th>
+                      <th>% Accionario</th>
+                      <th>Ganancia Proyectada</th>
+                      <th>ROI Est.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td colspan="5" style="text-align:center;padding:32px;color:var(--color-text-muted);">
+                        Cargando distribución accionaria…
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
           <!-- ════════════ TELEGRAM CHAT PANEL ════════════ -->
@@ -1263,6 +1330,11 @@
             </select>
           </div>
 
+          <div class="form-group">
+            <label class="form-label" for="user-investment">Aporte de Capital (NIO)</label>
+            <input type="number" id="user-investment" class="form-input" placeholder="6000" min="0" step="0.01">
+          </div>
+
           <div class="form-group" id="user-password-group">
             <label class="form-label" for="user-password">Contraseña *</label>
             <input type="password" id="user-password" class="form-input" placeholder="Mínimo 6 caracteres">
@@ -1319,6 +1391,12 @@
     if (origSwitch) {
       const _orig = origSwitch;
       window.switchPanel = function (panel) {
+        if (panel === 'admins' && !window.AdminAuth?.canAccessAdminsPanel?.()) {
+          window.showToast?.('Solo los superadministradores pueden entrar al apartado de Administradores', 'warning');
+          _orig('inventory');
+          return;
+        }
+
         _orig(panel);
         const extra = {
           sales: 'Panel de Ventas',
